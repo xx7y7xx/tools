@@ -8,8 +8,6 @@ import Warning from './Warning';
 import Map from './Map';
 import SearchTrain from './searchTrain';
 
-// Styles for antd
-// import "antd/dist/antd.css";
 // Styles for application
 import './index.css';
 
