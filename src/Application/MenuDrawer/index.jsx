@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Drawer } from 'antd';
 import PubSub from 'pubsub-js';
 
@@ -10,73 +10,58 @@ export const OPEN_DRAWER_TOPIC = 'menudrawer.open';
 // Open or close it according to the state
 export const OPEN_CLOSE_DRAWER_TOPIC = 'menudrawer.openclose';
 
-export default class MenuDrawer extends Component {
-  state = {
-    drawerVisible: false,
-  };
+const MenuDrawer = (props) => {
+  const [drawerVisible, setDrawerVisible] = useState(false);
 
-  componentDidMount() {
-    this.addSubscribers();
-  }
+  useEffect(() => {
+    const openDrawerSubscriber = (msg) => {
+      setDrawerVisible(true);
+    };
 
-  componentWillUnmount() {
-    this.removeSubscribers();
-  }
+    const openCloseDrawerSubscriber = (msg) => {
+      setDrawerVisible(!drawerVisible);
+    };
 
-  handleDrawerClose = () => {
-    this.setVisible(false);
-  };
-
-  setVisible = (visible) => {
-    this.setState({ drawerVisible: visible });
-  };
-
-  openDrawerSubscriber = (msg) => {
-    this.setVisible(true);
-  };
-
-  openCloseDrawerSubscriber = (msg) => {
-    this.setVisible(!this.state.drawerVisible);
-  };
-
-  addSubscribers = () => {
-    this.openDrawerToken = PubSub.subscribe(
+    const openDrawerToken = PubSub.subscribe(
       OPEN_DRAWER_TOPIC,
-      this.openDrawerSubscriber
+      openDrawerSubscriber
     );
-    this.openCloseDrawerToken = PubSub.subscribe(
+    const openCloseDrawerToken = PubSub.subscribe(
       OPEN_CLOSE_DRAWER_TOPIC,
-      this.openCloseDrawerSubscriber
+      openCloseDrawerSubscriber
     );
+
+    return () => {
+      PubSub.unsubscribe(openDrawerToken);
+      PubSub.unsubscribe(openCloseDrawerToken);
+    };
+  }, [drawerVisible]);
+
+  const handleDrawerClose = () => {
+    setDrawerVisible(false);
   };
 
-  removeSubscribers = () => {
-    PubSub.unsubscribe(this.openDrawerToken);
-  };
+  return (
+    <div className='menu-drawer'>
+      <Drawer
+        className='menu-drawer'
+        width={'50%'}
+        title='This is a drawer'
+        placement='left'
+        closable={false}
+        forceRender
+        open={drawerVisible}
+        onClose={handleDrawerClose}
+      >
+        <GoogleLogin
+          clientId={gapiOAuthClientId}
+          onLoginSuccess={props.onLoginSuccess}
+          onRenderFinish={props.onRenderFinish}
+          onSignedOut={props.onSignedOut}
+        />
+      </Drawer>
+    </div>
+  );
+};
 
-  render() {
-    const { drawerVisible } = this.state;
-
-    return (
-      <div className='menu-drawer'>
-        <Drawer
-          className='menu-drawer'
-          width={'50%'}
-          title='This is a drawer'
-          placement='left'
-          closable={false}
-          forceRender
-          open={drawerVisible}
-          onClose={this.handleDrawerClose}
-        >
-          <GoogleLogin
-            clientId={gapiOAuthClientId}
-            onLoginSuccess={this.props.onLoginSuccess}
-            onRenderFinish={this.props.onRenderFinish}
-            onSignedOut={this.props.onSignedOut}
-          />
-        </Drawer>
-      </div>
-    );
-  }
-}
+export default MenuDrawer;
