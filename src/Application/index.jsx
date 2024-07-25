@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   // initGa,
@@ -11,64 +11,54 @@ import SearchTrain from './searchTrain';
 // Styles for application
 import './index.css';
 
-export default class Application extends Component {
-  state = {
-    gapiLoaded: false, // Google API loaded or not
-    gapiClientLoading: false,
-  };
+export default function Application() {
+  const [gapiLoaded, setGapiLoaded] = useState(false);
+  const [gapiClientLoading, setGapiClientLoading] = useState(false);
 
-  componentDidMount() {
-    this.initApplication();
-  }
+  useEffect(() => {
+    initApplication();
+  }, []);
 
-  initApplication = () => {
+  const initApplication = () => {
     // initGa();
 
     // window.gapiLoadedFlag is defined in public/index.html
     // This flag is true only when Google API's platform.js is loaded, then we can use window.gapi
     if (window.gapiLoadedFlag) {
-      this.setState({
-        gapiLoaded: true,
-      });
-      this.loadGapiClient();
+      setGapiLoaded(true);
+      loadGapiClient();
     }
   };
 
-  loadGapiClient = () => {
-    this.setState({
-      gapiClientLoading: true,
-    });
+  const loadGapiClient = () => {
+    setGapiClientLoading(true);
     initGapiClient().then(() => {
-      this.setState({
-        gapiClientLoading: false,
-      });
+      setGapiClientLoading(false);
     });
   };
 
-  render() {
-    if (!this.state.gapiLoaded) {
-      return <Warning />;
-    }
-
-    if (this.state.gapiClientLoading) {
-      return <div>gapi client lib is loading</div>;
-    }
-
-    const urlParams = new URLSearchParams(window.location.search);
-
-    return (
-      <div className='application xx7y7xx-tools'>
-        <Map />
-        {urlParams.get('app') === 'trainSearch' ? (
-          <SearchTrain date={urlParams.get('date')} />
-        ) : (
-          <div>
-            <div>
-              <a href='/tools?app=trainSearch'>TrainSearch</a>
-            </div>
-          </div>
-        )}
-      </div>
-    );
+  if (!gapiLoaded) {
+    return <Warning />;
   }
+
+  if (gapiClientLoading) {
+    return <div>gapi client lib is loading</div>;
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+
+  return (
+    <div className='application xx7y7xx-tools'>
+      <Map />
+      {urlParams.get('app') === 'trainSearch' ? (
+        <SearchTrain date={urlParams.get('date')} />
+      ) : (
+        <div>
+          <div>
+            <a href='/tools?app=trainSearch'>TrainSearch</a>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
