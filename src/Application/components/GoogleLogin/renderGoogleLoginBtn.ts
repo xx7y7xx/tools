@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 export default function renderGoogleLoginBtn(props, auth2) {
   console.debug('renderGoogleLoginBtn()', props, auth2);
 

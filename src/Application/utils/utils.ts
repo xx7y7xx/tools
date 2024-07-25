@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 export const chunk = (array, length) => {
   const chunks = [];
   var i, j;

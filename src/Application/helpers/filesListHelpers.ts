@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { files, filesGet, filesList } from '../utils/gDriveFilesApi';
 
 const filesFields = [

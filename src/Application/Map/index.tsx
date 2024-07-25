@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import React, { useState } from 'react';
 import { Button, message } from 'antd';
 import PubSub from 'pubsub-js';

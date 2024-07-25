@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import React, { useEffect, useState } from 'react';
 import { Drawer } from 'antd';
 import PubSub from 'pubsub-js';
