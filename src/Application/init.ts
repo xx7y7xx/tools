@@ -8,6 +8,12 @@
 //   });
 // };
 
+declare global {
+  interface Window {
+    gapi: any;
+  }
+}
+
 /**
  * After gapi.client is loaded by gapi.load('client'), then you could use method like:
  * ```
@@ -18,7 +24,7 @@
  * @returns {Promise<undefined>}
  */
 export const initGapiClient = () =>
-  new Promise((resolve, reject) => {
+  new Promise<void>((resolve, reject) => {
     window.gapi.load('client', () => {
       resolve();
     });

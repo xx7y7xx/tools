@@ -8,7 +8,7 @@ import gapiRequest from './gapiRequest';
  *
  * @returns {Promise<FilesGetResponse>}
  */
-export const filesGet = async (params) => {
+export const filesGet = async (params: { fileId: string; alt?: string }) => {
   if (params.alt) {
     return await gapiRequest({
       path: `https://www.googleapis.com/drive/v3/files/${params.fileId}?alt=${params.alt}`,
@@ -75,7 +75,19 @@ export const filesGet = async (params) => {
  * API: https://developers.google.com/drive/api/v3/reference/files/list#request
  * @returns {Promise<FilesListResponse>}
  */
-export const filesList = async (params) =>
+export const filesList = async (params: {
+  q?: string;
+  pageSize?: number;
+  fields?: string;
+  orderBy?: string;
+  pageToken?: string;
+  spaces?: string;
+  corpora?: string;
+  driveId?: string;
+  includeItemsFromAllDrives?: boolean;
+  supportsAllDrives?: boolean;
+  includeTeamDriveItems?: boolean;
+}) =>
   await gapiRequest({
     path: 'https://www.googleapis.com/drive/v3/files',
     params,

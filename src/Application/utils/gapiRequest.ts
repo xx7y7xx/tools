@@ -5,11 +5,11 @@
  * @param {*} requestOpts
  * @returns
  */
-export default function gapiRequest(requestOpts) {
+export default function gapiRequest(requestOpts: any) {
   return new Promise((resolve, reject) => {
     // https://github.com/google/google-api-javascript-client/blob/master/docs/reference.md#----gapiclientrequestargs--
     var restRequest = window.gapi.client.request(requestOpts);
-    restRequest.execute((resp) => {
+    restRequest.execute((resp: any) => {
       resolve(resp);
     });
   });
