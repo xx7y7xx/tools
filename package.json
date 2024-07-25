@@ -2,7 +2,7 @@
   "name": "tools",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://github.com/xx7y7xx/tools",
+  "homepage": "https://xx7y7xx.github.io/tools",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
