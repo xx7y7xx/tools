@@ -25,3 +25,17 @@ export const getTrainsData = async (folderId: string, date: string) => {
       });
   });
 };
+
+export const searchTrainByNum = (
+  isExactMatch: boolean,
+  trainNumber: string, // e.g. K1331
+  trainNum: string // e.g. 1331
+) => {
+  if (!isExactMatch) {
+    // "1" will match "G1" and "G12"
+    return trainNumber.includes(trainNum);
+  }
+  // "1" will match "G1" or "K1", but not match "G12"
+  const regex = new RegExp(`^[A-Z]${trainNum}$`);
+  return regex.test(trainNumber);
+};
