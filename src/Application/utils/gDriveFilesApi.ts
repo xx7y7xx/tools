@@ -1,5 +1,23 @@
 import gapiRequest from './gapiRequest';
 
+type File = {
+  id: string;
+  name: string;
+  imageMediaMetadata: {
+    location: {
+      altitude: number;
+      latitude: number;
+      longitude: number;
+    };
+  };
+  thumbnailLink: string;
+  webContentLink: string;
+  webViewLink: string;
+};
+export type FilesListResponse = {
+  files: File[];
+};
+
 /**
  * Get one single file from Google Drive according to fileId
  * API: https://developers.google.com/drive/api/v3/reference/files/get#request

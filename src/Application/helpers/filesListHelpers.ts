@@ -1,6 +1,11 @@
 // @ts-nocheck
 
-import { files, filesGet, filesList } from '../utils/gDriveFilesApi';
+import {
+  files,
+  filesGet,
+  filesList,
+  FilesListResponse,
+} from '../utils/gDriveFilesApi';
 
 const filesFields = [
   'files/imageMediaMetadata/location',
@@ -67,7 +72,9 @@ export const getPrivatePhotos = async (setMediaItems) => {
   return resp.files;
 };
 
-export const getJsonFilesInFolder = async (folderId) =>
+export const getJsonFilesInFolder = async (
+  folderId
+): Promise<FilesListResponse> =>
   await files.list({
     q: `'${folderId}' in parents and mimeType='application/json'`,
     fields: `${filesFields},files/id,files/name`,

@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import React, { useState } from 'react';
 import { Button, message } from 'antd';
 import PubSub from 'pubsub-js';
@@ -9,29 +7,31 @@ import Message from '../components/Message';
 import MenuDrawer, { OPEN_DRAWER_TOPIC } from '../MenuDrawer';
 import { files } from '../utils/gDriveFilesApi';
 
-export default function Map(props) {
-  const [state, setState] = useState({
-    message: 'Rendering Google login button on left side panel...',
-  });
+interface MapProps {
+  // Define your props here
+}
+
+export default function Map(props: MapProps) {
+  const [msg, setMsg] = useState(
+    'Rendering Google login button on left side panel...'
+  );
 
   // GoogleLogin button render finished
   function handleRenderFinish() {
-    setState({ message: '' });
+    setMsg('');
   }
 
   /**
    * User success signed in Google account.
    * @param {gapi.auth2.GoogleUser} user
    */
-  async function handleLoginSuccess(user) {
+  async function handleLoginSuccess(user: gapi.auth2.GoogleUser) {
     // ReactGA.event({
     //   category: 'Auth',
     //   action: 'User login',
     // });
 
-    setState({
-      message: '',
-    });
+    setMsg('');
 
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('app') === 'trainSearch') {
@@ -52,7 +52,7 @@ export default function Map(props) {
               .then((resp) => {
                 console.log('[TrainSearch] files.get resp', f.name, resp);
                 message.success(`Load ${f.name} successfully`);
-                window.PM_trainsMap[f.name] = resp;
+                (window as any).PM_trainsMap[f.name] = resp;
               });
           });
       });
@@ -73,12 +73,11 @@ export default function Map(props) {
 
   return (
     <div className='map-wrapper'>
-      <Message message={state.message} />
+      <Message message={msg} />
       <div className='menu-btn-wrapper'>
         <Button onClick={handleDrawerOpen}>Menu</Button>
       </div>
       <MenuDrawer
-        selectedMap={state.selectedMap}
         onRenderFinish={handleRenderFinish}
         onLoginSuccess={handleLoginSuccess}
         onSignedOut={handleSignedOut}

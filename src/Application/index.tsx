@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import React, { useEffect, useState } from 'react';
 
 import {
@@ -26,7 +24,7 @@ export default function Application() {
 
     // window.gapiLoadedFlag is defined in public/index.html
     // This flag is true only when Google API's platform.js is loaded, then we can use window.gapi
-    if (window.gapiLoadedFlag) {
+    if ((window as any).gapiLoadedFlag) {
       setGapiLoaded(true);
       loadGapiClient();
     }
@@ -53,7 +51,7 @@ export default function Application() {
     <div className='application xx7y7xx-tools'>
       <Map />
       {urlParams.get('app') === 'trainSearch' ? (
-        <SearchTrain date={urlParams.get('date')} />
+        <SearchTrain date={urlParams.get('date') || ''} />
       ) : (
         <div>
           <div>
