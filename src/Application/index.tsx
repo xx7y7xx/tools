@@ -17,10 +17,6 @@ export default function Application() {
   const [gapiClientLoading, setGapiClientLoading] = useState(false);
 
   useEffect(() => {
-    initApplication();
-  }, []);
-
-  const initApplication = () => {
     // initGa();
 
     // window.gapiLoadedFlag is defined in public/index.html
@@ -29,7 +25,7 @@ export default function Application() {
       setGapiLoaded(true);
       loadGapiClient();
     }
-  };
+  }, []);
 
   const loadGapiClient = () => {
     setGapiClientLoading(true);
