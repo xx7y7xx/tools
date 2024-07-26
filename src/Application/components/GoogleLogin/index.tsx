@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import renderGoogleLoginBtn from './renderGoogleLoginBtn';
+import { gapiOAuthClientId } from '../../config';
+import { message } from 'antd';
+import Message from '../Message';
 
 const scopeNeeded = [
   'profile',
@@ -30,18 +33,15 @@ const renderLoginBtn = () => {
  * - https://developers.google.com/identity/sign-in/web/reference#gapisignin2renderid_options
  */
 const GoogleLogin = ({
-  clientId,
   onLoginSuccess,
-  onRenderFinish,
-  onSignedOut,
 }: {
-  clientId: string;
   onLoginSuccess: (user: gapi.auth2.GoogleUser) => void;
-  onRenderFinish: () => void;
-  onSignedOut: () => void;
 }) => {
   const [gapiAuth2Loaded, setGapiAuth2Loaded] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
+  const [msg, setMsg] = useState(
+    'Rendering Google login button on left side panel...'
+  );
 
   useEffect(() => {
     let mounted = true;
@@ -58,7 +58,7 @@ const GoogleLogin = ({
       setGapiAuth2Loaded(true);
 
       const auth2 = window.gapi.auth2.init({
-        client_id: clientId,
+        client_id: gapiOAuthClientId,
         scope: scopeNeeded,
       });
 
@@ -69,13 +69,21 @@ const GoogleLogin = ({
            * @param {gapi.auth2.GoogleUser} user
            */
           onLoginSuccess: (user: gapi.auth2.GoogleUser) => {
+            // ReactGA.event({
+            //   category: 'Auth',
+            //   action: 'User login',
+            // });
             if (!mounted) {
               console.warn('GoogleLogin is unmounted when onLoginSuccess()!');
             }
             setSignedIn(true);
+            setMsg('');
             onLoginSuccess(user);
           },
-          onRenderFinish,
+          // GoogleLogin button render finished
+          onRenderFinish: () => {
+            setMsg('');
+          },
         },
         auth2
       );
@@ -87,15 +95,19 @@ const GoogleLogin = ({
     return () => {
       mounted = false;
     };
-  }, [clientId, onLoginSuccess, onRenderFinish]);
+  }, []);
 
   const handleSignOutBtnClick = () => {
     // https://developers.google.com/identity/sign-in/web/reference#gapiauth2getauthinstance
     const googleAuth = window.gapi.auth2.getAuthInstance();
     googleAuth.signOut().then(() => {
       console.debug('[GoogleLogin] User signed out by clicking button.');
+      message.success('Signed out');
+      // ReactGA.event({
+      //   category: 'Auth',
+      //   action: 'User logout',
+      // });
       setSignedIn(false);
-      onSignedOut();
     });
   };
 
@@ -118,7 +130,8 @@ const GoogleLogin = ({
 
   return (
     <div>
-      <h3>Google Login</h3>
+      <Message message={msg} />
+      <span>Google Login: </span>
       {renderLoginBtn()}
       {renderSignOutBtn()}
     </div>
@@ -126,10 +139,7 @@ const GoogleLogin = ({
 };
 
 GoogleLogin.propTypes = {
-  clientId: PropTypes.string.isRequired,
   onLoginSuccess: PropTypes.func.isRequired,
-  onRenderFinish: PropTypes.func.isRequired,
-  onSignedOut: PropTypes.func.isRequired,
 };
 
 export default GoogleLogin;

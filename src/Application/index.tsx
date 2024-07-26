@@ -5,11 +5,12 @@ import {
   initGapiClient,
 } from './init';
 import Warning from './Warning';
-import Map from './Map';
 import SearchTrain from './searchTrain';
 
 // Styles for application
 import './index.css';
+import GoogleLogin from './components/GoogleLogin';
+import { getTrainsData } from './helpers';
 
 export default function Application() {
   const [gapiLoaded, setGapiLoaded] = useState(false);
@@ -37,6 +38,20 @@ export default function Application() {
     });
   };
 
+  /**
+   * User success signed in Google account.
+   * @param {gapi.auth2.GoogleUser} user
+   */
+  async function handleLoginSuccess(user: gapi.auth2.GoogleUser) {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('app') === 'trainSearch') {
+      getTrainsData(
+        urlParams.get('folderId') || '',
+        urlParams.get('date') || ''
+      );
+    }
+  }
+
   if (!gapiLoaded) {
     return <Warning />;
   }
@@ -49,7 +64,7 @@ export default function Application() {
 
   return (
     <div className='application xx7y7xx-tools'>
-      <Map />
+      <GoogleLogin onLoginSuccess={handleLoginSuccess} />
       {urlParams.get('app') === 'trainSearch' ? (
         <SearchTrain date={urlParams.get('date') || ''} />
       ) : (
