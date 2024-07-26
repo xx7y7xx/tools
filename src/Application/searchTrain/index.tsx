@@ -1,11 +1,13 @@
 import {
   Checkbox,
   CheckboxProps,
+  Col,
   Collapse,
   CollapseProps,
   Descriptions,
   DescriptionsProps,
   Input,
+  Row,
 } from 'antd';
 import { useState } from 'react';
 import {
@@ -136,22 +138,21 @@ const SearchTrain = ({ date }: { date: string }) => {
     setIsExactMatch(e.target.checked);
   };
   return (
-    <div>
-      <div style={{ marginLeft: '50px' }}>
-        <Input
-          placeholder='Search train'
-          style={{
-            width: '80%',
-            margin: '20px auto',
-            display: 'block',
-          }}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-        />
-        <Checkbox checked={isExactMatch} onChange={onChange}>
-          Exactly Match
-        </Checkbox>
-      </div>
+    <div style={{ marginTop: 10 }}>
+      <Row>
+        <Col span={16}>
+          <Input
+            placeholder='Search trains'
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+          />
+        </Col>
+        <Col span={8}>
+          <Checkbox checked={isExactMatch} onChange={onChange}>
+            Exactly Match
+          </Checkbox>
+        </Col>
+      </Row>
       <SearchResult
         trainsMap={window.PM_trainsMap[`trainsMap_${date}.json` as DataKey]}
         trainsFullInfoMap={
