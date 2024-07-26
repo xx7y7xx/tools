@@ -1,13 +1,15 @@
-// @ts-nocheck
-
 import React from 'react';
 import './index.css';
+
+type MessageProps = {
+  message: string;
+};
 
 /**
  * Render some messages like loading gapi or others
  * These message will be above the map
  */
-export default function Message(props) {
+export default function Message(props: MessageProps) {
   const { message } = props;
   if (!message) {
     return null;
