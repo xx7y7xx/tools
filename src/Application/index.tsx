@@ -6,11 +6,11 @@ import {
 } from './init';
 import Warning from './Warning';
 import SearchTrain from './searchTrain';
+import GoogleLogin from './components/GoogleLogin';
+import { getTrainsData } from './helpers/trainHelpers';
 
 // Styles for application
 import './index.css';
-import GoogleLogin from './components/GoogleLogin';
-import { getTrainsData } from './helpers/trainHelpers';
 
 export default function Application() {
   const [gapiLoaded, setGapiLoaded] = useState(false);
