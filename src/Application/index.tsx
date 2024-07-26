@@ -10,7 +10,7 @@ import SearchTrain from './searchTrain';
 // Styles for application
 import './index.css';
 import GoogleLogin from './components/GoogleLogin';
-import { getTrainsData } from './helpers';
+import { getTrainsData } from './helpers/trainHelpers';
 
 export default function Application() {
   const [gapiLoaded, setGapiLoaded] = useState(false);
