@@ -35,7 +35,7 @@ export default function Map(props: MapProps) {
 
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('app') === 'trainSearch') {
-      getJsonFilesInFolder(urlParams.get('folderId')).then((resp) => {
+      getJsonFilesInFolder(urlParams.get('folderId') || '').then((resp) => {
         console.log('getJsonFilesInFolder resp', resp);
         resp.files
           .filter(

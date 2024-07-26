@@ -105,11 +105,11 @@ export const filesList = async (params: {
   includeItemsFromAllDrives?: boolean;
   supportsAllDrives?: boolean;
   includeTeamDriveItems?: boolean;
-}) =>
-  await gapiRequest({
+}): Promise<FilesListResponse> =>
+  (await gapiRequest({
     path: 'https://www.googleapis.com/drive/v3/files',
     params,
-  });
+  })) as FilesListResponse;
 
 // In this way, the API style is like: https://developers.google.com/drive/api/reference/rest/v3/files/get#request
 export const files = {

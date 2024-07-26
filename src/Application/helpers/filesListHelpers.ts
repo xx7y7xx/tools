@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import {
   files,
   filesGet,
@@ -21,7 +19,7 @@ const filesFields = [
 //   mimeType: "application/vnd.google-apps.folder"
 //   name: "2020-05-21 莲石湖公园"
 // }
-export const getFolderInfo = async (folderId) =>
+export const getFolderInfo = async (folderId: string) =>
   await filesGet({
     fileId: folderId,
   });
@@ -32,7 +30,7 @@ export const getFolderInfo = async (folderId) =>
  *       maybe popup some warning about photos without GPS locations.
  * @return {Promise<import("../utils/gDriveFilesApi").FilesListResponse>}
  */
-export const getPhotosInFolder = async (folderId) =>
+export const getPhotosInFolder = async (folderId: string) =>
   await filesList({
     q: `'${folderId}' in parents and (mimeType='image/jpeg' or mimeType='image/png')`, // get files in this folder
     // fields: "files/*", // debug
@@ -61,7 +59,7 @@ const getPhotoMapFolder = async () =>
  * @export
  * @returns {Promise<import("../utils/gDriveFilesApi").File[]>} Definition for this type: https://developers.google.com/drive/api/v3/reference/files
  */
-export const getPrivatePhotos = async (setMediaItems) => {
+export const getPrivatePhotos = async (setMediaItems: any) => {
   const foldersResp = await getPhotoMapFolder();
   if (!foldersResp.files) {
     // Maybe there is no "Photo Map" folder in users' Google Drive
@@ -73,14 +71,14 @@ export const getPrivatePhotos = async (setMediaItems) => {
 };
 
 export const getJsonFilesInFolder = async (
-  folderId
+  folderId: string
 ): Promise<FilesListResponse> =>
   await files.list({
     q: `'${folderId}' in parents and mimeType='application/json'`,
     fields: `${filesFields},files/id,files/name`,
   });
 
-export const getAllJsonFileContentInFolder = async (folderId) => {
+export const getAllJsonFileContentInFolder = async (folderId: string) => {
   const resp = await getJsonFilesInFolder(folderId);
   const promises = resp.files.map((file) =>
     filesGet({
