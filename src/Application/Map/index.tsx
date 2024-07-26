@@ -37,7 +37,7 @@ export default function Map(props: MapProps) {
     if (urlParams.get('app') === 'trainSearch') {
       getJsonFilesInFolder(urlParams.get('folderId')).then((resp) => {
         console.log('getJsonFilesInFolder resp', resp);
-        return resp.files
+        resp.files
           .filter(
             (f) =>
               f.name === `trainsMap_${urlParams.get('date')}.json` ||

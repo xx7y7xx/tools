@@ -12,15 +12,21 @@ export const OPEN_DRAWER_TOPIC = 'menudrawer.open';
 // Open or close it according to the state
 export const OPEN_CLOSE_DRAWER_TOPIC = 'menudrawer.openclose';
 
-const MenuDrawer = (props) => {
+interface MenuDrawerProps {
+  onLoginSuccess: (user: gapi.auth2.GoogleUser) => void;
+  onRenderFinish: () => void;
+  onSignedOut: () => void;
+}
+
+const MenuDrawer: React.FC<MenuDrawerProps> = (props) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
 
   useEffect(() => {
-    const openDrawerSubscriber = (msg) => {
+    const openDrawerSubscriber = (msg: string) => {
       setDrawerVisible(true);
     };
 
-    const openCloseDrawerSubscriber = (msg) => {
+    const openCloseDrawerSubscriber = (msg: string) => {
       setDrawerVisible(!drawerVisible);
     };
 
@@ -52,7 +58,7 @@ const MenuDrawer = (props) => {
         placement='left'
         closable={false}
         forceRender
-        open={drawerVisible}
+        visible={drawerVisible}
         onClose={handleDrawerClose}
       >
         <GoogleLogin
