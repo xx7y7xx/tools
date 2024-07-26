@@ -1,5 +1,5 @@
 import { message } from 'antd';
-import { getJsonFilesInFolder } from './filesListHelpers';
+import { getJsonFilesInFolder } from './filesApiHelpers';
 import { files } from '../utils/gDriveFilesApi';
 
 export const getTrainsData = async (folderId: string, date: string) => {
