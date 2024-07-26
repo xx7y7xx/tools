@@ -1,6 +1,4 @@
-// @ts-nocheck
-
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import renderGoogleLoginBtn from './renderGoogleLoginBtn';
@@ -31,30 +29,33 @@ const renderLoginBtn = () => {
  * - https://stackoverflow.com/questions/31610461/using-google-sign-in-button-with-react
  * - https://developers.google.com/identity/sign-in/web/reference#gapisignin2renderid_options
  */
-export default class GoogleLogin extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      gapiAuth2Loaded: false,
-      signedIn: false,
-    };
-  }
+const GoogleLogin = ({
+  clientId,
+  onLoginSuccess,
+  onRenderFinish,
+  onSignedOut,
+}: {
+  clientId: string;
+  onLoginSuccess: (user: gapi.auth2.GoogleUser) => void;
+  onRenderFinish: () => void;
+  onSignedOut: () => void;
+}) => {
+  const [gapiAuth2Loaded, setGapiAuth2Loaded] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
 
-  componentDidMount() {
-    const { onLoginSuccess, onRenderFinish } = this.props;
-
-    this.mounted = true;
+  useEffect(() => {
+    let mounted = true;
 
     const onGapiAuth2Loaded = () => {
       console.debug('[GoogleLogin] auth2 loaded');
-      const { clientId } = this.props;
 
-      if (!this.mounted) {
+      if (!mounted) {
         // For example, this component loaded, but then page crashs, so this component is umounted
-        console.warn('GoogleLogin is umounted when onGapiAuth2Loaded()!');
+        console.warn('GoogleLogin is unmounted when onGapiAuth2Loaded()!');
         return;
       }
-      this.setState({ gapiAuth2Loaded: true });
+
+      setGapiAuth2Loaded(true);
 
       const auth2 = window.gapi.auth2.init({
         client_id: clientId,
@@ -67,11 +68,11 @@ export default class GoogleLogin extends Component {
            * User success signed in Google account.
            * @param {gapi.auth2.GoogleUser} user
            */
-          onLoginSuccess: (user) => {
-            if (!this.mounted) {
-              console.warn('GoogleLogin is umounted when onLoginSuccess()!');
+          onLoginSuccess: (user: gapi.auth2.GoogleUser) => {
+            if (!mounted) {
+              console.warn('GoogleLogin is unmounted when onLoginSuccess()!');
             }
-            this.setState({ signedIn: true });
+            setSignedIn(true);
             onLoginSuccess(user);
           },
           onRenderFinish,
@@ -82,52 +83,47 @@ export default class GoogleLogin extends Component {
 
     // https://github.com/google/google-api-javascript-client/blob/master/docs/reference.md#----gapiloadlibraries-callbackorconfig------
     window.gapi.load('auth2', onGapiAuth2Loaded);
-  }
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
+    return () => {
+      mounted = false;
+    };
+  }, [clientId, onLoginSuccess, onRenderFinish]);
 
-  handleSignOutBtnClick = () => {
-    const { onSignedOut } = this.props;
+  const handleSignOutBtnClick = () => {
     // https://developers.google.com/identity/sign-in/web/reference#gapiauth2getauthinstance
     const googleAuth = window.gapi.auth2.getAuthInstance();
     googleAuth.signOut().then(() => {
       console.debug('[GoogleLogin] User signed out by clicking button.');
-      this.setState({ signedIn: false });
+      setSignedIn(false);
       onSignedOut();
     });
   };
 
-  renderSignOutBtn = () => {
-    const { signedIn } = this.state;
+  const renderSignOutBtn = () => {
     if (!signedIn) {
       return null;
     }
     return (
-      <button type='button' onClick={this.handleSignOutBtnClick}>
+      <button type='button' onClick={handleSignOutBtnClick}>
         Sign out
       </button>
     );
   };
 
-  render() {
-    const { gapiAuth2Loaded } = this.state;
-    if (!gapiAuth2Loaded) {
-      return (
-        <div>The &quot;auth2&quot; gapi library doesn&apos;t loaded yet.</div>
-      );
-    }
-
+  if (!gapiAuth2Loaded) {
     return (
-      <div>
-        <h3>Google Login</h3>
-        {renderLoginBtn()}
-        {this.renderSignOutBtn()}
-      </div>
+      <div>The &quot;auth2&quot; gapi library doesn&apos;t loaded yet.</div>
     );
   }
-}
+
+  return (
+    <div>
+      <h3>Google Login</h3>
+      {renderLoginBtn()}
+      {renderSignOutBtn()}
+    </div>
+  );
+};
 
 GoogleLogin.propTypes = {
   clientId: PropTypes.string.isRequired,
@@ -135,3 +131,5 @@ GoogleLogin.propTypes = {
   onRenderFinish: PropTypes.func.isRequired,
   onSignedOut: PropTypes.func.isRequired,
 };
+
+export default GoogleLogin;
