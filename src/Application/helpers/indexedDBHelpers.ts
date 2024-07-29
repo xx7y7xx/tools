@@ -13,7 +13,7 @@ export const deleteDatabaseAsync = (dbName: string) => {
 export const openAsync = (
   dbName: string,
   version: number,
-  callbacks: {
+  callbacks?: {
     onupgradeneeded: (event: any) => void;
   }
 ) => {
@@ -27,6 +27,22 @@ export const openAsync = (
       // @ts-ignore
       resolve(event.target.result);
     };
-    request.onupgradeneeded = callbacks.onupgradeneeded;
+    if (callbacks) {
+      request.onupgradeneeded = callbacks.onupgradeneeded;
+    }
+  });
+};
+
+export const getAllAsync = (db: IDBDatabase, storeName: string) => {
+  return new Promise<any[]>((resolve, reject) => {
+    const tx = db.transaction(storeName, 'readonly');
+    const store = tx.objectStore(storeName);
+    const request = store.getAll();
+    request.onerror = (event) => {
+      reject(event);
+    };
+    request.onsuccess = (event) => {
+      resolve(request.result);
+    };
   });
 };

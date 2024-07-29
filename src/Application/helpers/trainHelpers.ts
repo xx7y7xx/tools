@@ -2,7 +2,11 @@ import { message } from 'antd';
 import { getJsonFilesInFolder } from './filesApiHelpers';
 import { files } from '../utils/gDriveFilesApi';
 import { TrainsFullInfoType } from '../searchTrain/types';
-import { deleteDatabaseAsync, openAsync } from './indexedDBHelpers';
+import {
+  deleteDatabaseAsync,
+  getAllAsync,
+  openAsync,
+} from './indexedDBHelpers';
 
 const saveAsync = async (trainsFullInfoMap: TrainsFullInfoType) => {
   // remove dt_trainDb if exists
@@ -53,6 +57,15 @@ const saveAsync = async (trainsFullInfoMap: TrainsFullInfoType) => {
   });
 
   console.log('db', db);
+};
+
+/**
+ * Get all trains
+ */
+export const getAsync = async () => {
+  const db = await openAsync('dt_trainDb', 1);
+  const trains = await getAllAsync(db, 'trains');
+  return trains;
 };
 
 /**

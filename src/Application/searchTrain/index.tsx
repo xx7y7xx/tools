@@ -7,9 +7,10 @@ import {
   Descriptions,
   DescriptionsProps,
   Input,
+  message,
   Row,
 } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   DataKey,
   GlobalTrainsMapType,
@@ -17,7 +18,7 @@ import {
   TrainsFullInfoType,
   TrainsMapType,
 } from './types';
-import { searchTrainByNum } from '../helpers/trainHelpers';
+import { getAsync, searchTrainByNum } from '../helpers/trainHelpers';
 
 // TODO how to make global use
 // 扩展 Window 接口
@@ -134,9 +135,24 @@ const SearchResult = ({
 const SearchTrain = ({ date }: { date: string }) => {
   const [value, setValue] = useState('');
   const [isExactMatch, setIsExactMatch] = useState(true);
+  const [trainsFullInfoMap, setTrainsFullInfoMap] =
+    useState<TrainsFullInfoType>({});
   const onChange: CheckboxProps['onChange'] = (e) => {
     setIsExactMatch(e.target.checked);
   };
+
+  useEffect(() => {
+    // get all trains from indexedDB
+    getAsync().then((trains) => {
+      const mmap: TrainsFullInfoType = {};
+      trains.forEach((train) => {
+        mmap[train.trainNumber] = train;
+      });
+      setTrainsFullInfoMap(mmap);
+      message.success('Trains loaded');
+    });
+  }, []);
+
   return (
     <div style={{ marginTop: 10 }}>
       <Row>
@@ -157,11 +173,7 @@ const SearchTrain = ({ date }: { date: string }) => {
         trainsMap={JSON.parse(
           localStorage.getItem(`PM_trainsMap_trainsMap_${date}.json`) || '{}'
         )}
-        trainsFullInfoMap={
-          window.PM_trainsMap[
-            `trainsFullInfoMap_${date}.json` as TrainsFullInfoMapDataKey
-          ]
-        }
+        trainsFullInfoMap={trainsFullInfoMap}
         isExactMatch={isExactMatch}
         value={value}
       />
