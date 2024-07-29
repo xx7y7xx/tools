@@ -7,6 +7,7 @@ import {
 import Warning from './Warning';
 import SearchTrain from './searchTrain';
 import GoogleLogin from './components/GoogleLogin';
+import Setting from './Setting';
 import { getTrainsData } from './helpers/trainHelpers';
 
 // Styles for application
@@ -59,16 +60,19 @@ export default function Application() {
   const urlParams = new URLSearchParams(window.location.search);
 
   const appSwitch = () => {
-    if (urlParams.get('app') === 'trainSearch') {
-      return <SearchTrain date={urlParams.get('date') || ''} />;
-    } else {
-      return (
-        <div>
+    switch (urlParams.get('app')) {
+      case 'trainSearch':
+        return <SearchTrain date={urlParams.get('date') || ''} />;
+      case 'setting':
+        return <Setting />;
+      default:
+        return (
           <div>
-            <a href='/tools?app=trainSearch'>TrainSearch</a>
+            <div>
+              <a href='/tools?app=trainSearch'>TrainSearch</a>
+            </div>
           </div>
-        </div>
-      );
+        );
     }
   };
 
