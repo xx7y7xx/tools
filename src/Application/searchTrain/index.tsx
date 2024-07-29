@@ -154,7 +154,9 @@ const SearchTrain = ({ date }: { date: string }) => {
         </Col>
       </Row>
       <SearchResult
-        trainsMap={window.PM_trainsMap[`trainsMap_${date}.json` as DataKey]}
+        trainsMap={JSON.parse(
+          localStorage.getItem(`PM_trainsMap_trainsMap_${date}.json`) || '{}'
+        )}
         trainsFullInfoMap={
           window.PM_trainsMap[
             `trainsFullInfoMap_${date}.json` as TrainsFullInfoMapDataKey
