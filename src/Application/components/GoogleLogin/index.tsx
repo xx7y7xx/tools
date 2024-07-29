@@ -95,7 +95,7 @@ const GoogleLogin = ({
     return () => {
       mounted = false;
     };
-  }, [onLoginSuccess]);
+  }, []);
 
   const handleSignOutBtnClick = () => {
     // https://developers.google.com/identity/sign-in/web/reference#gapiauth2getauthinstance
