@@ -58,18 +58,22 @@ export default function Application() {
 
   const urlParams = new URLSearchParams(window.location.search);
 
+  const appSwitch = () => {
+    return urlParams.get('app') === 'trainSearch' ? (
+      <SearchTrain date={urlParams.get('date') || ''} />
+    ) : (
+      <div>
+        <div>
+          <a href='/tools?app=trainSearch'>TrainSearch</a>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className='application xx7y7xx-tools'>
       <GoogleLogin onLoginSuccess={handleLoginSuccess} />
-      {urlParams.get('app') === 'trainSearch' ? (
-        <SearchTrain date={urlParams.get('date') || ''} />
-      ) : (
-        <div>
-          <div>
-            <a href='/tools?app=trainSearch'>TrainSearch</a>
-          </div>
-        </div>
-      )}
+      {appSwitch()}
     </div>
   );
 }
