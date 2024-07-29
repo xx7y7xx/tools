@@ -59,15 +59,17 @@ export default function Application() {
   const urlParams = new URLSearchParams(window.location.search);
 
   const appSwitch = () => {
-    return urlParams.get('app') === 'trainSearch' ? (
-      <SearchTrain date={urlParams.get('date') || ''} />
-    ) : (
-      <div>
+    if (urlParams.get('app') === 'trainSearch') {
+      return <SearchTrain date={urlParams.get('date') || ''} />;
+    } else {
+      return (
         <div>
-          <a href='/tools?app=trainSearch'>TrainSearch</a>
+          <div>
+            <a href='/tools?app=trainSearch'>TrainSearch</a>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   };
 
   return (
