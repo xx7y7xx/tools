@@ -12,9 +12,7 @@ import {
 } from 'antd';
 import { useEffect, useState } from 'react';
 import {
-  DataKey,
   GlobalTrainsMapType,
-  TrainsFullInfoMapDataKey,
   TrainsFullInfoType,
   TrainsMapType,
 } from './types';
