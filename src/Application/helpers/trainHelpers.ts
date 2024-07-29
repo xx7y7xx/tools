@@ -1,6 +1,55 @@
 import { message } from 'antd';
 import { getJsonFilesInFolder } from './filesApiHelpers';
 import { files } from '../utils/gDriveFilesApi';
+import { TrainsFullInfoType } from '../searchTrain/types';
+import { deleteDatabaseAsync, openAsync } from './indexedDBHelpers';
+
+const saveAsync = async (trainsFullInfoMap: TrainsFullInfoType) => {
+  // remove dt_trainDb if exists
+  console.log('deleteDatabase dt_trainDb');
+  await deleteDatabaseAsync('dt_trainDb');
+  console.log('deleteDatabase dt_trainDb done');
+
+  // const request = indexedDB.open('dt_trainDb', 1);
+
+  const onupgradeneeded = (event: any) => {
+    // Save the IDBDatabase interface
+    const db = event.target.result;
+
+    // Create an objectStore to hold information about our trains. We're
+    // going to use "trainNumber" as our key path because it's guaranteed to be
+    // unique - or at least that's what I was told during the kickoff meeting.
+    const objectStore = db.createObjectStore('trains', {
+      keyPath: 'trainNumber',
+    });
+
+    // Create an index to search trains by trainCategory. We may have duplicates
+    // so we can't use a unique index.
+    objectStore.createIndex('trainCategory', 'trainCategory', {
+      unique: false,
+    });
+
+    // // Create an index to search trains by email. We want to ensure that
+    // // no two trains have the same email, so use a unique index.
+    // objectStore.createIndex('email', 'email', { unique: true });
+
+    // Use transaction oncomplete to make sure the objectStore creation is
+    // finished before adding data into it.
+    objectStore.transaction.oncomplete = () => {
+      // Store values in the newly created objectStore.
+      const customerObjectStore = db
+        .transaction('trains', 'readwrite')
+        .objectStore('trains');
+      Object.keys(trainsFullInfoMap).forEach((trainNumber) => {
+        customerObjectStore.add(trainsFullInfoMap[trainNumber]);
+      });
+    };
+  };
+
+  const db = await openAsync('dt_trainDb', 1, {
+    onupgradeneeded,
+  });
+};
 
 /**
  * `trainsMap_20240716.json` example:
@@ -65,48 +114,7 @@ export const getTrainsData = async (folderId: string, date: string) => {
                 JSON.stringify(resp)
               );
             } else if (f.name === `trainsFullInfoMap_${date}.json`) {
-              // save to localStorage
-              // localStorage.setItem(
-              //   `PM_trainsMap_${f.name}`,
-              //   JSON.stringify(resp)
-              // );
-              // file is too large to save in localStorage
-              /**
-               * ```
-               * Failed to execute 'setItem' on 'Storage': Setting the value of 'PM_trainsMap_trainsFullInfoMap_20240722.json' exceeded the quota.
-               * ```
-               * try to save to sessionStorage
-               */
-              // sessionStorage.setItem(
-              //   `PM_trainsMap_${f.name}`,
-              //   JSON.stringify(resp)
-              // );
-              // the same error: Failed to execute 'setItem' on 'Storage': Setting the value of 'PM_trainsMap_trainsMap_20240722.json' exceeded the quota.
-              // try to save to indexedDB
-              //
-              // const trainsFullInfoMap = resp;
-              //
-              // const db = indexedDB.open('PM_trainsFullInfoMap', 1);
-              // db.onsuccess = function (event) {
-              //   const db = event.target.result;
-              //   const transaction = db.transaction(
-              //     'trainsFullInfoMap',
-              //     'readwrite'
-              //   );
-              //   const objectStore =
-              //     transaction.objectStore('trainsFullInfoMap');
-              //   // const request = objectStore.put(resp, f.name);
-              //   // request.onsuccess = function () {
-              //   //   console.log('save to indexedDB success');
-              //   // };
-              //   // loop resp and save to indexedDB
-              //   Object.keys(resp).forEach((key) => {
-              //     const request = objectStore.put(resp[key], key);
-              //     request.onsuccess = function () {
-              //       console.log('save to indexedDB success', key);
-              //     };
-              //   });
-              // };
+              saveAsync(resp as TrainsFullInfoType);
             }
           });
       });
