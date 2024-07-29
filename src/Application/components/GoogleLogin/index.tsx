@@ -62,6 +62,11 @@ const GoogleLogin = ({
         scope: scopeNeeded,
       });
 
+      if (signedIn) {
+        // Already signed in, no need to render login button.
+        return;
+      }
+
       renderGoogleLoginBtn(
         {
           /**
@@ -95,7 +100,7 @@ const GoogleLogin = ({
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [onLoginSuccess, signedIn]);
 
   const handleSignOutBtnClick = () => {
     // https://developers.google.com/identity/sign-in/web/reference#gapiauth2getauthinstance

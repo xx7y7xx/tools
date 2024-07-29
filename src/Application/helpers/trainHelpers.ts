@@ -43,12 +43,16 @@ const saveAsync = async (trainsFullInfoMap: TrainsFullInfoType) => {
       Object.keys(trainsFullInfoMap).forEach((trainNumber) => {
         customerObjectStore.add(trainsFullInfoMap[trainNumber]);
       });
+
+      console.log('All trains added successfully');
     };
   };
 
   const db = await openAsync('dt_trainDb', 1, {
     onupgradeneeded,
   });
+
+  console.log('db', db);
 };
 
 /**
