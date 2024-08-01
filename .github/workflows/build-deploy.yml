@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-      SENTRY_LOG_LEVEL: ${{ vars.SENTRY_LOG_LEVEL }}
 
     steps:
       - name: Checkout code
@@ -24,15 +23,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 18.x
-
-      - name: Debug1
-        run: echo $SENTRY_AUTH_TOKEN | sed -e 's/\(.\)/\1 /g'
-
-      - name: Debug2
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_LOG_LEVEL: ${{ vars.SENTRY_LOG_LEVEL }}
-        run: echo $SENTRY_LOG_LEVEL | sed -e 's/\(.\)/\1 /g'
 
       - name: Install NPM packages
         run: npm install
