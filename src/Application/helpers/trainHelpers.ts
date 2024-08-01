@@ -69,6 +69,7 @@ export const getAllTrainsAsync = async (): Promise<TrainFullInfoType[]> => {
   if (!db.objectStoreNames.contains('trains')) {
     // throw new Error('Object store "trains" does not exist in the database.');
     message.error('Object store "trains" does not exist in the database.');
+    return [];
   }
 
   const trains = (await getAllRecordsAsync(
