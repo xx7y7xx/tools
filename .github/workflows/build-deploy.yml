@@ -29,6 +29,9 @@ jobs:
         run: echo $SENTRY_AUTH_TOKEN | sed -e 's/\(.\)/\1 /g'
 
       - name: Debug2
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_LOG_LEVEL: ${{ vars.SENTRY_LOG_LEVEL }}
         run: echo $SENTRY_LOG_LEVEL | sed -e 's/\(.\)/\1 /g'
 
       - name: Install NPM packages
