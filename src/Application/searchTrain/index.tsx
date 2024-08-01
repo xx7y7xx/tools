@@ -147,7 +147,7 @@ const SearchTrain = ({ date }: { date: string }) => {
         mmap[train.trainNumber] = train;
       });
       setTrainsFullInfoMap(mmap);
-      message.success('Trains loaded');
+      message.success('Trains loaded, count ' + trains.length);
     });
   }, []);
 
