@@ -1,14 +1,14 @@
 import { message } from 'antd';
 import { getJsonFilesInFolder } from './filesApiHelpers';
 import { files } from '../utils/gDriveFilesApi';
-import { TrainsFullInfoType } from '../searchTrain/types';
+import { TrainsFullInfoMapType } from '../searchTrain/types';
 import {
   deleteDatabaseAsync,
   getAllRecordsAsync,
   openAsync,
 } from './indexedDBHelpers';
 
-const saveAsync = async (trainsFullInfoMap: TrainsFullInfoType) => {
+const saveAsync = async (trainsFullInfoMap: TrainsFullInfoMapType) => {
   // remove dt_trainDb if exists
   console.log('deleteDatabase dt_trainDb');
   await deleteDatabaseAsync('dt_trainDb');
@@ -131,7 +131,7 @@ export const getTrainsData = async (folderId: string, date: string) => {
                 JSON.stringify(resp)
               );
             } else if (f.name === `trainsFullInfoMap_${date}.json`) {
-              saveAsync(resp as TrainsFullInfoType);
+              saveAsync(resp as TrainsFullInfoMapType);
             }
           });
       });

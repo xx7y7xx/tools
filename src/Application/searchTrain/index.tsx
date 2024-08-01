@@ -13,7 +13,7 @@ import {
 import { useEffect, useState } from 'react';
 import {
   GlobalTrainsMapType,
-  TrainsFullInfoType,
+  TrainsFullInfoMapType,
   TrainsMapType,
 } from './types';
 import { getAllTrainsAsync, searchTrainByNum } from '../helpers/trainHelpers';
@@ -49,7 +49,7 @@ const SearchResult = ({
   isExactMatch: boolean;
   value: string;
   trainsMap: TrainsMapType;
-  trainsFullInfoMap: TrainsFullInfoType;
+  trainsFullInfoMap: TrainsFullInfoMapType;
 }) => {
   if (!value) {
     return null;
@@ -134,7 +134,7 @@ const SearchTrain = ({ date }: { date: string }) => {
   const [value, setValue] = useState('');
   const [isExactMatch, setIsExactMatch] = useState(true);
   const [trainsFullInfoMap, setTrainsFullInfoMap] =
-    useState<TrainsFullInfoType>({});
+    useState<TrainsFullInfoMapType>({});
   const onChange: CheckboxProps['onChange'] = (e) => {
     setIsExactMatch(e.target.checked);
   };
@@ -142,7 +142,7 @@ const SearchTrain = ({ date }: { date: string }) => {
   useEffect(() => {
     // get all trains from indexedDB
     getAllTrainsAsync().then((trains) => {
-      const mmap: TrainsFullInfoType = {};
+      const mmap: TrainsFullInfoMapType = {};
       trains.forEach((train) => {
         mmap[train.trainNumber] = train;
       });

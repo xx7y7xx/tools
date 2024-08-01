@@ -42,13 +42,13 @@ export type TrainFullInfoType = {
   distance: string; // 里程, e.g. "2138"
 };
 
-export type TrainsFullInfoType = {
+export type TrainsFullInfoMapType = {
   [trainNumber: string]: TrainFullInfoType;
 };
 
 export type GlobalTrainsMapType = {
   trainsMap: TrainsMapType;
-  trainsFullInfoMap: TrainsFullInfoType;
+  trainsFullInfoMap: TrainsFullInfoMapType;
 };
 
 export type DataKey = 'trainsMap';
