@@ -4,7 +4,7 @@ import { files } from '../utils/gDriveFilesApi';
 import { TrainsFullInfoType } from '../searchTrain/types';
 import {
   deleteDatabaseAsync,
-  getAllAsync,
+  getAllRecordsAsync,
   openAsync,
 } from './indexedDBHelpers';
 
@@ -64,7 +64,7 @@ const saveAsync = async (trainsFullInfoMap: TrainsFullInfoType) => {
  */
 export const getAsync = async () => {
   const db = await openAsync('dt_trainDb', 1);
-  const trains = await getAllAsync(db, 'trains');
+  const trains = await getAllRecordsAsync(db, 'trains');
   return trains;
 };
 

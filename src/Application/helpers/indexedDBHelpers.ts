@@ -33,7 +33,7 @@ export const openAsync = (
   });
 };
 
-export const getAllAsync = (db: IDBDatabase, storeName: string) => {
+export const getAllRecordsAsync = (db: IDBDatabase, storeName: string) => {
   return new Promise<any[]>((resolve, reject) => {
     const tx = db.transaction(storeName, 'readonly');
     const store = tx.objectStore(storeName);
