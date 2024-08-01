@@ -4,6 +4,7 @@
   "private": true,
   "homepage": "https://xx7y7xx.github.io/tools",
   "dependencies": {
+    "@sentry/cli": "^2.33.0",
     "@sentry/react": "^8.22.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -24,9 +25,10 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && npm run sentry:sourcemaps",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org xx7y7xx --project javascript-react ./build && sentry-cli sourcemaps upload --org xx7y7xx --project javascript-react ./build"
   },
   "eslintConfig": {
     "extends": [
