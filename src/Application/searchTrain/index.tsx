@@ -11,21 +11,8 @@ import {
   Row,
 } from 'antd';
 import { useEffect, useState } from 'react';
-import {
-  GlobalTrainsMapType,
-  TrainsFullInfoMapType,
-  TrainsMapType,
-} from './types';
+import { TrainsFullInfoMapType } from './types';
 import { getAllTrainsAsync, searchTrainByNum } from '../helpers/trainHelpers';
-
-// TODO how to make global use
-// 扩展 Window 接口
-declare global {
-  interface Window {
-    PM_trainsMap: GlobalTrainsMapType;
-  }
-}
-window.PM_trainsMap = window.PM_trainsMap || {};
 
 const fullInfoKeyToName: { [key: string]: string } = {
   operateGroup: '担当路局',
@@ -38,17 +25,19 @@ const fullInfoKeyToName: { [key: string]: string } = {
   arrivalTime: '到站时间',
   trainType: '列车类型',
   distance: '里程',
+
+  // 未知字段定义
+  // total_num: '?总数',
+  // train_no: '?列车号',
 };
 
 const SearchResult = ({
   isExactMatch,
   value,
-  trainsMap,
   trainsFullInfoMap,
 }: {
   isExactMatch: boolean;
   value: string;
-  trainsMap: TrainsMapType;
   trainsFullInfoMap: TrainsFullInfoMapType;
 }) => {
   if (!value) {
@@ -56,8 +45,8 @@ const SearchResult = ({
   }
 
   const searchResultItems: CollapseProps['items'] =
-    trainsMap &&
-    Object.keys(trainsMap)
+    trainsFullInfoMap &&
+    Object.keys(trainsFullInfoMap)
       .filter((trainNumber) => {
         return searchTrainByNum(isExactMatch, trainNumber, value);
       })
@@ -71,7 +60,6 @@ const SearchResult = ({
         return true;
       })
       .map((trainNumber) => {
-        const train = trainsMap[trainNumber];
         const trainFullInfo = trainsFullInfoMap[trainNumber];
         const trainFullInfoItems: DescriptionsProps['items'] = Object.keys(
           trainFullInfo
@@ -112,7 +100,7 @@ const SearchResult = ({
 
         return {
           key: trainNumber,
-          label: `${trainNumber} ${train.from_station} - ${train.to_station}`,
+          label: `${trainNumber} ${trainFullInfo.fromStation} - ${trainFullInfo.toStation}`,
           children: (
             <Descriptions
               // title='Train Full Info'
@@ -168,9 +156,6 @@ const SearchTrain = ({ date }: { date: string }) => {
         </Col>
       </Row>
       <SearchResult
-        trainsMap={JSON.parse(
-          localStorage.getItem(`PM_trainsMap_trainsMap_${date}.json`) || '{}'
-        )}
         trainsFullInfoMap={trainsFullInfoMap}
         isExactMatch={isExactMatch}
         value={value}

@@ -1,27 +1,3 @@
-/**
- * window.PM_trainsMap={
- *   "trainsMap": {
- *     "G372": {
- *       "from_station": "",
- *       "to_station": ""
- *     }
- *   },
- *   "trainsFullInfoMap": {
- *     "G1": {
- *       "operateGroup": "上海局",
- *       "trainCategory": "复兴号(CR400BF-B型)",
- *       "trainNumber": "G1",
- *       "runTime": "4小时29分",
- *       "fromStation": "北京南站",
- *       "toStation": "上海站",
- *       "departureTime": "07:00",
- *       "arrivalTime": "11:29",
- *       "trainType": "高速动车组列车(高铁)",
- *       "distance": "1325 "
- *     },
- *   }
- * }
- */
 export type TrainsMapType = {
   [trainNumber: string]: {
     from_station: string;
@@ -40,17 +16,13 @@ export type TrainFullInfoType = {
   arrivalTime: string; // 到站时间, e.g. "21:39"
   trainType: string; // 列车类型, e.g. "高速动车组列车(高铁)"
   distance: string; // 里程, e.g. "2138"
+
+  total_num: string; // ?总数, e.g. "4"
+  train_no: string; // ?列车号, e.g. "24000000G10I"
 };
 
 export type TrainsFullInfoMapType = {
   [trainNumber: string]: TrainFullInfoType;
 };
-
-export type GlobalTrainsMapType = {
-  trainsMap: TrainsMapType;
-  trainsFullInfoMap: TrainsFullInfoMapType;
-};
-
-export type DataKey = 'trainsMap';
 
 export type TrainsFullInfoMapDataKey = 'trainsFullInfoMap';

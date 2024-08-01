@@ -82,20 +82,6 @@ export const getAllTrainsAsync = async (): Promise<TrainFullInfoType[]> => {
 };
 
 /**
- * `trainsMap_20240716.json` example:
- * ```json
- * {
- *   "G1": {
- *     "date": "20240716",
- *     "from_station": "北京南",
- *     "station_train_code": "G1",
- *     "to_station": "上海",
- *     "total_num": "4",
- *     "train_no": "24000000G10I"
- *   },
- *   ...
- * }
- * ```
  * `trainsFullInfoMap_20240716.json` example:
  * ```json
  * {
@@ -109,7 +95,10 @@ export const getAllTrainsAsync = async (): Promise<TrainFullInfoType[]> => {
  *     "departureTime": "07:00",
  *     "arrivalTime": "11:29",
  *     "trainType": "高速动车组列车(高铁)",
- *     "distance": "1325 "
+ *     "distance": "1325 ",
+ *
+ *     "total_num": "4",
+ *     "train_no": "24000000G10I"
  *   },
  *   ...
  * }
@@ -121,11 +110,7 @@ export const getTrainsData = async (folderId: string, date: string) => {
   getJsonFilesInFolder(folderId).then((resp) => {
     console.log('getJsonFilesInFolder resp', resp);
     resp.files
-      .filter(
-        (f) =>
-          f.name === `trainsMap_${date}.json` ||
-          f.name === `trainsFullInfoMap_${date}.json`
-      )
+      .filter((f) => f.name === `trainsFullInfoMap_${date}.json`)
       .forEach((f) => {
         files
           .get({
@@ -135,17 +120,7 @@ export const getTrainsData = async (folderId: string, date: string) => {
           .then((resp) => {
             console.log('[TrainSearch] files.get resp', f.name, resp);
             message.success(`Load ${f.name} successfully`);
-            (window as any).PM_trainsMap[f.name] = resp;
-
-            if (f.name === `trainsMap_${date}.json`) {
-              // save to localStorage
-              localStorage.setItem(
-                `PM_trainsMap_${f.name}`,
-                JSON.stringify(resp)
-              );
-            } else if (f.name === `trainsFullInfoMap_${date}.json`) {
-              saveAsync(resp as TrainsFullInfoMapType);
-            }
+            saveAsync(resp as TrainsFullInfoMapType);
           });
       });
   });
