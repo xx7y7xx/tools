@@ -1,7 +1,8 @@
 import { message } from 'antd';
+
 import { getJsonFilesInFolder } from './filesApiHelpers';
 import { files } from '../utils/gDriveFilesApi';
-import { TrainsFullInfoMapType } from '../searchTrain/types';
+import { TrainFullInfoType, TrainsFullInfoMapType } from '../searchTrain/types';
 import {
   deleteDatabaseAsync,
   getAllRecordsAsync,
@@ -62,9 +63,18 @@ const saveAsync = async (trainsFullInfoMap: TrainsFullInfoMapType) => {
 /**
  * Get all trains from indexedDB
  */
-export const getAllTrainsAsync = async () => {
+export const getAllTrainsAsync = async (): Promise<TrainFullInfoType[]> => {
   const db = await openAsync('dt_trainDb', 1);
-  const trains = await getAllRecordsAsync(db, 'trains');
+
+  if (!db.objectStoreNames.contains('trains')) {
+    // throw new Error('Object store "trains" does not exist in the database.');
+    message.error('Object store "trains" does not exist in the database.');
+  }
+
+  const trains = (await getAllRecordsAsync(
+    db,
+    'trains'
+  )) as TrainFullInfoType[];
   return trains;
 };
 
