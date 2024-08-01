@@ -60,9 +60,9 @@ const saveAsync = async (trainsFullInfoMap: TrainsFullInfoType) => {
 };
 
 /**
- * Get all trains
+ * Get all trains from indexedDB
  */
-export const getAsync = async () => {
+export const getAllTrainsAsync = async () => {
   const db = await openAsync('dt_trainDb', 1);
   const trains = await getAllRecordsAsync(db, 'trains');
   return trains;

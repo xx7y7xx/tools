@@ -16,7 +16,7 @@ import {
   TrainsFullInfoType,
   TrainsMapType,
 } from './types';
-import { getAsync, searchTrainByNum } from '../helpers/trainHelpers';
+import { getAllTrainsAsync, searchTrainByNum } from '../helpers/trainHelpers';
 
 // TODO how to make global use
 // 扩展 Window 接口
@@ -141,7 +141,7 @@ const SearchTrain = ({ date }: { date: string }) => {
 
   useEffect(() => {
     // get all trains from indexedDB
-    getAsync().then((trains) => {
+    getAllTrainsAsync().then((trains) => {
       const mmap: TrainsFullInfoType = {};
       trains.forEach((train) => {
         mmap[train.trainNumber] = train;
