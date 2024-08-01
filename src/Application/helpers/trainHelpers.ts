@@ -9,13 +9,15 @@ import {
   openAsync,
 } from './indexedDBHelpers';
 
-const saveAsync = async (trainsFullInfoMap: TrainsFullInfoMapType) => {
-  // remove dt_trainDb if exists
-  console.log('deleteDatabase dt_trainDb');
-  await deleteDatabaseAsync('dt_trainDb');
-  console.log('deleteDatabase dt_trainDb done');
+const dbName = 'dt_trainDb';
+const tableName = 'trains';
+const version = 1;
 
-  // const request = indexedDB.open('dt_trainDb', 1);
+const saveAsync = async (trainsFullInfoMap: TrainsFullInfoMapType) => {
+  // before save, delete the old database
+  console.log('deleteDatabase start');
+  await deleteDatabaseAsync(dbName);
+  console.log('deleteDatabase end');
 
   const onupgradeneeded = (event: any) => {
     // Save the IDBDatabase interface
@@ -24,7 +26,7 @@ const saveAsync = async (trainsFullInfoMap: TrainsFullInfoMapType) => {
     // Create an objectStore to hold information about our trains. We're
     // going to use "trainNumber" as our key path because it's guaranteed to be
     // unique - or at least that's what I was told during the kickoff meeting.
-    const objectStore = db.createObjectStore('trains', {
+    const objectStore = db.createObjectStore(tableName, {
       keyPath: 'trainNumber',
     });
 
@@ -43,8 +45,8 @@ const saveAsync = async (trainsFullInfoMap: TrainsFullInfoMapType) => {
     objectStore.transaction.oncomplete = () => {
       // Store values in the newly created objectStore.
       const customerObjectStore = db
-        .transaction('trains', 'readwrite')
-        .objectStore('trains');
+        .transaction(tableName, 'readwrite')
+        .objectStore(tableName);
       Object.keys(trainsFullInfoMap).forEach((trainNumber) => {
         customerObjectStore.add(trainsFullInfoMap[trainNumber]);
       });
@@ -53,7 +55,7 @@ const saveAsync = async (trainsFullInfoMap: TrainsFullInfoMapType) => {
     };
   };
 
-  const db = await openAsync('dt_trainDb', 1, {
+  const db = await openAsync(dbName, version, {
     onupgradeneeded,
   });
 
@@ -64,9 +66,9 @@ const saveAsync = async (trainsFullInfoMap: TrainsFullInfoMapType) => {
  * Get all trains from indexedDB
  */
 export const getAllTrainsAsync = async (): Promise<TrainFullInfoType[]> => {
-  const db = await openAsync('dt_trainDb', 1);
+  const db = await openAsync(dbName, version);
 
-  if (!db.objectStoreNames.contains('trains')) {
+  if (!db.objectStoreNames.contains(tableName)) {
     // throw new Error('Object store "trains" does not exist in the database.');
     message.error('Object store "trains" does not exist in the database.');
     return [];
@@ -74,7 +76,7 @@ export const getAllTrainsAsync = async (): Promise<TrainFullInfoType[]> => {
 
   const trains = (await getAllRecordsAsync(
     db,
-    'trains'
+    tableName
   )) as TrainFullInfoType[];
   return trains;
 };
