@@ -26,10 +26,10 @@ jobs:
           node-version: 18.x
 
       - name: Debug1
-        run: echo SENTRY_AUTH_TOKEN | sed -e 's/\(.\)/\1 /g'
+        run: echo $SENTRY_AUTH_TOKEN | sed -e 's/\(.\)/\1 /g'
 
       - name: Debug2
-        run: echo SENTRY_LOG_LEVEL | sed -e 's/\(.\)/\1 /g'
+        run: echo $SENTRY_LOG_LEVEL | sed -e 's/\(.\)/\1 /g'
 
       - name: Install NPM packages
         run: npm install
