@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-      SENTRY_LOG_LEVEL: 'debug'
 
     steps:
       - name: Checkout code
