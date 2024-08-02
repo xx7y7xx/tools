@@ -144,6 +144,7 @@ const SearchTrain = ({ date }: { date: string }) => {
       <Row>
         <Col span={16}>
           <Input
+            size='large'
             placeholder='Search trains'
             value={value}
             onChange={(e) => setValue(e.target.value)}
