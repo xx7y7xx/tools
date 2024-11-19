@@ -11,6 +11,8 @@ const Setting = () => {
   const [gapiClientLoading, setGapiClientLoading] = useState(false);
   const [disabled, setDisabled] = useState(true);
 
+  const urlParams = new URLSearchParams(window.location.search);
+
   const loadGapiClient = () => {
     setGapiClientLoading(true);
     initGapiClient().then(() => {
@@ -36,7 +38,6 @@ const Setting = () => {
   }
 
   const handleGetData = () => {
-    const urlParams = new URLSearchParams(window.location.search);
     getTrainsData(urlParams.get('folderId') || '', urlParams.get('date') || '');
   };
 
@@ -52,7 +53,7 @@ const Setting = () => {
     <div>
       <GoogleLogin onLoginSuccess={handleLoginSuccess} />
       <Button disabled={disabled} onClick={handleGetData}>
-        Save to indexedDB
+        Save {urlParams.get('date')} to indexedDB
       </Button>
     </div>
   );
