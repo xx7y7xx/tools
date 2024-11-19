@@ -10,7 +10,7 @@ import {
 } from './indexedDBHelpers';
 
 const dbName = 'dt_trainDb';
-const tableName = 'trains';
+const trainsTableName = 'trains';
 const version = 1;
 
 const saveAsync = async (trainsFullInfoMap: TrainsFullInfoMapType) => {
@@ -27,7 +27,7 @@ const saveAsync = async (trainsFullInfoMap: TrainsFullInfoMapType) => {
     // Create an objectStore to hold information about our trains. We're
     // going to use "trainNumber" as our key path because it's guaranteed to be
     // unique - or at least that's what I was told during the kickoff meeting.
-    const objectStore = db.createObjectStore(tableName, {
+    const objectStore = db.createObjectStore(trainsTableName, {
       keyPath: 'trainNumber',
     });
 
@@ -45,11 +45,11 @@ const saveAsync = async (trainsFullInfoMap: TrainsFullInfoMapType) => {
     // finished before adding data into it.
     objectStore.transaction.oncomplete = () => {
       // Store values in the newly created objectStore.
-      const customerObjectStore = db
-        .transaction(tableName, 'readwrite')
-        .objectStore(tableName);
+      const trainsObjectStore = db
+        .transaction(trainsTableName, 'readwrite')
+        .objectStore(trainsTableName);
       Object.keys(trainsFullInfoMap).forEach((trainNumber) => {
-        customerObjectStore.add(trainsFullInfoMap[trainNumber]);
+        trainsObjectStore.add(trainsFullInfoMap[trainNumber]);
       });
 
       console.log('All trains added successfully');
