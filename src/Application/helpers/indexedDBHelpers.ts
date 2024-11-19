@@ -14,7 +14,7 @@ export const openAsync = (
   dbName: string,
   version: number,
   callbacks?: {
-    onupgradeneeded: (event: any) => void;
+    onupgradeneeded: IDBOpenDBRequest['onupgradeneeded'];
   }
 ) => {
   return new Promise<IDBDatabase>((resolve, reject) => {

@@ -19,9 +19,10 @@ const saveAsync = async (trainsFullInfoMap: TrainsFullInfoMapType) => {
   await deleteDatabaseAsync(dbName);
   console.log('deleteDatabase end');
 
-  const onupgradeneeded = (event: any) => {
+  const onupgradeneeded: IDBOpenDBRequest['onupgradeneeded'] = (event) => {
     // Save the IDBDatabase interface
-    const db = event.target.result;
+    // There's not enough type information in handler callback type provided by `dom` Typescript library. (https://stackoverflow.com/questions/75953640/how-to-get-event-target-result-in-javascript-indexdb-typescript-working)
+    const db = (event.target as IDBOpenDBRequest).result;
 
     // Create an objectStore to hold information about our trains. We're
     // going to use "trainNumber" as our key path because it's guaranteed to be
