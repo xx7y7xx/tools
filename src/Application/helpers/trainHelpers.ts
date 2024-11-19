@@ -27,29 +27,29 @@ const saveAsync = async (trainsFullInfoMap: TrainsFullInfoMapType) => {
     // Create an objectStore to hold information about our trains. We're
     // going to use "trainNumber" as our key path because it's guaranteed to be
     // unique - or at least that's what I was told during the kickoff meeting.
-    const objectStore = db.createObjectStore(trainsTableName, {
+    const schemaObjectStore = db.createObjectStore(trainsTableName, {
       keyPath: 'trainNumber',
     });
 
     // Create an index to search trains by trainCategory. We may have duplicates
     // so we can't use a unique index.
-    objectStore.createIndex('trainCategory', 'trainCategory', {
+    schemaObjectStore.createIndex('trainCategory', 'trainCategory', {
       unique: false,
     });
 
     // // Create an index to search trains by email. We want to ensure that
     // // no two trains have the same email, so use a unique index.
-    // objectStore.createIndex('email', 'email', { unique: true });
+    // schemaObjectStore.createIndex('email', 'email', { unique: true });
 
     // Use transaction oncomplete to make sure the objectStore creation is
     // finished before adding data into it.
-    objectStore.transaction.oncomplete = () => {
+    schemaObjectStore.transaction.oncomplete = () => {
       // Store values in the newly created objectStore.
-      const trainsObjectStore = db
+      const dataObjectStore = db
         .transaction(trainsTableName, 'readwrite')
         .objectStore(trainsTableName);
       Object.keys(trainsFullInfoMap).forEach((trainNumber) => {
-        trainsObjectStore.add(trainsFullInfoMap[trainNumber]);
+        dataObjectStore.add(trainsFullInfoMap[trainNumber]);
       });
 
       console.log('All trains added successfully');
