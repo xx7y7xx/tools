@@ -69,7 +69,7 @@ const saveAsync = async (trainsFullInfoMap: TrainsFullInfoMapType) => {
 export const getAllTrainsAsync = async (): Promise<TrainFullInfoType[]> => {
   const db = await openAsync(dbName, version);
 
-  if (!db.objectStoreNames.contains(tableName)) {
+  if (!db.objectStoreNames.contains(trainsTableName)) {
     // throw new Error('Object store "trains" does not exist in the database.');
     message.error('Object store "trains" does not exist in the database.');
     return [];
@@ -77,7 +77,7 @@ export const getAllTrainsAsync = async (): Promise<TrainFullInfoType[]> => {
 
   const trains = (await getAllRecordsAsync(
     db,
-    tableName
+    trainsTableName
   )) as TrainFullInfoType[];
   return trains;
 };
