@@ -11,9 +11,15 @@ import {
 
 const dbName = 'dt_trainDb';
 const trainsTableName = 'trains';
+const trainsTableKeyPath = 'trainNumber';
+const trainsMetaDataTableName = 'trains_meta_data';
+const trainsMetaDataTableKeyPath = 'createdAt';
 const version = 1;
 
-const saveAsync = async (trainsFullInfoMap: TrainsFullInfoMapType) => {
+const saveAsync = async (
+  date: string,
+  trainsFullInfoMap: TrainsFullInfoMapType
+) => {
   // before save, delete the old database
   console.log('deleteDatabase start');
   await deleteDatabaseAsync(dbName);
@@ -28,7 +34,7 @@ const saveAsync = async (trainsFullInfoMap: TrainsFullInfoMapType) => {
     // going to use "trainNumber" as our key path because it's guaranteed to be
     // unique - or at least that's what I was told during the kickoff meeting.
     const schemaObjectStore = db.createObjectStore(trainsTableName, {
-      keyPath: 'trainNumber',
+      keyPath: trainsTableKeyPath,
     });
 
     // Create an index to search trains by trainCategory. We may have duplicates
@@ -41,26 +47,33 @@ const saveAsync = async (trainsFullInfoMap: TrainsFullInfoMapType) => {
     // // no two trains have the same email, so use a unique index.
     // schemaObjectStore.createIndex('email', 'email', { unique: true });
 
-    // Use transaction oncomplete to make sure the objectStore creation is
-    // finished before adding data into it.
-    schemaObjectStore.transaction.oncomplete = () => {
-      // Store values in the newly created objectStore.
-      const dataObjectStore = db
-        .transaction(trainsTableName, 'readwrite')
-        .objectStore(trainsTableName);
-      Object.keys(trainsFullInfoMap).forEach((trainNumber) => {
-        dataObjectStore.add(trainsFullInfoMap[trainNumber]);
-      });
-
-      console.log('All trains added successfully');
-    };
+    // Create an objectStore to hold metadata about our trains.
+    db.createObjectStore(trainsMetaDataTableName, {
+      keyPath: trainsMetaDataTableKeyPath,
+    });
   };
 
   const db = await openAsync(dbName, version, {
     onupgradeneeded,
   });
 
-  console.log('db', db);
+  // Store values in the newly created objectStore.
+  const dataObjectStore = db
+    .transaction(trainsTableName, 'readwrite')
+    .objectStore(trainsTableName);
+  Object.keys(trainsFullInfoMap).forEach((trainNumber) => {
+    dataObjectStore.add(trainsFullInfoMap[trainNumber]);
+  });
+
+  // Store metadata in the newly created objectStore.
+  db.transaction(trainsMetaDataTableName, 'readwrite')
+    .objectStore(trainsMetaDataTableName)
+    .add({
+      [trainsMetaDataTableKeyPath]: new Date(),
+      trainsDownloadedDate: date,
+    });
+
+  console.log('All trains added successfully');
 };
 
 /**
@@ -121,7 +134,7 @@ export const getTrainsData = async (folderId: string, date: string) => {
           .then((resp) => {
             console.log('[TrainSearch] files.get resp', f.name, resp);
             message.success(`Load ${f.name} successfully`);
-            saveAsync(resp as TrainsFullInfoMapType);
+            saveAsync(date, resp as TrainsFullInfoMapType);
           });
       });
   });

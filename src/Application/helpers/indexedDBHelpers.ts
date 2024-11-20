@@ -23,9 +23,7 @@ export const openAsync = (
       reject(event);
     };
     request.onsuccess = (event) => {
-      // resolve(request.result);
-      // @ts-ignore
-      resolve(event.target.result);
+      resolve((event.target as IDBOpenDBRequest).result);
     };
     if (callbacks) {
       request.onupgradeneeded = callbacks.onupgradeneeded;
