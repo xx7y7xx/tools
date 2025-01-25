@@ -73,7 +73,8 @@ const saveAsync = async (
       trainsDownloadedDate: date,
     });
 
-  console.log('All trains added successfully');
+  console.log('All trains added to indexeddb successfully');
+  message.success('All trains added to indexeddb successfully');
 };
 
 /**
