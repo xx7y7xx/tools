@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import GoogleLogin from './components/GoogleLogin';
-import { getTrainsData } from './helpers/trainHelpers';
+import { getTrainsData, getTrainsMetaDataAsync } from './helpers/trainHelpers';
 import Warning from './Warning';
 import { initGapiClient } from './init';
 import { Button } from 'antd';
@@ -10,6 +10,7 @@ const Setting = () => {
   const [gapiLoaded, setGapiLoaded] = useState(false);
   const [gapiClientLoading, setGapiClientLoading] = useState(false);
   const [disabled, setDisabled] = useState(true);
+  const [metaData, setMetaData] = useState({});
 
   const urlParams = new URLSearchParams(window.location.search);
 
@@ -27,6 +28,14 @@ const Setting = () => {
       setGapiLoaded(true);
       loadGapiClient();
     }
+
+    // get data date from meta data
+    getTrainsMetaDataAsync().then((metaData) => {
+      console.log('metaData', metaData);
+      if (metaData && metaData.length > 0) {
+        setMetaData(metaData[0]);
+      }
+    });
   }, []);
 
   /**
@@ -55,6 +64,7 @@ const Setting = () => {
       <Button disabled={disabled} onClick={handleGetData}>
         Save {urlParams.get('date')} to indexedDB
       </Button>
+      <div>Meta data: {JSON.stringify(metaData)}</div>
     </div>
   );
 };

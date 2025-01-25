@@ -97,6 +97,26 @@ export const getAllTrainsAsync = async (): Promise<TrainFullInfoType[]> => {
 };
 
 /**
+ * Get trains db meta data from indexedDB
+ */
+export const getTrainsMetaDataAsync = async () => {
+  const db = await openAsync(dbName, version);
+
+  if (!db.objectStoreNames.contains(trainsMetaDataTableName)) {
+    // throw new Error('Object store "trains_meta_data" does not exist in the database.');
+    message.error(
+      'Object store "trains_meta_data" does not exist in the database.'
+    );
+    return;
+  }
+
+  const metaData = (await getAllRecordsAsync(db, trainsMetaDataTableName)) as {
+    trainsDownloadedDate: string;
+  }[];
+  return metaData;
+};
+
+/**
  * `trainsFullInfoMap_20240716.json` example:
  * ```json
  * {
