@@ -25,4 +25,8 @@ export type TrainsFullInfoMapType = {
   [trainNumber: string]: TrainFullInfoType;
 };
 
+export type StationToTrainMapType = {
+  [station: string]: TrainFullInfoType[];
+};
+
 export type TrainsFullInfoMapDataKey = 'trainsFullInfoMap';
