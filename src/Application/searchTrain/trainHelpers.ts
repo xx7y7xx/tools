@@ -1,7 +1,7 @@
 /**
  * Prompt description:
  *
- * This prompt is used to generate the source code for the function `getTrainType`.
+ * This prompt is used to generate the source code for the function `getTrainType` based on GPT-4o.
  *
  * The context is from wikipedia page:
  * https://zh.wikipedia.org/wiki/中国铁路列车车次
