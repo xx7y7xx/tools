@@ -1,8 +1,12 @@
 /**
  * Prompt description:
  *
+ * This prompt is used to generate the source code for the function `getTrainType`.
+ *
  * The context is from wikipedia page:
  * https://zh.wikipedia.org/wiki/中国铁路列车车次
+ *
+ * TODO: Use another prompt to check the generated source code against the context
  */
 
 // Prompt Start
