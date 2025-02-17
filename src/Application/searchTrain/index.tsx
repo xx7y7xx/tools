@@ -2,12 +2,18 @@ import { useEffect, useState } from 'react';
 
 import { message, Tabs, TabsProps } from 'antd';
 
-import { StationToTrainMapType, TrainsFullInfoMapType } from './types';
+import {
+  StationToTrainMapType,
+  TrainFullInfoType,
+  TrainsFullInfoMapType,
+} from './types';
 import { getAllTrainsAsync } from '../helpers/trainHelpers';
 import SearchByCode from './SearchByName';
 import SearchByStation from './SearchByStation';
+import SystemInfo from './SystemInfo';
 
 const SearchTrain = ({ date }: { date: string }) => {
+  const [rawTrains, setRawTrains] = useState<TrainFullInfoType[]>([]);
   const [trainsFullInfoMap, setTrainsFullInfoMap] =
     useState<TrainsFullInfoMapType>({});
   const [stationMap, setStationMap] = useState<StationToTrainMapType>({});
@@ -15,6 +21,8 @@ const SearchTrain = ({ date }: { date: string }) => {
   useEffect(() => {
     // get all trains from indexedDB
     getAllTrainsAsync().then((trains) => {
+      setRawTrains(trains);
+
       const mmap: TrainsFullInfoMapType = {};
       const _stationMap: StationToTrainMapType = {};
       trains.forEach((train) => {
@@ -45,11 +53,16 @@ const SearchTrain = ({ date }: { date: string }) => {
       label: 'Search by Station',
       children: <SearchByStation stationMap={stationMap} />,
     },
+    {
+      key: 'system-info',
+      label: 'System Info',
+      children: <SystemInfo rawTrains={rawTrains} />,
+    },
   ];
 
   return (
     <div style={{ marginTop: 10 }}>
-      <Tabs defaultActiveKey='1' items={items} />
+      <Tabs defaultActiveKey="1" items={items} />
     </div>
   );
 };
