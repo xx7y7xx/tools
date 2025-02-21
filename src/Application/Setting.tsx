@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 
 import GoogleLogin from './components/GoogleLogin';
-import { getTrainsData, getTrainsMetaDataAsync } from './helpers/trainHelpers';
+import {
+  downloadTrainsDataFromGoogleDrive,
+  getTrainsMetaDataAsync,
+} from './helpers/trainHelpers';
 import Warning from './Warning';
 import { initGapiClient } from './init';
 import { Button } from 'antd';
@@ -47,7 +50,10 @@ const Setting = () => {
   }
 
   const handleGetData = () => {
-    getTrainsData(urlParams.get('folderId') || '', urlParams.get('date') || '');
+    downloadTrainsDataFromGoogleDrive(
+      urlParams.get('folderId') || '',
+      urlParams.get('date') || ''
+    );
   };
 
   if (!gapiLoaded) {

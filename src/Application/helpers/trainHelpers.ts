@@ -16,7 +16,7 @@ const trainsMetaDataTableName = 'trains_meta_data';
 const trainsMetaDataTableKeyPath = 'createdAt';
 const version = 1;
 
-const saveAsync = async (
+const saveTrainsToIndexedDBAsync = async (
   date: string,
   trainsFullInfoMap: TrainsFullInfoMapType
 ) => {
@@ -141,7 +141,10 @@ export const getTrainsMetaDataAsync = async () => {
  * @param folderId
  * @param date
  */
-export const getTrainsData = async (folderId: string, date: string) => {
+export const downloadTrainsDataFromGoogleDrive = async (
+  folderId: string,
+  date: string
+) => {
   getJsonFilesInFolder(folderId).then((resp) => {
     console.log('getJsonFilesInFolder resp', resp);
     resp.files
@@ -155,7 +158,7 @@ export const getTrainsData = async (folderId: string, date: string) => {
           .then((resp) => {
             console.log('[TrainSearch] files.get resp', f.name, resp);
             message.success(`Load ${f.name} successfully`);
-            saveAsync(date, resp as TrainsFullInfoMapType);
+            saveTrainsToIndexedDBAsync(date, resp as TrainsFullInfoMapType);
           });
       });
   });
