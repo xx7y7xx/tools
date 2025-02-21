@@ -23,9 +23,7 @@ const SystemInfo = ({ rawTrains }: { rawTrains: TrainFullInfoType[] }) => {
   useEffect(() => {
     const loadMetaData = async () => {
       const data = await getTrainsMetaDataAsync();
-      // @ts-ignore
-      if (data?.length > 0) {
-        // @ts-ignore
+      if (Array.isArray(data) && data.length > 0) {
         setMetaData(data[0]);
       }
     };

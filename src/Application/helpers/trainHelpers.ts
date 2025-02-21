@@ -186,8 +186,9 @@ export const downloadTrainsDataFromGoogleDrive = async (
     return fileData as TrainsFullInfoMapType;
   } catch (error) {
     console.error('Error downloading train data:', error);
-    // @ts-ignore
-    message.error(`Failed to download train data: ${error.message}`);
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
+    message.error(`Failed to download train data: ${errorMessage}`);
     throw error;
   }
 };
