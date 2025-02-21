@@ -117,6 +117,8 @@ export const getTrainsMetaDataAsync = async () => {
 };
 
 /**
+ * Downloads train data from Google Drive and saves it to IndexedDB
+ *
  * `trainsFullInfoMap_20240716.json` example:
  * ```json
  * {
@@ -138,34 +140,58 @@ export const getTrainsMetaDataAsync = async () => {
  *   ...
  * }
  * ```
- * @param folderId
- * @param date
+ *
+ * @param folderId - The Google Drive folder ID containing the train data files
+ * @param date - The date string in YYYYMMDD format to load data for
+ * @returns Promise that resolves when data is downloaded and saved
+ * @throws Error if folder ID or date is invalid
  */
 export const downloadTrainsDataFromGoogleDrive = async (
   folderId: string,
   date: string
-) => {
+): Promise<void> => {
+  if (!folderId) {
+    throw new Error('Folder ID is required');
+  }
+
+  if (!date.match(/^\d{8}$/)) {
+    throw new Error('Date must be in YYYYMMDD format');
+  }
+
   message.info(
-    `Start downloading trains data from Google Drive ${folderId} ${date}`
+    `Downloading trains data from Google Drive folder ${folderId} for date ${date}`
   );
 
-  getJsonFilesInFolder(folderId).then((resp) => {
-    console.log('getJsonFilesInFolder resp', resp);
-    resp.files
-      .filter((f) => f.name === `trainsFullInfoMap_${date}.json`)
-      .forEach((f) => {
-        files
-          .get({
-            fileId: f.id, // '1tK...74I',
-            alt: 'media',
-          })
-          .then((resp) => {
-            console.debug('[TrainSearch] files.get resp', f.name, resp);
-            message.success(`Load ${f.name} successfully`);
-            saveTrainsToIndexedDBAsync(date, resp as TrainsFullInfoMapType);
-          });
-      });
-  });
+  try {
+    const response = await getJsonFilesInFolder(folderId);
+    console.log('Found files in folder:', response);
+
+    const targetFileName = `trainsFullInfoMap_${date}.json`;
+    const targetFile = response.files.find((f) => f.name === targetFileName);
+
+    if (!targetFile) {
+      throw new Error(`File ${targetFileName} not found in folder`);
+    }
+
+    const fileData = await files.get({
+      fileId: targetFile.id, // '1tK...74I',
+      alt: 'media',
+    });
+
+    console.debug(
+      '[TrainSearch] Downloaded file data:',
+      targetFile.name,
+      fileData
+    );
+    message.success(`Successfully loaded ${targetFile.name}`);
+
+    await saveTrainsToIndexedDBAsync(date, fileData as TrainsFullInfoMapType);
+  } catch (error) {
+    console.error('Error downloading train data:', error);
+    // @ts-ignore
+    message.error(`Failed to download train data: ${error.message}`);
+    throw error;
+  }
 };
 
 export const searchTrainByNum = (
