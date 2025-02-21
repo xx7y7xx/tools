@@ -20,6 +20,17 @@ const SearchTrain = ({ date }: SearchTrainProps) => {
     useState<TrainsFullInfoMapType>({});
   const [stationMap, setStationMap] = useState<StationToTrainMapType>({});
 
+  // Get initial active tab from URL or default to 'search-by-code'
+  const urlParams = new URLSearchParams(window.location.search);
+  const defaultTab = urlParams.get('tab') || 'search-by-code';
+
+  const handleTabChange = (activeKey: string) => {
+    // Update URL when tab changes
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set('tab', activeKey);
+    window.history.pushState({}, '', newUrl);
+  };
+
   useEffect(() => {
     const loadTrains = async () => {
       try {
@@ -79,7 +90,11 @@ const SearchTrain = ({ date }: SearchTrainProps) => {
 
   return (
     <div style={{ marginTop: 10 }}>
-      <Tabs defaultActiveKey="search-by-code" items={items} />
+      <Tabs
+        defaultActiveKey={defaultTab}
+        items={items}
+        onChange={handleTabChange}
+      />
     </div>
   );
 };
