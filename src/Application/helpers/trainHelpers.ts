@@ -117,7 +117,7 @@ export const getTrainsMetaDataAsync = async () => {
 };
 
 /**
- * Downloads train data from Google Drive and saves it to IndexedDB
+ * Downloads train data from Google Drive
  *
  * `trainsFullInfoMap_20240716.json` example:
  * ```json
@@ -143,13 +143,13 @@ export const getTrainsMetaDataAsync = async () => {
  *
  * @param folderId - The Google Drive folder ID containing the train data files
  * @param date - The date string in YYYYMMDD format to load data for
- * @returns Promise that resolves when data is downloaded and saved
+ * @returns Promise that resolves with the downloaded train data
  * @throws Error if folder ID or date is invalid
  */
 export const downloadTrainsDataFromGoogleDrive = async (
   folderId: string,
   date: string
-): Promise<void> => {
+): Promise<TrainsFullInfoMapType> => {
   if (!folderId) {
     throw new Error('Folder ID is required');
   }
@@ -183,15 +183,29 @@ export const downloadTrainsDataFromGoogleDrive = async (
       targetFile.name,
       fileData
     );
-    message.success(`Successfully loaded ${targetFile.name}`);
+    message.success(`Successfully downloaded ${targetFile.name}`);
 
-    await saveTrainsToIndexedDBAsync(date, fileData as TrainsFullInfoMapType);
+    return fileData as TrainsFullInfoMapType;
   } catch (error) {
     console.error('Error downloading train data:', error);
     // @ts-ignore
     message.error(`Failed to download train data: ${error.message}`);
     throw error;
   }
+};
+
+/**
+ * Downloads train data from Google Drive and saves it to IndexedDB
+ *
+ * @param folderId - The Google Drive folder ID containing the train data files
+ * @param date - The date string in YYYYMMDD format to load data for
+ */
+export const downloadAndSaveTrainsData = async (
+  folderId: string,
+  date: string
+): Promise<void> => {
+  const trainsData = await downloadTrainsDataFromGoogleDrive(folderId, date);
+  await saveTrainsToIndexedDBAsync(date, trainsData);
 };
 
 export const searchTrainByNum = (

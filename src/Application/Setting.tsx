@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import GoogleLogin from './components/GoogleLogin';
 import {
-  downloadTrainsDataFromGoogleDrive,
+  downloadAndSaveTrainsData,
   getTrainsMetaDataAsync,
 } from './helpers/trainHelpers';
 import Warning from './Warning';
@@ -50,7 +50,7 @@ const Setting = () => {
   }
 
   const handleGetData = () => {
-    downloadTrainsDataFromGoogleDrive(
+    downloadAndSaveTrainsData(
       urlParams.get('folderId') || '',
       urlParams.get('date') || ''
     );
