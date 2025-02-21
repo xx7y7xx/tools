@@ -158,9 +158,7 @@ export const downloadTrainsDataFromGoogleDrive = async (
     throw new Error('Date must be in YYYYMMDD format');
   }
 
-  message.info(
-    `Downloading trains data from Google Drive folder ${folderId} for date ${date}`
-  );
+  message.info(`Downloading trains data from Google Drive for date ${date}`);
 
   try {
     const response = await getJsonFilesInFolder(folderId);
