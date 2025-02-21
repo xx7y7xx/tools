@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import { Col, Row } from 'antd';
 import { TrainFullInfoType } from './types';
+import { getTrainsMetaDataAsync } from '../helpers/trainHelpers';
 
 /**
  * System info
@@ -8,6 +10,17 @@ import { TrainFullInfoType } from './types';
  * @returns
  */
 const SystemInfo = ({ rawTrains }: { rawTrains: TrainFullInfoType[] }) => {
+  const [metaData, setMetaData] = useState({});
+
+  useEffect(() => {
+    // get data date from meta data
+    getTrainsMetaDataAsync().then((metaData) => {
+      if (metaData && metaData.length > 0) {
+        setMetaData(metaData[0]);
+      }
+    });
+  }, []);
+
   const trainTypeMap = {} as Record<string, number>;
   const operateGroupMap = {} as Record<string, number>;
   const trainCategoryMap = {} as Record<string, number>;
@@ -22,6 +35,12 @@ const SystemInfo = ({ rawTrains }: { rawTrains: TrainFullInfoType[] }) => {
 
   return (
     <Row>
+      <Col xs={24} sm={12} md={8}>
+        <div>
+          <h2>Meta data</h2>
+          <div>{JSON.stringify(metaData)}</div>
+        </div>
+      </Col>
       <Col xs={24} sm={12} md={8}>
         <div>
           <h2>Train Type</h2>

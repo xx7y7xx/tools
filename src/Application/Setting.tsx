@@ -34,7 +34,6 @@ const Setting = () => {
 
     // get data date from meta data
     getTrainsMetaDataAsync().then((metaData) => {
-      console.log('metaData', metaData);
       if (metaData && metaData.length > 0) {
         setMetaData(metaData[0]);
       }
