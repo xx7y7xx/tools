@@ -145,6 +145,10 @@ export const downloadTrainsDataFromGoogleDrive = async (
   folderId: string,
   date: string
 ) => {
+  message.info(
+    `Start downloading trains data from Google Drive ${folderId} ${date}`
+  );
+
   getJsonFilesInFolder(folderId).then((resp) => {
     console.log('getJsonFilesInFolder resp', resp);
     resp.files
@@ -156,7 +160,7 @@ export const downloadTrainsDataFromGoogleDrive = async (
             alt: 'media',
           })
           .then((resp) => {
-            console.log('[TrainSearch] files.get resp', f.name, resp);
+            console.debug('[TrainSearch] files.get resp', f.name, resp);
             message.success(`Load ${f.name} successfully`);
             saveTrainsToIndexedDBAsync(date, resp as TrainsFullInfoMapType);
           });
