@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
-
 import { message, Tabs, TabsProps } from 'antd';
-
 import {
   StationToTrainMapType,
   TrainFullInfoType,
@@ -12,34 +10,53 @@ import SearchByCode from './SearchByName';
 import SearchByStation from './SearchByStation';
 import SystemInfo from './SystemInfo';
 
-const SearchTrain = ({ date }: { date: string }) => {
+interface SearchTrainProps {
+  date: string;
+}
+
+const SearchTrain = ({ date }: SearchTrainProps) => {
   const [rawTrains, setRawTrains] = useState<TrainFullInfoType[]>([]);
   const [trainsFullInfoMap, setTrainsFullInfoMap] =
     useState<TrainsFullInfoMapType>({});
   const [stationMap, setStationMap] = useState<StationToTrainMapType>({});
 
   useEffect(() => {
-    // get all trains from indexedDB
-    getAllTrainsAsync().then((trains) => {
-      setRawTrains(trains);
+    const loadTrains = async () => {
+      try {
+        // get all trains from indexedDB
+        const trains = await getAllTrainsAsync();
+        setRawTrains(trains);
 
-      const mmap: TrainsFullInfoMapType = {};
-      const _stationMap: StationToTrainMapType = {};
-      trains.forEach((train) => {
-        mmap[train.trainNumber] = train;
-        if (!_stationMap[`from:${train.fromStation}`]) {
-          _stationMap[`from:${train.fromStation}`] = [];
-        }
-        if (!_stationMap[`to:${train.toStation}`]) {
-          _stationMap[`to:${train.toStation}`] = [];
-        }
-        _stationMap[`from:${train.fromStation}`].push(train);
-        _stationMap[`to:${train.toStation}`].push(train);
-      });
-      setTrainsFullInfoMap(mmap);
-      setStationMap(_stationMap);
-      message.success('Trains loaded, count ' + trains.length);
-    });
+        const mmap: TrainsFullInfoMapType = {};
+        const _stationMap: StationToTrainMapType = {};
+
+        trains.forEach((train) => {
+          // Add train to trains map
+          mmap[train.trainNumber] = train;
+
+          // Add train to station maps
+          const fromKey = `from:${train.fromStation}`;
+          const toKey = `to:${train.toStation}`;
+
+          _stationMap[fromKey] = _stationMap[fromKey] || [];
+          _stationMap[toKey] = _stationMap[toKey] || [];
+
+          _stationMap[fromKey].push(train);
+          _stationMap[toKey].push(train);
+        });
+
+        setTrainsFullInfoMap(mmap);
+        setStationMap(_stationMap);
+        message.success(
+          `Trains loaded successfully. Total count: ${trains.length}`
+        );
+      } catch (error) {
+        console.error('Failed to load trains:', error);
+        message.error('Failed to load trains data');
+      }
+    };
+
+    loadTrains();
   }, []);
 
   const items: TabsProps['items'] = [
@@ -62,7 +79,7 @@ const SearchTrain = ({ date }: { date: string }) => {
 
   return (
     <div style={{ marginTop: 10 }}>
-      <Tabs defaultActiveKey="1" items={items} />
+      <Tabs defaultActiveKey="search-by-code" items={items} />
     </div>
   );
 };
