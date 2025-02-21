@@ -3,86 +3,76 @@ import { Col, Row } from 'antd';
 import { TrainFullInfoType } from './types';
 import { getTrainsMetaDataAsync } from '../helpers/trainHelpers';
 
+interface TrainStats {
+  trainType: Record<string, number>;
+  operateGroup: Record<string, number>;
+  trainCategory: Record<string, number>;
+}
+
+interface MetaData {
+  trainsDownloadedDate: string;
+}
+
 /**
- * System info
- * Render aggregated info by trainType, operateGroup, trainCategory
- * @param rawTrains all trains info
- * @returns
+ * System info component that displays aggregated train statistics
+ * Shows breakdowns by train type, operating group, and train category
  */
 const SystemInfo = ({ rawTrains }: { rawTrains: TrainFullInfoType[] }) => {
-  const [metaData, setMetaData] = useState({});
+  const [metaData, setMetaData] = useState<MetaData | null>(null);
 
   useEffect(() => {
-    // get data date from meta data
-    getTrainsMetaDataAsync().then((metaData) => {
-      if (metaData && metaData.length > 0) {
-        setMetaData(metaData[0]);
+    const loadMetaData = async () => {
+      const data = await getTrainsMetaDataAsync();
+      // @ts-ignore
+      if (data?.length > 0) {
+        // @ts-ignore
+        setMetaData(data[0]);
       }
-    });
+    };
+    loadMetaData();
   }, []);
 
-  const trainTypeMap = {} as Record<string, number>;
-  const operateGroupMap = {} as Record<string, number>;
-  const trainCategoryMap = {} as Record<string, number>;
+  const stats = rawTrains.reduce<TrainStats>(
+    (acc, train) => {
+      acc.trainType[train.trainType] =
+        (acc.trainType[train.trainType] || 0) + 1;
+      acc.operateGroup[train.operateGroup] =
+        (acc.operateGroup[train.operateGroup] || 0) + 1;
+      acc.trainCategory[train.trainCategory] =
+        (acc.trainCategory[train.trainCategory] || 0) + 1;
+      return acc;
+    },
+    { trainType: {}, operateGroup: {}, trainCategory: {} }
+  );
 
-  rawTrains.forEach((train) => {
-    trainTypeMap[train.trainType] = (trainTypeMap[train.trainType] || 0) + 1;
-    operateGroupMap[train.operateGroup] =
-      (operateGroupMap[train.operateGroup] || 0) + 1;
-    trainCategoryMap[train.trainCategory] =
-      (trainCategoryMap[train.trainCategory] || 0) + 1;
-  });
+  const renderStatsList = (data: Record<string, number>, title: string) => (
+    <Col xs={24} sm={12} md={8}>
+      <div>
+        <h2>{title}</h2>
+        <ul>
+          {Object.entries(data)
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([key, count]) => (
+              <li key={key}>
+                {key} - {count}
+              </li>
+            ))}
+        </ul>
+      </div>
+    </Col>
+  );
 
   return (
-    <Row>
+    <Row gutter={[16, 16]}>
       <Col xs={24} sm={12} md={8}>
         <div>
-          <h2>Meta data</h2>
-          <div>{JSON.stringify(metaData)}</div>
+          <h2>Meta Data</h2>
+          <div>{metaData ? JSON.stringify(metaData) : 'Loading...'}</div>
         </div>
       </Col>
-      <Col xs={24} sm={12} md={8}>
-        <div>
-          <h2>Train Type</h2>
-          <ul>
-            {Object.entries(trainTypeMap)
-              .sort()
-              .map(([trainType, count]) => (
-                <li key={trainType}>
-                  {trainType} - {count}
-                </li>
-              ))}
-          </ul>
-        </div>
-      </Col>
-      <Col xs={24} sm={12} md={8}>
-        <div>
-          <h2>Operate Group</h2>
-          <ul>
-            {Object.entries(operateGroupMap)
-              .sort()
-              .map(([operateGroup, count]) => (
-                <li key={operateGroup}>
-                  {operateGroup} - {count}
-                </li>
-              ))}
-          </ul>
-        </div>
-      </Col>
-      <Col xs={24} sm={12} md={8}>
-        <div>
-          <h2>Train Category</h2>
-          <ul>
-            {Object.entries(trainCategoryMap)
-              .sort()
-              .map(([trainCategory, count]) => (
-                <li key={trainCategory}>
-                  {trainCategory} - {count}
-                </li>
-              ))}
-          </ul>
-        </div>
-      </Col>
+      {renderStatsList(stats.trainType, 'Train Type')}
+      {renderStatsList(stats.operateGroup, 'Operate Group')}
+      {renderStatsList(stats.trainCategory, 'Train Category')}
     </Row>
   );
 };
