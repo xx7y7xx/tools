@@ -78,6 +78,26 @@ export const getJsonFilesInFolder = async (
     fields: `${filesFields},files/id,files/name`,
   });
 
+export const getJsonFileContent = async (
+  folderId: string,
+  fileName: string
+) => {
+  const response = await getJsonFilesInFolder(folderId);
+
+  const targetFile = response.files.find((f) => f.name === fileName);
+
+  if (!targetFile) {
+    throw new Error(`File ${fileName} not found in folder`);
+  }
+
+  const fileData = await files.get({
+    fileId: targetFile.id, // '1tK...74I',
+    alt: 'media',
+  });
+
+  return fileData;
+};
+
 export const getAllJsonFileContentInFolder = async (folderId: string) => {
   const resp = await getJsonFilesInFolder(folderId);
   const promises = resp.files.map((file) =>

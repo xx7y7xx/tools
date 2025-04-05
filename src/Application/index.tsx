@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/react';
 
 // import { initGa } from './init';
 import SearchTrain from './searchTrain';
-import Setting from './Setting';
+import Setting from './Settings';
 
 // Styles for application
 import './index.css';
@@ -43,12 +43,12 @@ export default function Application() {
         return (
           <div>
             <div>
-              <a href='/tools?app=trainSearch'>TrainSearch</a>
+              <a href="/tools?app=trainSearch">TrainSearch</a>
             </div>
           </div>
         );
     }
   };
 
-  return <div className='application xx7y7xx-tools'>{appSwitch()}</div>;
+  return <div className="application xx7y7xx-tools">{appSwitch()}</div>;
 }

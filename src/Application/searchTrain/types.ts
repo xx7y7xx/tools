@@ -25,6 +25,23 @@ export type TrainsFullInfoMapType = {
   [trainNumber: string]: TrainFullInfoType;
 };
 
+type checiInfoType = {
+  date: string; // e.g. "20241121"
+  from_station: string; // e.g. "北京丰台"
+  to_station: string; // e.g. "上海"
+  total_num: string; // e.g. "20"
+  train_no: string; // e.g. "240000146130"
+};
+
+export type checiDateMapType = {
+  [checi: string]: checiInfoType[];
+};
+
+export type dateCheciType = {
+  checi: string;
+  dateCheci: checiInfoType[];
+};
+
 export type StationToTrainMapType = {
   [station: string]: TrainFullInfoType[];
 };
