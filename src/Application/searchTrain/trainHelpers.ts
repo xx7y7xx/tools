@@ -94,58 +94,58 @@ MUST implement all the cases for other train types ('C', 'Z', 'T', 'K', etc.)
 // Prompt End
 
 /**
- *
- * @param trainCode
- * @returns
+ * Get train type from train code
+ * @param trainCode e.g. "G4002"
+ * @returns e.g. "高速动车组旅客列车（G）: 直通临客预留"
  */
 export function getTrainType(trainCode: string) {
-  const code = parseInt(trainCode.replace(/[A-Z]/g, ""), 10);
+  const code = parseInt(trainCode.replace(/[A-Z]/g, ''), 10);
 
-  if (trainCode.startsWith("G")) {
-    if (code >= 1 && code <= 4000) return "高速动车组旅客列车（G）: 直通图定";
+  if (trainCode.startsWith('G')) {
+    if (code >= 1 && code <= 4000) return '高速动车组旅客列车（G）: 直通图定';
     if (code >= 4001 && code <= 4998)
-      return "高速动车组旅客列车（G）: 直通临客预留";
+      return '高速动车组旅客列车（G）: 直通临客预留';
     if (code >= 5001 && code <= 9000)
-      return "高速动车组旅客列车（G）: 管内图定";
+      return '高速动车组旅客列车（G）: 管内图定';
     if (code >= 9001 && code <= 9998)
-      return "高速动车组旅客列车（G）: 管内临客预留";
-  } else if (trainCode.startsWith("C")) {
-    if (code >= 1001 && code <= 9998) return "城际动车组旅客列车（C）";
-  } else if (trainCode.startsWith("D")) {
-    if (code >= 1 && code <= 4000) return "动车组旅客列车（D）: 直通图定";
+      return '高速动车组旅客列车（G）: 管内临客预留';
+  } else if (trainCode.startsWith('C')) {
+    if (code >= 1001 && code <= 9998) return '城际动车组旅客列车（C）';
+  } else if (trainCode.startsWith('D')) {
+    if (code >= 1 && code <= 4000) return '动车组旅客列车（D）: 直通图定';
     if (code >= 4001 && code <= 4998)
-      return "动车组旅客列车（D）: 直通临客预留";
-    if (code >= 5001 && code <= 9000) return "动车组旅客列车（D）: 管内图定";
+      return '动车组旅客列车（D）: 直通临客预留';
+    if (code >= 5001 && code <= 9000) return '动车组旅客列车（D）: 管内图定';
     if (code >= 9001 && code <= 9998)
-      return "动车组旅客列车（D）: 管内临客预留";
-  } else if (trainCode.startsWith("Z")) {
-    if (code >= 1 && code <= 4000) return "直达特快旅客列车（Z）: 直通图定";
+      return '动车组旅客列车（D）: 管内临客预留';
+  } else if (trainCode.startsWith('Z')) {
+    if (code >= 1 && code <= 4000) return '直达特快旅客列车（Z）: 直通图定';
     if (code >= 4001 && code <= 4998)
-      return "直达特快旅客列车（Z）: 直通临客预留";
-    if (code >= 5001 && code <= 9000) return "直达特快旅客列车（Z）: 管内图定";
+      return '直达特快旅客列车（Z）: 直通临客预留';
+    if (code >= 5001 && code <= 9000) return '直达特快旅客列车（Z）: 管内图定';
     if (code >= 9001 && code <= 9998)
-      return "直达特快旅客列车（Z）: 管内临客预留";
-  } else if (trainCode.startsWith("T")) {
-    if (code >= 1 && code <= 3000) return "特快旅客列车（T）: 直通图定";
-    if (code >= 3001 && code <= 3998) return "特快旅客列车（T）: 直通临客预留";
-    if (code >= 4001 && code <= 4998) return "特快旅客列车（T）: 管内临客预留";
-    if (code >= 5001 && code <= 9998) return "特快旅客列车（T）: 管内图定";
-  } else if (trainCode.startsWith("K")) {
-    if (code >= 1 && code <= 4000) return "快速旅客列车（K）: 直通图定";
-    if (code >= 4001 && code <= 4998) return "快速旅客列车（K）: 直通临客预留";
-    if (code >= 5001 && code <= 6998) return "快速旅客列车（K）: 管内临客预留";
-    if (code >= 7001 && code <= 9998) return "快速旅客列车（K）: 管内图定";
+      return '直达特快旅客列车（Z）: 管内临客预留';
+  } else if (trainCode.startsWith('T')) {
+    if (code >= 1 && code <= 3000) return '特快旅客列车（T）: 直通图定';
+    if (code >= 3001 && code <= 3998) return '特快旅客列车（T）: 直通临客预留';
+    if (code >= 4001 && code <= 4998) return '特快旅客列车（T）: 管内临客预留';
+    if (code >= 5001 && code <= 9998) return '特快旅客列车（T）: 管内图定';
+  } else if (trainCode.startsWith('K')) {
+    if (code >= 1 && code <= 4000) return '快速旅客列车（K）: 直通图定';
+    if (code >= 4001 && code <= 4998) return '快速旅客列车（K）: 直通临客预留';
+    if (code >= 5001 && code <= 6998) return '快速旅客列车（K）: 管内临客预留';
+    if (code >= 7001 && code <= 9998) return '快速旅客列车（K）: 管内图定';
   } else if (code >= 1001 && code <= 5998) {
     if (code >= 1001 && code <= 1998)
-      return "普通旅客快车（普快）: 跨三局及其以上";
-    if (code >= 2001 && code <= 2998) return "普通旅客快车（普快）: 跨两局";
-    if (code >= 4001 && code <= 5998) return "普通旅客快车（普快）: 管内";
+      return '普通旅客快车（普快）: 跨三局及其以上';
+    if (code >= 2001 && code <= 2998) return '普通旅客快车（普快）: 跨两局';
+    if (code >= 4001 && code <= 5998) return '普通旅客快车（普快）: 管内';
   } else if (code >= 6001 && code <= 7598) {
-    if (code >= 6001 && code <= 6198) return "普通旅客列车（普客）: 跨局";
-    if (code >= 6201 && code <= 7598) return "普通旅客列车（普客）: 管内";
+    if (code >= 6001 && code <= 6198) return '普通旅客列车（普客）: 跨局';
+    if (code >= 6201 && code <= 7598) return '普通旅客列车（普客）: 管内';
   }
 
-  return "Unknown train type or code";
+  return 'Unknown train type or code';
 }
 
 // // Example usage:

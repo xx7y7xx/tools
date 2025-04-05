@@ -1,15 +1,20 @@
 import { useEffect, useState } from 'react';
 import { message, Tabs, TabsProps } from 'antd';
+
 import {
+  dateCheciType,
   StationToTrainMapType,
   TrainFullInfoType,
   TrainsFullInfoMapType,
 } from './types';
-import { getAllTrainsAsync } from '../helpers/trainHelpers';
-import SearchByCode from './SearchByName';
+import {
+  getAllDateChecisAsync,
+  getAllTrainsAsync,
+} from '../helpers/trainHelpers';
+import SearchByCode from './SearchByCode';
 import SearchByStation from './SearchByStation';
 import SystemInfo from './SystemInfo';
-
+import SearchByCheci from './SearchByCheci/SearchByCheci';
 interface SearchTrainProps {
   date: string;
 }
@@ -19,6 +24,7 @@ const SearchTrain = ({ date }: SearchTrainProps) => {
   const [trainsFullInfoMap, setTrainsFullInfoMap] =
     useState<TrainsFullInfoMapType>({});
   const [stationMap, setStationMap] = useState<StationToTrainMapType>({});
+  const [dateChecis, setDateChecis] = useState<dateCheciType[]>([]);
 
   // Get initial active tab from URL or default to 'search-by-code'
   const urlParams = new URLSearchParams(window.location.search);
@@ -37,6 +43,9 @@ const SearchTrain = ({ date }: SearchTrainProps) => {
         // get all trains from indexedDB
         const trains = await getAllTrainsAsync();
         setRawTrains(trains);
+
+        const dateChecis = await getAllDateChecisAsync();
+        setDateChecis(dateChecis);
 
         const mmap: TrainsFullInfoMapType = {};
         const _stationMap: StationToTrainMapType = {};
@@ -86,10 +95,16 @@ const SearchTrain = ({ date }: SearchTrainProps) => {
       label: 'System Info',
       children: <SystemInfo rawTrains={rawTrains} />,
     },
+    {
+      key: 'search-by-checi',
+      label: 'Search by Checi',
+      children: <SearchByCheci dateChecis={dateChecis} />,
+    },
   ];
 
+  // rwtool is "Rail Way Tool"
   return (
-    <div style={{ marginTop: 10 }}>
+    <div className="rwtool-search-train" style={{ marginTop: 10 }}>
       <Tabs
         defaultActiveKey={defaultTab}
         items={items}

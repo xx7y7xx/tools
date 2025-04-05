@@ -1,18 +1,19 @@
-import { Descriptions, DescriptionsProps } from "antd";
-import { TrainFullInfoType } from "./types";
-import { getTrainType } from "./trainHelpers";
+import { Descriptions, DescriptionsProps } from 'antd';
+import { TrainFullInfoType } from './types';
+import { getTrainType } from './trainHelpers';
 
+// Translate key in English to Chinese
 export const fullInfoKeyToName: { [key: string]: string } = {
-  operateGroup: "担当路局",
-  trainCategory: "列车型号",
-  trainNumber: "车次",
-  runTime: "运行时间",
-  fromStation: "始发站",
-  toStation: "到达站",
-  departureTime: "发车时间",
-  arrivalTime: "到站时间",
-  trainType: "列车类型",
-  distance: "里程",
+  operateGroup: '担当路局',
+  trainCategory: '列车型号',
+  trainNumber: '车次',
+  runTime: '运行时间',
+  fromStation: '始发站',
+  toStation: '到达站',
+  departureTime: '发车时间',
+  arrivalTime: '到站时间',
+  trainType: '列车类型',
+  distance: '里程',
 
   // 未知字段定义
   // total_num: '?总数',
@@ -22,9 +23,9 @@ export const fullInfoKeyToName: { [key: string]: string } = {
 export const renderDescriptionsItem =
   (trainFullInfo: TrainFullInfoType) => (key: string) => {
     const renderChildren = () => {
-      const val = trainFullInfo[key as "operateGroup"];
+      const val = trainFullInfo[key as 'operateGroup'];
       switch (key) {
-        case "trainNumber":
+        case 'trainNumber':
           return (
             <a
               href={`https://shike.gaotie.cn/checi.asp?CheCi=${val}`}
@@ -34,7 +35,7 @@ export const renderDescriptionsItem =
               {val}
             </a>
           );
-        case "operateGroup":
+        case 'operateGroup':
           return (
             <a
               href={`https://zh.wikipedia.org/wiki/中国铁路${val}集团`}
@@ -68,7 +69,7 @@ export const renderCollapseItem =
         `${trainFullInfo.trainNumber} ${trainFullInfo.fromStation} - ${trainFullInfo.toStation}`;
     }
 
-    const trainFullInfoItems: DescriptionsProps["items"] = Object.keys(
+    const trainFullInfoItems: DescriptionsProps['items'] = Object.keys(
       trainFullInfo
     ).map(renderDescriptionsItem(trainFullInfo));
 
