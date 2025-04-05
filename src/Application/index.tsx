@@ -1,5 +1,6 @@
 import React from 'react';
 import * as Sentry from '@sentry/react';
+import { Alert } from 'antd';
 
 // import { initGa } from './init';
 import SearchTrain from './searchTrain';
@@ -26,6 +27,16 @@ Sentry.init({
   replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
 });
 
+// use alert in antd
+const DeprecatedAlert = () => {
+  return (
+    <Alert
+      message="We will deprecate ?app=, and replace with ?tool="
+      type="warning"
+    />
+  );
+};
+
 export default function Application() {
   const urlParams = new URLSearchParams(window.location.search);
 
@@ -34,16 +45,36 @@ export default function Application() {
   // }, []);
 
   const appSwitch = () => {
-    switch (urlParams.get('app')) {
+    /**
+     * We will deprecate ?app=, and replace with ?tool=
+     * When user still access with ?app=, we will show a warning message
+     */
+    let tool = urlParams.get('app');
+    if (urlParams.get('tool')) {
+      tool = urlParams.get('tool');
+    }
+
+    switch (tool) {
       case 'trainSearch':
-        return <SearchTrain date={urlParams.get('date') || ''} />;
+        return (
+          <>
+            {urlParams.get('app') && <DeprecatedAlert />}
+            <SearchTrain date={urlParams.get('date') || ''} />
+          </>
+        );
       case 'setting':
-        return <Setting />;
+        return (
+          <>
+            {urlParams.get('app') && <DeprecatedAlert />}
+            <Setting />
+          </>
+        );
       default:
         return (
           <div>
+            {urlParams.get('tool') && <DeprecatedAlert />}
             <div>
-              <a href="/tools?app=trainSearch">TrainSearch</a>
+              <a href="/tools?tool=trainSearch">TrainSearch</a>
             </div>
           </div>
         );
