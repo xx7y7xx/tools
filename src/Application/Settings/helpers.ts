@@ -172,7 +172,7 @@ export const downloadAndSaveTrainsData = async (
 export const downloadAndSaveWholeTimeRangeCheciListData = async (
   folderId: string
 ) => {
-  message.info('Downloading checis from Google Drive');
+  message.info('Downloading checis from Google Drive 2222');
   const fileData = (await getJsonFileContent(
     folderId,
     'wholeTimeRangeCheciList.json'
@@ -185,7 +185,7 @@ export const downloadAndSaveWholeTimeRangeCheciListData = async (
   );
   message.success(`Downloaded ${checis.length} checis`);
 
-  message.info('Saving checis to indexeddb');
-  await saveChecisToIndexedDBAsync(checis);
-  message.success('All checis added to indexeddb successfully');
+  // message.info('Saving checis to indexeddb');
+  // await saveChecisToIndexedDBAsync(checis);
+  // message.success('All checis added to indexeddb successfully');
 };
