@@ -172,20 +172,22 @@ export const downloadAndSaveTrainsData = async (
 export const downloadAndSaveWholeTimeRangeCheciListData = async (
   folderId: string
 ) => {
-  message.info('Downloading checis from Google Drive');
+  message.info('Downloading checis from Google Drive 3333');
+  // eslint-disable-next-line
   const fileData = (await getJsonFileContent(
     folderId,
     'wholeTimeRangeCheciList.json'
   )) as checiDateMapType;
-  const checis: dateCheciType[] = Object.keys(fileData).map(
-    (checi: string) => ({
-      checi,
-      dateCheci: fileData[checi],
-    })
-  );
-  message.success(`Downloaded ${checis.length} checis`);
+  // const checis: dateCheciType[] = Object.keys(fileData).map(
+  //   (checi: string) => ({
+  //     checi,
+  //     dateCheci: fileData[checi],
+  //   })
+  // );
+  // message.success(`Downloaded ${checis.length} checis`);
 
-  message.info('Saving checis to indexeddb');
-  await saveChecisToIndexedDBAsync(checis);
-  message.success('All checis added to indexeddb successfully');
+  // message.info('Saving checis to indexeddb');
+  // await saveChecisToIndexedDBAsync(checis);
+  // message.success('All checis added to indexeddb successfully');
+  console.log('saveChecisToIndexedDBAsync', saveChecisToIndexedDBAsync);
 };
