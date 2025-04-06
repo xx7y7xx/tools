@@ -188,4 +188,5 @@ export const downloadAndSaveWholeTimeRangeCheciListData = async (
   // message.info('Saving checis to indexeddb');
   // await saveChecisToIndexedDBAsync(checis);
   // message.success('All checis added to indexeddb successfully');
+  console.log('saveChecisToIndexedDBAsync', saveChecisToIndexedDBAsync);
 };
