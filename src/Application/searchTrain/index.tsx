@@ -2,19 +2,15 @@ import { useEffect, useState } from 'react';
 import { message, Tabs, TabsProps } from 'antd';
 
 import {
-  dateCheciType,
   StationToTrainMapType,
   TrainFullInfoType,
   TrainsFullInfoMapType,
 } from './types';
-import {
-  getAllDateChecisAsync,
-  getAllTrainsAsync,
-} from '../helpers/trainHelpers';
+import { getAllChecisAsync, getAllTrainsAsync } from '../helpers/trainHelpers';
 import SearchByCode from './SearchByCode';
 import SearchByStation from './SearchByStation';
 import SystemInfo from './SystemInfo';
-import SearchByCheci from './SearchByCheci/SearchByCheci';
+import SearchByCheci from './SearchByCheci';
 interface SearchTrainProps {
   date: string;
 }
@@ -24,7 +20,7 @@ const SearchTrain = ({ date }: SearchTrainProps) => {
   const [trainsFullInfoMap, setTrainsFullInfoMap] =
     useState<TrainsFullInfoMapType>({});
   const [stationMap, setStationMap] = useState<StationToTrainMapType>({});
-  const [dateChecis, setDateChecis] = useState<dateCheciType[]>([]);
+  const [checis, setChecis] = useState<string[]>([]);
 
   // Get initial active tab from URL or default to 'search-by-code'
   const urlParams = new URLSearchParams(window.location.search);
@@ -44,8 +40,8 @@ const SearchTrain = ({ date }: SearchTrainProps) => {
         const trains = await getAllTrainsAsync();
         setRawTrains(trains);
 
-        const dateChecis = await getAllDateChecisAsync();
-        setDateChecis(dateChecis);
+        const checis = await getAllChecisAsync();
+        setChecis(checis);
 
         const mmap: TrainsFullInfoMapType = {};
         const _stationMap: StationToTrainMapType = {};
@@ -98,7 +94,7 @@ const SearchTrain = ({ date }: SearchTrainProps) => {
     {
       key: 'search-by-checi',
       label: 'Search by Checi',
-      children: <SearchByCheci dateChecis={dateChecis} />,
+      children: <SearchByCheci checis={checis} />,
     },
   ];
 

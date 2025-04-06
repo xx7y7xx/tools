@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { Checkbox, CheckboxProps, Col, Input, Row } from 'antd';
 
 import SearchResult from './SearchResult';
-import { dateCheciType } from '../types';
 
-const SearchByCheci = ({ dateChecis }: { dateChecis: dateCheciType[] }) => {
+const SearchByCheci = ({ checis }: { checis: string[] }) => {
   const [value, setValue] = useState('');
   const [isExactMatch, setIsExactMatch] = useState(true);
   const onChange: CheckboxProps['onChange'] = (e) => {
@@ -28,11 +27,7 @@ const SearchByCheci = ({ dateChecis }: { dateChecis: dateCheciType[] }) => {
           </Checkbox>
         </Col>
       </Row>
-      <SearchResult
-        dateChecis={dateChecis}
-        isExactMatch={isExactMatch}
-        value={value}
-      />
+      <SearchResult checis={checis} isExactMatch={isExactMatch} value={value} />
     </div>
   );
 };

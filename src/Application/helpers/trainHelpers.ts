@@ -43,12 +43,23 @@ export const getTrainsMetaDataAsync = async () => {
   }
 };
 
-export const getAllDateChecisAsync = async () => {
+export const getAllChecisAsync = async () => {
   try {
-    const dateChecis = await getTableRecordsAsync(dbName, checisTableName);
-    return dateChecis;
+    /**
+     * Example:
+     * ```json
+     * [
+     *   { checi: '1461' },
+     *   { checi: '1462' },
+     *   ...
+     * ]
+     * ```
+     */
+    const checis = await getTableRecordsAsync(dbName, checisTableName);
+
+    return checis.map((checi) => checi.checi) as string[];
   } catch (error) {
-    message.error(`Failed to get all date checis: ${error}`);
+    message.error(`Failed to get all checis: ${error}`);
     return [];
   }
 };

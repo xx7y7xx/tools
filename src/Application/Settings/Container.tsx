@@ -7,7 +7,7 @@ import { getTrainsMetaDataAsync } from '../helpers/trainHelpers';
 import {
   deleteAndCreateDatabaseAsync,
   downloadAndSaveTrainsData,
-  downloadAndSaveWholeTimeRangeCheciListData,
+  downloadAndSaveWholeTimeRangeCheciListOnlyCheciData,
 } from './helpers';
 
 const Settings = ({ date, folderId }: { date: string; folderId: string }) => {
@@ -47,8 +47,8 @@ const Settings = ({ date, folderId }: { date: string; folderId: string }) => {
     message.success('Database deleted and created successfully');
   };
 
-  const handleDownloadAndSaveWholeTimeRangeCheciListData = () => {
-    downloadAndSaveWholeTimeRangeCheciListData(folderId);
+  const handleDownloadAndSaveWholeTimeRangeCheciListOnlyCheciData = () => {
+    downloadAndSaveWholeTimeRangeCheciListOnlyCheciData(folderId);
   };
 
   return (
@@ -70,10 +70,10 @@ const Settings = ({ date, folderId }: { date: string; folderId: string }) => {
       </Button>
       <Button
         disabled={disabled}
-        onClick={handleDownloadAndSaveWholeTimeRangeCheciListData}
+        onClick={handleDownloadAndSaveWholeTimeRangeCheciListOnlyCheciData}
         type="primary"
       >
-        Save wholeTimeRangeCheciList.json to IndexedDB
+        Save wholeTimeRangeCheciListOnlyCheci.json to IndexedDB
       </Button>
       <div>
         <h3>Metadata:</h3>

@@ -1,63 +1,32 @@
-import { Descriptions, DescriptionsProps } from 'antd';
-
-import { dateCheciType } from '../types';
 import { getTrainType } from '../trainHelpers';
 
 export const renderCollapseItem =
-  (props?: { collapseItemLabel?: (dateCheci: dateCheciType) => string }) =>
-  (dateCheci: dateCheciType) => {
+  (props?: { collapseItemLabel?: (checi: string) => string }) =>
+  (checi: string) => {
     if (!props) {
       props = {};
     }
     if (!props.collapseItemLabel) {
-      props.collapseItemLabel = (dateCheci: dateCheciType) =>
-        `${dateCheci.checi}`;
+      props.collapseItemLabel = (checi: string) => `${checi}`;
     }
 
-    const trainFullInfoItems: DescriptionsProps['items'] =
-      dateCheci.dateCheci.map((checi) => ({
-        key: 'checi',
-        label: `${checi.date}`,
-        children: (
-          <div>
-            <div>
-              {checi.from_station} ~ {checi.to_station}
-            </div>
-            <div>total_num: {checi.total_num}</div>
-            <div>train_no: {checi.train_no}</div>
-          </div>
-        ),
-      }));
-
     return {
-      key: dateCheci.checi,
-      label: props.collapseItemLabel(dateCheci),
+      key: checi,
+      label: props.collapseItemLabel(checi),
       children: (
         <div>
-          <Descriptions
-            // title="Train Full Info"
-            items={trainFullInfoItems}
-            bordered
-          />
           Additional Info:
           <br />
-          {getTrainType(dateCheci.checi)}
+          {getTrainType(checi)}
         </div>
       ),
     };
   };
 
-export const renderDescriptionsItem =
-  (dateCheci: dateCheciType) => (key: string) => {
-    return {
-      key,
-      label: key,
-      children: (
-        <div>
-          {dateCheci.dateCheci.map((checi) => (
-            <div key={checi.date}>{checi.date}</div>
-          ))}
-        </div>
-      ),
-    };
+export const renderDescriptionsItem = (checi: string) => (key: string) => {
+  return {
+    key,
+    label: key,
+    children: <div>{checi}</div>,
   };
+};

@@ -1,11 +1,7 @@
 import { message } from 'antd';
 
 import { getJsonFileContent } from '../helpers/filesApiHelpers';
-import {
-  checiDateMapType,
-  dateCheciType,
-  TrainsFullInfoMapType,
-} from '../searchTrain/types';
+import { TrainsFullInfoMapType } from '../searchTrain/types';
 import { deleteDatabaseAsync, openAsync } from '../helpers/indexedDBHelpers';
 import {
   dbName,
@@ -145,13 +141,13 @@ const saveTrainsToIndexedDBAsync = async (
   message.success('All trains added to indexeddb successfully');
 };
 
-const saveChecisToIndexedDBAsync = async (checis: dateCheciType[]) => {
+const saveChecisToIndexedDBAsync = async (checis: string[]) => {
   const db = await openAsync(dbName, version);
   const dataObjectStore = db
     .transaction('checis', 'readwrite')
     .objectStore('checis');
-  checis.forEach((dateCheci) => {
-    dataObjectStore.add(dateCheci);
+  checis.forEach((checi) => {
+    dataObjectStore.add({ checi });
   });
 };
 
@@ -169,23 +165,17 @@ export const downloadAndSaveTrainsData = async (
   await saveTrainsToIndexedDBAsync(date, trainsData);
 };
 
-export const downloadAndSaveWholeTimeRangeCheciListData = async (
+export const downloadAndSaveWholeTimeRangeCheciListOnlyCheciData = async (
   folderId: string
 ) => {
-  message.info('Downloading checis from Google Drive 3333');
+  message.info('Downloading checis from Google Drive');
   const fileData = (await getJsonFileContent(
     folderId,
-    'wholeTimeRangeCheciList.json'
-  )) as checiDateMapType;
-  const checis: dateCheciType[] = Object.keys(fileData).map(
-    (checi: string) => ({
-      checi,
-      dateCheci: fileData[checi],
-    })
-  );
-  message.success(`Downloaded ${checis.length} checis`);
+    'wholeTimeRangeCheciListOnlyCheci.json'
+  )) as string[];
+  message.success(`Downloaded ${fileData.length} checis`);
 
   message.info('Saving checis to indexeddb');
-  await saveChecisToIndexedDBAsync(checis);
+  await saveChecisToIndexedDBAsync(fileData);
   message.success('All checis added to indexeddb successfully');
 };

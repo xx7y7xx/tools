@@ -37,11 +37,6 @@ export type checiDateMapType = {
   [checi: string]: checiInfoType[];
 };
 
-export type dateCheciType = {
-  checi: string;
-  dateCheci: checiInfoType[];
-};
-
 export type StationToTrainMapType = {
   [station: string]: TrainFullInfoType[];
 };
