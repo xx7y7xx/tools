@@ -42,3 +42,7 @@ export type StationToTrainMapType = {
 };
 
 export type TrainsFullInfoMapDataKey = 'trainsFullInfoMap';
+
+export interface MetaData {
+  trainsDownloadedDate: string;
+}

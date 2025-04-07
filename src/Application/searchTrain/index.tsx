@@ -2,25 +2,31 @@ import { useEffect, useState } from 'react';
 import { message, Tabs, TabsProps } from 'antd';
 
 import {
+  MetaData,
   StationToTrainMapType,
   TrainFullInfoType,
   TrainsFullInfoMapType,
 } from './types';
-import { getAllChecisAsync, getAllTrainsAsync } from '../helpers/trainHelpers';
+import {
+  getAllChecisAsync,
+  getAllTrainsAsync,
+  getTrainsMetaDataAsync,
+} from '../helpers/trainHelpers';
 import SearchByCode from './SearchByCode';
 import SearchByStation from './SearchByStation';
 import SystemInfo from './SystemInfo';
 import SearchByCheci from './SearchByCheci';
-interface SearchTrainProps {
-  date: string;
-}
+import { TrainsProvider } from '../context/TrainsContext';
 
-const SearchTrain = ({ date }: SearchTrainProps) => {
+const SearchTrain = () => {
   const [rawTrains, setRawTrains] = useState<TrainFullInfoType[]>([]);
   const [trainsFullInfoMap, setTrainsFullInfoMap] =
     useState<TrainsFullInfoMapType>({});
   const [stationMap, setStationMap] = useState<StationToTrainMapType>({});
   const [checis, setChecis] = useState<string[]>([]);
+  const [metaData, setMetaData] = useState<MetaData>({
+    trainsDownloadedDate: '',
+  });
 
   // Get initial active tab from URL or default to 'search-by-code'
   const urlParams = new URLSearchParams(window.location.search);
@@ -42,6 +48,17 @@ const SearchTrain = ({ date }: SearchTrainProps) => {
 
         const checis = await getAllChecisAsync();
         setChecis(checis);
+
+        // get meta data from indexedDB
+        const metaData = await getTrainsMetaDataAsync();
+        if (Array.isArray(metaData) && metaData.length > 0) {
+          setMetaData(metaData[0]);
+        } else {
+          message.error('Failed to load meta data');
+          setMetaData({
+            trainsDownloadedDate: '',
+          });
+        }
 
         const mmap: TrainsFullInfoMapType = {};
         const _stationMap: StationToTrainMapType = {};
@@ -79,7 +96,7 @@ const SearchTrain = ({ date }: SearchTrainProps) => {
     {
       key: 'search-by-code',
       label: 'Search by Code',
-      children: <SearchByCode trainsFullInfoMap={trainsFullInfoMap} />,
+      children: <SearchByCode />,
     },
     {
       key: 'search-by-station',
@@ -94,18 +111,24 @@ const SearchTrain = ({ date }: SearchTrainProps) => {
     {
       key: 'search-by-checi',
       label: 'Search by Checi',
-      children: <SearchByCheci checis={checis} />,
+      children: <SearchByCheci />,
     },
   ];
 
   return (
-    <div className="xxtools-search-train" style={{ marginTop: 10 }}>
-      <Tabs
-        defaultActiveKey={defaultTab}
-        items={items}
-        onChange={handleTabChange}
-      />
-    </div>
+    <TrainsProvider
+      trainsFullInfoMap={trainsFullInfoMap}
+      checis={checis}
+      date={metaData.trainsDownloadedDate}
+    >
+      <div className="xxtools-search-train" style={{ marginTop: 10 }}>
+        <Tabs
+          defaultActiveKey={defaultTab}
+          items={items}
+          onChange={handleTabChange}
+        />
+      </div>
+    </TrainsProvider>
   );
 };
 

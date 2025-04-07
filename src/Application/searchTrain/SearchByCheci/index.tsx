@@ -3,9 +3,10 @@ import { Checkbox, CheckboxProps, Col, Input, Row } from 'antd';
 
 import SearchResult from './SearchResult';
 
-const SearchByCheci = ({ checis }: { checis: string[] }) => {
+const SearchByCheci = () => {
   const [value, setValue] = useState('');
   const [isExactMatch, setIsExactMatch] = useState(true);
+
   const onChange: CheckboxProps['onChange'] = (e) => {
     setIsExactMatch(e.target.checked);
   };
@@ -27,7 +28,7 @@ const SearchByCheci = ({ checis }: { checis: string[] }) => {
           </Checkbox>
         </Col>
       </Row>
-      <SearchResult checis={checis} isExactMatch={isExactMatch} value={value} />
+      <SearchResult isExactMatch={isExactMatch} value={value} />
     </div>
   );
 };

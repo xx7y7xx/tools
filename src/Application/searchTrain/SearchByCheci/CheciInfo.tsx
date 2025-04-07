@@ -9,8 +9,12 @@ import {
   LS_GITHUB_OWNER_KEY,
   LS_GITHUB_REPO_KEY,
 } from '../constants';
+import { useTrains } from '../../context/TrainsContext';
+import CheciInfoDescriptions from '../CheciInfoDescriptions';
 
 const CheciInfo = ({ checi }: { checi: string }) => {
+  const { trainsFullInfoMap, date } = useTrains();
+
   const [loading, setLoading] = useState(false);
   const [checiInfo, setCheciInfo] = useState<checiInfoType[]>([]);
 
@@ -22,6 +26,7 @@ const CheciInfo = ({ checi }: { checi: string }) => {
     });
 
     setLoading(true);
+    // Get checi info from github
     github
       .getFileContentAndSha(`/wholeTimeRangeCheci/checiDir/${checi}.json`)
       .then(({ content }) => {
@@ -54,10 +59,16 @@ const CheciInfo = ({ checi }: { checi: string }) => {
 
   return (
     <div>
+      车次 {checi} 的详细数据对应的日期: {date}
+      <CheciInfoDescriptions trainFullInfo={trainsFullInfoMap[checi]} />
       {loading ? (
         <Spin />
       ) : (
-        <Descriptions title="Checi Info" items={checiInfoItems} bordered />
+        <Descriptions
+          title={`车次 ${checi} 的历史数据`}
+          items={checiInfoItems}
+          bordered
+        />
       )}
     </div>
   );

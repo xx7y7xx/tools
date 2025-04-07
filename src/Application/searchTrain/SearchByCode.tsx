@@ -1,18 +1,13 @@
-import { useState } from "react";
+import { useState } from 'react';
 
-import { Checkbox, CheckboxProps, Col, Input, Row } from "antd";
+import { Checkbox, CheckboxProps, Col, Input, Row } from 'antd';
 
-import { TrainsFullInfoMapType } from "./types";
-import SearchResult from "./SearchResult";
+import SearchResult from './SearchResult';
 
-const SearchByCode = ({
-  trainsFullInfoMap,
-}: {
-  trainsFullInfoMap: TrainsFullInfoMapType;
-}) => {
-  const [value, setValue] = useState("");
+const SearchByCode = () => {
+  const [value, setValue] = useState('');
   const [isExactMatch, setIsExactMatch] = useState(true);
-  const onChange: CheckboxProps["onChange"] = (e) => {
+  const onChange: CheckboxProps['onChange'] = (e) => {
     setIsExactMatch(e.target.checked);
   };
 
@@ -33,11 +28,7 @@ const SearchByCode = ({
           </Checkbox>
         </Col>
       </Row>
-      <SearchResult
-        trainsFullInfoMap={trainsFullInfoMap}
-        isExactMatch={isExactMatch}
-        value={value}
-      />
+      <SearchResult isExactMatch={isExactMatch} value={value} />
     </div>
   );
 };

@@ -1,16 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Col, Row } from 'antd';
-import { TrainFullInfoType } from './types';
+import { MetaData, TrainFullInfoType } from './types';
 import { getTrainsMetaDataAsync } from '../helpers/trainHelpers';
 
 interface TrainStats {
   trainType: Record<string, number>;
   operateGroup: Record<string, number>;
   trainCategory: Record<string, number>;
-}
-
-interface MetaData {
-  trainsDownloadedDate: string;
 }
 
 /**

@@ -1,4 +1,3 @@
-import React from 'react';
 import * as Sentry from '@sentry/react';
 import { Alert } from 'antd';
 
@@ -59,7 +58,7 @@ export default function Application() {
         return (
           <>
             {urlParams.get('app') && <DeprecatedAlert />}
-            <SearchTrain date={urlParams.get('date') || ''} />
+            <SearchTrain />
           </>
         );
       case 'setting':

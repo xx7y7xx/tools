@@ -1,23 +1,23 @@
-import { Collapse, CollapseProps } from "antd";
+import { Collapse, CollapseProps } from 'antd';
 
-import { TrainsFullInfoMapType } from "./types";
-import { searchTrainByNum } from "../helpers/trainHelpers";
-import { renderCollapseItem } from "./helpers";
+import { searchTrainByNum } from '../helpers/trainHelpers';
+import { renderCollapseItem } from './helpers';
+import { useTrains } from '../context/TrainsContext';
 
 const SearchResult = ({
   isExactMatch,
   value,
-  trainsFullInfoMap,
 }: {
   isExactMatch: boolean;
   value: string;
-  trainsFullInfoMap: TrainsFullInfoMapType;
 }) => {
+  const { trainsFullInfoMap } = useTrains();
+
   if (!value) {
     return null;
   }
 
-  const searchResultItems: CollapseProps["items"] =
+  const searchResultItems: CollapseProps['items'] =
     trainsFullInfoMap &&
     Object.keys(trainsFullInfoMap)
       .filter((trainNumber) => {
@@ -28,7 +28,7 @@ const SearchResult = ({
 
   return (
     <div className="pm-search-result">
-      <Collapse items={searchResultItems} defaultActiveKey={["1"]} />
+      <Collapse items={searchResultItems} defaultActiveKey={['1']} />
     </div>
   );
 };

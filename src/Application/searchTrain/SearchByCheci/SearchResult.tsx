@@ -3,6 +3,7 @@ import { Collapse, CollapseProps } from 'antd';
 import { searchTrainByNum } from '../../helpers/trainHelpers';
 import { getTrainType } from '../trainHelpers';
 import CheciInfo from './CheciInfo';
+import { useTrains } from '../../context/TrainsContext';
 
 const renderCollapseItem =
   (props?: { collapseItemLabel?: (checi: string) => string }) =>
@@ -31,12 +32,12 @@ const renderCollapseItem =
 const SearchResult = ({
   isExactMatch,
   value,
-  checis,
 }: {
   isExactMatch: boolean;
   value: string;
-  checis: string[];
 }) => {
+  const { checis } = useTrains();
+
   if (!value) {
     return null;
   }
