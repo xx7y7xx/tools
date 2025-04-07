@@ -3,8 +3,11 @@ import { useState } from 'react';
 import { Checkbox, CheckboxProps, Col, Input, Row } from 'antd';
 
 import SearchResult from './SearchResult';
+import { useTrains } from '../../context/TrainsContext';
 
 const SearchByCode = () => {
+  const { date } = useTrains();
+
   const [value, setValue] = useState('');
   const [isExactMatch, setIsExactMatch] = useState(true);
   const onChange: CheckboxProps['onChange'] = (e) => {
@@ -14,7 +17,8 @@ const SearchByCode = () => {
   return (
     <div>
       <Row>
-        <Col span={16}>
+        <Col span={8}>{date}</Col>
+        <Col span={10}>
           <Input
             size="large"
             placeholder="Search trains"
@@ -22,7 +26,7 @@ const SearchByCode = () => {
             onChange={(e) => setValue(e.target.value)}
           />
         </Col>
-        <Col span={8}>
+        <Col span={6}>
           <Checkbox checked={isExactMatch} onChange={onChange}>
             Exactly Match
           </Checkbox>
