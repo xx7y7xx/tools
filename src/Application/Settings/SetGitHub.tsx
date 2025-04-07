@@ -1,4 +1,4 @@
-import { Button, Form, Input } from 'antd';
+import { Button, Form, Input, message } from 'antd';
 import { useState } from 'react';
 
 import {
@@ -52,6 +52,7 @@ const SetGitHub = () => {
               );
               localStorage.setItem(LS_GITHUB_OWNER_KEY, githubOwner);
               localStorage.setItem(LS_GITHUB_REPO_KEY, githubRepo);
+              message.success('Settings saved successfully to local storage');
             }}
           >
             Save
