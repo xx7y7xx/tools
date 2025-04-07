@@ -10,7 +10,7 @@ import {
   LS_GITHUB_REPO_KEY,
 } from '../constants';
 import { useTrains } from '../../context/TrainsContext';
-import CheciInfoDescriptions from '../CheciInfoDescriptions';
+import CheciInfoDescriptions from './CheciInfoDescriptions';
 
 const CheciInfo = ({ checi }: { checi: string }) => {
   const { trainsFullInfoMap, date } = useTrains();

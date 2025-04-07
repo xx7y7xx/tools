@@ -1,7 +1,7 @@
 import { message } from 'antd';
 
 import { getJsonFileContent } from '../helpers/filesApiHelpers';
-import { TrainsFullInfoMapType } from '../searchTrain/types';
+import { TrainsFullInfoMapType } from '../RailwayTool/types';
 import { deleteDatabaseAsync, openAsync } from '../helpers/indexedDBHelpers';
 import {
   dbName,

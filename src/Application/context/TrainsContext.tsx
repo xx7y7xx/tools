@@ -1,6 +1,6 @@
 import { createContext, useContext, ReactNode } from 'react';
 
-import { TrainsFullInfoMapType } from '../searchTrain/types';
+import { TrainsFullInfoMapType } from '../RailwayTool/types';
 
 interface TrainsContextType {
   trainsFullInfoMap: TrainsFullInfoMapType;

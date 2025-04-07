@@ -12,10 +12,10 @@ import {
   getAllTrainsAsync,
   getTrainsMetaDataAsync,
 } from '../helpers/trainHelpers';
-import SearchByCode from './SearchByCode';
+import SearchByCode from './SearchByCode/SearchByCode';
 import SearchByStation from './SearchByStation';
 import SystemInfo from './SystemInfo';
-import SearchByCheci from './SearchByCheci';
+import SearchByCheci from './SearchByCheci/index';
 import { TrainsProvider } from '../context/TrainsContext';
 
 const SearchTrain = () => {

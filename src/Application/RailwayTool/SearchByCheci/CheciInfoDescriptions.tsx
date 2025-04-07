@@ -1,6 +1,6 @@
 import { Descriptions, DescriptionsProps } from 'antd';
-import { renderDescriptionsItem } from './helpers';
-import { TrainFullInfoType } from './types';
+import { renderDescriptionsItem } from '../helpers';
+import { TrainFullInfoType } from '../types';
 
 const CheciInfoDescriptions = ({
   trainFullInfo,

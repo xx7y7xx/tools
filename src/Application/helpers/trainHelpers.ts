@@ -1,6 +1,6 @@
 import { message } from 'antd';
 
-import { TrainFullInfoType } from '../searchTrain/types';
+import { TrainFullInfoType } from '../RailwayTool/types';
 import {
   checisTableName,
   dbName,

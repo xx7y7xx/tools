@@ -2,7 +2,7 @@ import * as Sentry from '@sentry/react';
 import { Alert } from 'antd';
 
 // import { initGa } from './init';
-import SearchTrain from './searchTrain';
+import SearchTrain from './RailwayTool';
 import Setting from './Settings';
 
 // Styles for application

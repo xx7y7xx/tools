@@ -5,7 +5,7 @@ import {
   LS_PERSONAL_ACCESS_TOKEN_KEY,
   LS_GITHUB_OWNER_KEY,
   LS_GITHUB_REPO_KEY,
-} from '../searchTrain/constants';
+} from '../RailwayTool/constants';
 
 const SetGitHub = () => {
   const [personalAccessToken, setPersonalAccessToken] = useState(

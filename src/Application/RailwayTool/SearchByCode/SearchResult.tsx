@@ -1,8 +1,8 @@
 import { Collapse, CollapseProps } from 'antd';
 
-import { searchTrainByNum } from '../helpers/trainHelpers';
-import { renderCollapseItem } from './helpers';
-import { useTrains } from '../context/TrainsContext';
+import { searchTrainByNum } from '../../helpers/trainHelpers';
+import { renderCollapseItem } from '../helpers';
+import { useTrains } from '../../context/TrainsContext';
 
 const SearchResult = ({
   isExactMatch,
