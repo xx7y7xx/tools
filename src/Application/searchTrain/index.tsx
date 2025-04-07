@@ -98,9 +98,8 @@ const SearchTrain = ({ date }: SearchTrainProps) => {
     },
   ];
 
-  // rwtool is "Rail Way Tool"
   return (
-    <div className="rwtool-search-train" style={{ marginTop: 10 }}>
+    <div className="xxtools-search-train" style={{ marginTop: 10 }}>
       <Tabs
         defaultActiveKey={defaultTab}
         items={items}

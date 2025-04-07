@@ -1,7 +1,32 @@
 import { Collapse, CollapseProps } from 'antd';
 
 import { searchTrainByNum } from '../../helpers/trainHelpers';
-import { renderCollapseItem } from './helpers';
+import { getTrainType } from '../trainHelpers';
+import CheciInfo from './CheciInfo';
+
+const renderCollapseItem =
+  (props?: { collapseItemLabel?: (checi: string) => string }) =>
+  (checi: string) => {
+    if (!props) {
+      props = {};
+    }
+    if (!props.collapseItemLabel) {
+      props.collapseItemLabel = (checi: string) => `${checi}`;
+    }
+
+    return {
+      key: checi,
+      label: props.collapseItemLabel(checi),
+      children: (
+        <div>
+          <CheciInfo checi={checi} />
+          Additional Info:
+          <br />
+          {getTrainType(checi)}
+        </div>
+      ),
+    };
+  };
 
 const SearchResult = ({
   isExactMatch,
@@ -23,7 +48,7 @@ const SearchResult = ({
     .map(renderCollapseItem());
 
   return (
-    <div className="rwtool-search-by-checi-search-result">
+    <div className="xxtools-search-by-checi-search-result">
       <Collapse items={searchResultItems} defaultActiveKey={['1']} />
     </div>
   );

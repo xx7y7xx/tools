@@ -81,5 +81,5 @@ export default function Application() {
     }
   };
 
-  return <div className="application xx7y7xx-tools">{appSwitch()}</div>;
+  return <div className="application xxtools">{appSwitch()}</div>;
 }

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import Warning from '../Warning';
 import { initGapiClient } from '../init';
 import Container from './Container';
+import SetGitHub from './SetGitHub';
 
 const Settings = () => {
   const [gapiLoaded, setGapiLoaded] = useState(false);
@@ -48,6 +49,7 @@ const Settings = () => {
   return (
     <div className="xytool-settings-page">
       <Container date={date} folderId={folderId} />
+      <SetGitHub />
     </div>
   );
 };
