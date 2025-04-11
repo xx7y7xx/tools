@@ -23,8 +23,8 @@ describe('convertTrainNumSpeedMileage', () => {
     const trainNumSpeedMileage = '69012  19    33';
     const trainInfo = convertTrainNumSpeedMileage(trainNumSpeedMileage);
     expect(trainInfo).toEqual({
-      data: { trainNum: 69012, speed: 19, mileage: 3.3 },
-      str: { trainNum: '69012', speed: ' 19', mileage: '   33' },
+      data: { trainNumber: 69012, speed: 19, mileage: 3.3 },
+      str: { trainNumber: '69012', speed: ' 19', mileage: '   33' },
     });
   });
 
@@ -32,8 +32,8 @@ describe('convertTrainNumSpeedMileage', () => {
     const trainNumSpeedMileage = '23515  41    27';
     const trainInfo = convertTrainNumSpeedMileage(trainNumSpeedMileage);
     expect(trainInfo).toEqual({
-      data: { trainNum: 23515, speed: 41, mileage: 2.7 },
-      str: { trainNum: '23515', speed: ' 41', mileage: '   27' },
+      data: { trainNumber: 23515, speed: 41, mileage: 2.7 },
+      str: { trainNumber: '23515', speed: ' 41', mileage: '   27' },
     });
   });
 
@@ -41,8 +41,8 @@ describe('convertTrainNumSpeedMileage', () => {
     const trainNumSpeedMileage = '  885  53    28';
     const trainInfo = convertTrainNumSpeedMileage(trainNumSpeedMileage);
     expect(trainInfo).toEqual({
-      data: { trainNum: 885, speed: 53, mileage: 2.8 },
-      str: { trainNum: '  885', speed: ' 53', mileage: '   28' },
+      data: { trainNumber: 885, speed: 53, mileage: 2.8 },
+      str: { trainNumber: '  885', speed: ' 53', mileage: '   28' },
     });
   });
 
@@ -50,8 +50,8 @@ describe('convertTrainNumSpeedMileage', () => {
     const trainNumSpeedMileage = ' 8202  39    73';
     const trainInfo = convertTrainNumSpeedMileage(trainNumSpeedMileage);
     expect(trainInfo).toEqual({
-      data: { trainNum: 8202, speed: 39, mileage: 7.3 },
-      str: { trainNum: ' 8202', speed: ' 39', mileage: '   73' },
+      data: { trainNumber: 8202, speed: 39, mileage: 7.3 },
+      str: { trainNumber: ' 8202', speed: ' 39', mileage: '   73' },
     });
   });
 
@@ -59,8 +59,8 @@ describe('convertTrainNumSpeedMileage', () => {
     const trainNumSpeedMileage = '  351 152   156';
     const trainInfo = convertTrainNumSpeedMileage(trainNumSpeedMileage);
     expect(trainInfo).toEqual({
-      data: { trainNum: 351, speed: 152, mileage: 15.6 },
-      str: { trainNum: '  351', speed: '152', mileage: '  156' },
+      data: { trainNumber: 351, speed: 152, mileage: 15.6 },
+      str: { trainNumber: '  351', speed: '152', mileage: '  156' },
     });
   });
 
@@ -68,8 +68,8 @@ describe('convertTrainNumSpeedMileage', () => {
     const trainNumSpeedMileage = '   10  84   220';
     const trainInfo = convertTrainNumSpeedMileage(trainNumSpeedMileage);
     expect(trainInfo).toEqual({
-      data: { trainNum: 10, speed: 84, mileage: 22.0 },
-      str: { trainNum: '   10', speed: ' 84', mileage: '  220' },
+      data: { trainNumber: 10, speed: 84, mileage: 22.0 },
+      str: { trainNumber: '   10', speed: ' 84', mileage: '  220' },
     });
   });
 
@@ -77,7 +77,7 @@ describe('convertTrainNumSpeedMileage', () => {
     const trainNumSpeedMileage = '24014   0 -----';
     const trainInfo = convertTrainNumSpeedMileage(trainNumSpeedMileage);
     expect(trainInfo).toEqual({
-      str: { trainNum: '24014', speed: '  0', mileage: '-----' },
+      str: { trainNumber: '24014', speed: '  0', mileage: '-----' },
       err: 'Invalid POCSAG message body',
     });
   });
@@ -86,7 +86,7 @@ describe('convertTrainNumSpeedMileage', () => {
     const trainNumSpeedMileage = '----- --- -----';
     const trainInfo = convertTrainNumSpeedMileage(trainNumSpeedMileage);
     expect(trainInfo).toEqual({
-      str: { trainNum: '-----', speed: '---', mileage: '-----' },
+      str: { trainNumber: '-----', speed: '---', mileage: '-----' },
       err: 'Invalid POCSAG message body',
     });
   });
@@ -95,8 +95,8 @@ describe('convertTrainNumSpeedMileage', () => {
     const trainNumSpeedMileage = '  337  74    23';
     const trainInfo = convertTrainNumSpeedMileage(trainNumSpeedMileage);
     expect(trainInfo).toEqual({
-      data: { trainNum: 337, speed: 74, mileage: 2.3 },
-      str: { trainNum: '  337', speed: ' 74', mileage: '   23' },
+      data: { trainNumber: 337, speed: 74, mileage: 2.3 },
+      str: { trainNumber: '  337', speed: ' 74', mileage: '   23' },
     });
   });
 
@@ -104,14 +104,14 @@ describe('convertTrainNumSpeedMileage', () => {
     const trainNumSpeedMileage = '-5-[- --- -----';
     const trainInfo = convertTrainNumSpeedMileage(trainNumSpeedMileage);
     expect(trainInfo).toEqual({
-      str: { trainNum: '-5-[-', speed: '---', mileage: '-----' },
+      str: { trainNumber: '-5-[-', speed: '---', mileage: '-----' },
       err: 'Invalid POCSAG message body',
     });
   });
 
   it('should handle missing parts', () => {
     expect(convertTrainNumSpeedMileage('-----  19    28')).toEqual({
-      str: { trainNum: '-----', speed: ' 19', mileage: '   28' },
+      str: { trainNumber: '-----', speed: ' 19', mileage: '   28' },
       err: 'Invalid POCSAG message body',
     });
   });

@@ -15,7 +15,7 @@ interface DataType {
 
 const expandColumns: TableColumnsType<TrainInfo> = [
   { title: 'Key', dataIndex: 'key', key: 'key' },
-  { title: 'TrainNumber', dataIndex: 'trainNum', key: 'trainNum' },
+  { title: 'TrainNumber', dataIndex: 'trainNumber', key: 'trainNumber' },
   { title: 'Speed', dataIndex: 'speed', key: 'speed' },
   { title: 'Mileage', dataIndex: 'mileage', key: 'mileage' },
 ];
@@ -115,15 +115,15 @@ const PocsagViewer = () => {
       return;
     }
 
-    checiMap[trainInfo.data.trainNum] = [
-      ...(checiMap[trainInfo.data.trainNum] || []),
+    checiMap[trainInfo.data.trainNumber] = [
+      ...(checiMap[trainInfo.data.trainNumber] || []),
       trainInfo.data,
     ];
   });
 
   const dataSource = Object.values(checiMap).map<DataType>((trainInfos, i) => ({
     key: i.toString(),
-    trainNumber: trainInfos[0].trainNum,
+    trainNumber: trainInfos[0].trainNumber,
     infoLength: trainInfos.length,
   }));
 

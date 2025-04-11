@@ -1,6 +1,6 @@
-// The train number, speed, and mileage. e.g. { trainNum: "69012", speed: "19", mileage: "3.3" }
+// The train number, speed, and mileage. e.g. { trainNumber: "69012", speed: "19", mileage: "3.3" }
 export interface TrainInfo {
-  trainNum: number;
+  trainNumber: number;
   speed: number;
   mileage: number;
 }
