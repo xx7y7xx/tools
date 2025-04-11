@@ -4,6 +4,7 @@ import { Alert } from 'antd';
 // import { initGa } from './init';
 import SearchTrain from './RailwayTool';
 import Setting from './Settings';
+import PocsagViewer from './PocsagViewer';
 
 // Styles for application
 import './index.css';
@@ -61,6 +62,8 @@ export default function Application() {
             <SearchTrain />
           </>
         );
+      case 'pocsagViewer':
+        return <PocsagViewer />;
       case 'setting':
         return (
           <>
@@ -74,6 +77,9 @@ export default function Application() {
             {urlParams.get('tool') && <DeprecatedAlert />}
             <div>
               <a href="/tools?tool=trainSearch">TrainSearch</a>
+            </div>
+            <div>
+              <a href="/tools?tool=pocsagViewer">PocsagViewer</a>
             </div>
           </div>
         );
