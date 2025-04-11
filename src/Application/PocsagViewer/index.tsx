@@ -1,16 +1,41 @@
-// this is web application, how to read csv file from file system
-// file path is ../pocsag-data/pocsag_data_v2.csv
-
-// use papaparse to read csv file
-
 import { useEffect, useState } from 'react';
+
+import type { TableColumnsType } from 'antd';
+import { Table } from 'antd';
 import Papa from 'papaparse';
 
-interface PocsagData {
-  // Add your CSV data structure here
-  [key: string]: string;
+import { PocsagData, TrainInfo } from './types';
+import { convertTrainNumSpeedMileage } from './utils';
+
+interface DataType {
+  key: React.Key;
+  trainNumber: number;
+  infoLength: number;
 }
 
+const expandColumns: TableColumnsType<TrainInfo> = [
+  { title: 'Key', dataIndex: 'key', key: 'key' },
+  { title: 'TrainNumber', dataIndex: 'trainNum', key: 'trainNum' },
+  { title: 'Speed', dataIndex: 'speed', key: 'speed' },
+  { title: 'Mileage', dataIndex: 'mileage', key: 'mileage' },
+];
+
+const columns: TableColumnsType<DataType> = [
+  { title: 'TrainNumber', dataIndex: 'trainNumber', key: 'trainNumber' },
+  {
+    title: 'InfoLength',
+    dataIndex: 'infoLength',
+    key: 'infoLength',
+    sorter: (a, b) => a.infoLength - b.infoLength,
+    defaultSortOrder: 'descend',
+  },
+];
+
+/**
+ * PocsagViewer is a web application that allows you to view POCSAG data.
+ * It reads the POCSAG data from a CSV file and displays it in a table.
+ * It also allows you to filter the data by train number.
+ */
 const PocsagViewer = () => {
   const [data, setData] = useState<PocsagData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -59,15 +84,62 @@ const PocsagViewer = () => {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
+  const checiMap: Record<string, TrainInfo[]> = {
+    // 69012: TrainInfo[]
+  };
+
+  data.forEach((row) => {
+    if (row.address !== '1234000') {
+      //   console.log('skip', row);
+      return;
+    }
+
+    const trainInfo = convertTrainNumSpeedMileage(row.message_content);
+    if (trainInfo.err || !trainInfo.data) {
+      //   console.error('Invalid POCSAG message body', row);
+      return;
+    }
+
+    checiMap[trainInfo.data.trainNum] = [
+      ...(checiMap[trainInfo.data.trainNum] || []),
+      trainInfo.data,
+    ];
+  });
+
+  //   console.log('checiMap', checiMap);
+
+  const dataSource = Object.values(checiMap).map<DataType>((trainInfos, i) => ({
+    key: i.toString(),
+    trainNumber: trainInfos[0].trainNum,
+    infoLength: trainInfos.length,
+  }));
+
+  const expandedRowRender = (record: DataType) => {
+    const trainInfo = checiMap[record.trainNumber];
+    const trainInfoWithKey = trainInfo.map((info, idx) => ({
+      ...info,
+      key: idx.toString(),
+    }));
+    return (
+      <Table<TrainInfo>
+        columns={expandColumns}
+        dataSource={trainInfoWithKey}
+        pagination={false}
+      />
+    );
+  };
+
   return (
     <div>
       <h1>PocsagViewer</h1>
-      {data.length > 0 && (
-        <div>
-          <h2>Data Preview</h2>
-          <pre>{JSON.stringify(data.slice(0, 5), null, 2)}</pre>
-        </div>
-      )}
+      <div>
+        <Table<DataType>
+          columns={columns}
+          expandable={{ expandedRowRender }}
+          dataSource={dataSource}
+          pagination={false}
+        />
+      </div>
     </div>
   );
 };
