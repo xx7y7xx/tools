@@ -21,7 +21,22 @@ const expandColumns: TableColumnsType<TrainInfo> = [
 ];
 
 const columns: TableColumnsType<DataType> = [
-  { title: 'TrainNumber', dataIndex: 'trainNumber', key: 'trainNumber' },
+  {
+    title: 'TrainNumber',
+    dataIndex: 'trainNumber',
+    key: 'trainNumber',
+    render: (trainNumber) => {
+      return (
+        <a
+          href={`/tools?tool=pocsagViewer&toolParams={"trainNumber":${trainNumber}}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {trainNumber}
+        </a>
+      );
+    },
+  },
   {
     title: 'InfoLength',
     dataIndex: 'infoLength',
@@ -106,8 +121,6 @@ const PocsagViewer = () => {
     ];
   });
 
-  //   console.log('checiMap', checiMap);
-
   const dataSource = Object.values(checiMap).map<DataType>((trainInfos, i) => ({
     key: i.toString(),
     trainNumber: trainInfos[0].trainNum,
@@ -128,6 +141,19 @@ const PocsagViewer = () => {
       />
     );
   };
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const toolParams = urlParams.get('toolParams');
+  if (toolParams) {
+    const toolParamsObj = JSON.parse(toolParams);
+    // render train detail page for a specific train number
+    return (
+      <div>
+        <h1>TrainDetail</h1>
+        <div>TrainNumber: {toolParamsObj.trainNumber}</div>
+      </div>
+    );
+  }
 
   return (
     <div>
