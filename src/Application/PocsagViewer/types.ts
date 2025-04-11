@@ -13,3 +13,7 @@ export interface PocsagData {
   message_format: string; // e.g. 'Numeric'
   message_content: string; // e.g. '69012  19    33'
 }
+
+export interface CheciMap {
+  [key: string]: TrainInfo[];
+}

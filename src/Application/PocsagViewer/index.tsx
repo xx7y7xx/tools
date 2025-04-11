@@ -1,50 +1,11 @@
 import { useEffect, useState } from 'react';
 
-import type { TableColumnsType } from 'antd';
-import { Table } from 'antd';
 import Papa from 'papaparse';
 
 import { PocsagData, TrainInfo } from './types';
 import { convertTrainNumSpeedMileage } from './utils';
-
-interface DataType {
-  key: React.Key;
-  trainNumber: number;
-  infoLength: number;
-}
-
-const expandColumns: TableColumnsType<TrainInfo> = [
-  { title: 'Key', dataIndex: 'key', key: 'key' },
-  { title: 'TrainNumber', dataIndex: 'trainNumber', key: 'trainNumber' },
-  { title: 'Speed', dataIndex: 'speed', key: 'speed' },
-  { title: 'Mileage', dataIndex: 'mileage', key: 'mileage' },
-];
-
-const columns: TableColumnsType<DataType> = [
-  {
-    title: 'TrainNumber',
-    dataIndex: 'trainNumber',
-    key: 'trainNumber',
-    render: (trainNumber) => {
-      return (
-        <a
-          href={`/tools?tool=pocsagViewer&toolParams={"trainNumber":${trainNumber}}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          {trainNumber}
-        </a>
-      );
-    },
-  },
-  {
-    title: 'InfoLength',
-    dataIndex: 'infoLength',
-    key: 'infoLength',
-    sorter: (a, b) => a.infoLength - b.infoLength,
-    defaultSortOrder: 'descend',
-  },
-];
+import CheciDetail from './CheciDetail';
+import CheciTable from './CheciTable';
 
 /**
  * PocsagViewer is a web application that allows you to view POCSAG data.
@@ -121,36 +82,17 @@ const PocsagViewer = () => {
     ];
   });
 
-  const dataSource = Object.values(checiMap).map<DataType>((trainInfos, i) => ({
-    key: i.toString(),
-    trainNumber: trainInfos[0].trainNumber,
-    infoLength: trainInfos.length,
-  }));
-
-  const expandedRowRender = (record: DataType) => {
-    const trainInfo = checiMap[record.trainNumber];
-    const trainInfoWithKey = trainInfo.map((info, idx) => ({
-      ...info,
-      key: idx.toString(),
-    }));
-    return (
-      <Table<TrainInfo>
-        columns={expandColumns}
-        dataSource={trainInfoWithKey}
-        pagination={false}
-      />
-    );
-  };
-
   const urlParams = new URLSearchParams(window.location.search);
   const toolParams = urlParams.get('toolParams');
   if (toolParams) {
     const toolParamsObj = JSON.parse(toolParams);
+    const checiInfos = checiMap[toolParamsObj.trainNumber];
     // render train detail page for a specific train number
     return (
       <div>
         <h1>TrainDetail</h1>
         <div>TrainNumber: {toolParamsObj.trainNumber}</div>
+        {checiInfos && <CheciDetail trainInfos={checiInfos} />}
       </div>
     );
   }
@@ -158,14 +100,7 @@ const PocsagViewer = () => {
   return (
     <div>
       <h1>PocsagViewer</h1>
-      <div>
-        <Table<DataType>
-          columns={columns}
-          expandable={{ expandedRowRender }}
-          dataSource={dataSource}
-          pagination={false}
-        />
-      </div>
+      {checiMap && <CheciTable checiMap={checiMap} />}
     </div>
   );
 };
