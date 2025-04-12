@@ -30,6 +30,9 @@ const PocsagSignalViewer = () => {
   );
   const [messageTypeSearchText, setMessageTypeSearchText] =
     useState<MessageType | null>(toolParams.type || null);
+  const [timestampSearchText, setTimestampSearchText] = useState(
+    toolParams.timestamp || ''
+  );
 
   // Update URL params when search values change
   useEffect(() => {
@@ -38,6 +41,7 @@ const PocsagSignalViewer = () => {
       ...(searchText && { content: searchText }),
       ...(addressSearchText && { address: addressSearchText }),
       ...(messageTypeSearchText && { type: messageTypeSearchText }),
+      ...(timestampSearchText && { timestamp: timestampSearchText }),
     };
 
     if (Object.keys(newToolParams).length > 0) {
@@ -52,7 +56,12 @@ const PocsagSignalViewer = () => {
       '',
       `${window.location.pathname}?${params.toString()}`
     );
-  }, [searchText, addressSearchText, messageTypeSearchText]);
+  }, [
+    searchText,
+    addressSearchText,
+    messageTypeSearchText,
+    timestampSearchText,
+  ]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -99,12 +108,25 @@ const PocsagSignalViewer = () => {
       record.message_content.toLowerCase().includes(searchText.toLowerCase()) &&
       record.address.toLowerCase().includes(addressSearchText.toLowerCase()) &&
       (messageTypeSearchText === null ||
-        record.message_format === messageTypeSearchText)
+        record.message_format === messageTypeSearchText) &&
+      record.timestamp.toLowerCase().includes(timestampSearchText.toLowerCase())
   );
 
   const columns: ColumnType<PocsagData>[] = [
     {
-      title: 'Timestamp',
+      title: () => (
+        <div>
+          Timestamp{' '}
+          <Input
+            placeholder="Search timestamp"
+            allowClear
+            value={timestampSearchText}
+            onChange={(e) => setTimestampSearchText(e.target.value)}
+            style={{ width: 120 }}
+            size="small"
+          />
+        </div>
+      ),
       dataIndex: 'timestamp',
       key: 'timestamp',
       width: 100,
