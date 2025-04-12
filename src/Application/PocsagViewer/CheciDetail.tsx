@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Button, Slider } from 'antd';
 
 import { TrainInfo } from './types';
+import MileageChart from './MileageChart';
 
 /**
  * Show the detail of a train's checi
@@ -67,6 +68,7 @@ const CheciDetail = ({ trainInfos }: { trainInfos: TrainInfo[] }) => {
       />
       <Button onClick={handlePlay}>Play</Button>
       <Button onClick={handlePause}>Pause</Button>
+      <MileageChart trainInfos={trainInfos} />
     </div>
   );
 };
