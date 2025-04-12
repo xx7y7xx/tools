@@ -40,6 +40,27 @@ const SpeedChart = ({ trainSignalRecords }: SpeedChartProps) => {
     },
     options: {
       maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Train Speed Over Time',
+          font: {
+            size: 16,
+            weight: 'bold',
+          },
+        },
+        tooltip: {
+          callbacks: {
+            label: (context: TooltipItem<'line'>) => {
+              const record = trainSignalRecords[context.dataIndex];
+              return [
+                `Speed: ${context.parsed.y} km/h`,
+                `Mileage: ${record.payload.mileage} km`,
+              ];
+            },
+          },
+        },
+      },
       scales: {
         y: {
           beginAtZero: false,
@@ -52,19 +73,6 @@ const SpeedChart = ({ trainSignalRecords }: SpeedChartProps) => {
           title: {
             display: true,
             text: 'Time Points',
-          },
-        },
-      },
-      plugins: {
-        tooltip: {
-          callbacks: {
-            label: (context: TooltipItem<'line'>) => {
-              const record = trainSignalRecords[context.dataIndex];
-              return [
-                `Speed: ${context.parsed.y} km/h`,
-                `Mileage: ${record.payload.mileage} km`,
-              ];
-            },
           },
         },
       },

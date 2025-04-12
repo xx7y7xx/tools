@@ -41,6 +41,27 @@ const MileageChart = ({ trainSignalRecords }: MileageChartProps) => {
     },
     options: {
       maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Train Mileage Over Time',
+          font: {
+            size: 16,
+            weight: 'bold',
+          },
+        },
+        tooltip: {
+          callbacks: {
+            label: (context: TooltipItem<'line'>) => {
+              const record = trainSignalRecords[context.dataIndex];
+              return [
+                `Mileage: ${context.parsed.y} km`,
+                `Speed: ${record.payload.speed} km/h`,
+              ];
+            },
+          },
+        },
+      },
       scales: {
         y: {
           beginAtZero: false,
@@ -53,19 +74,6 @@ const MileageChart = ({ trainSignalRecords }: MileageChartProps) => {
           title: {
             display: true,
             text: 'Time Points',
-          },
-        },
-      },
-      plugins: {
-        tooltip: {
-          callbacks: {
-            label: (context: TooltipItem<'line'>) => {
-              const record = trainSignalRecords[context.dataIndex];
-              return [
-                `Mileage: ${context.parsed.y} km`,
-                `Speed: ${record.payload.speed} km/h`,
-              ];
-            },
           },
         },
       },
