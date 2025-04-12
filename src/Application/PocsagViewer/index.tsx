@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import Papa from 'papaparse';
 
-import { PocsagData, TrainInfo } from './types';
+import { MessageType, PocsagData, TrainSignalRecord } from './types';
 import { convertTrainNumSpeedMileage } from './utils';
 import CheciDetail from './CheciDetail';
 import CheciTable from './CheciTable';
@@ -60,8 +60,8 @@ const PocsagViewer = () => {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
-  const checiMap: Record<string, TrainInfo[]> = {
-    // 69012: TrainInfo[]
+  const trainSignalRecordsMap: Record<string, TrainSignalRecord[]> = {
+    // e.g. 69012: TrainSignalRecord[]
   };
 
   data.forEach((row) => {
@@ -70,15 +70,31 @@ const PocsagViewer = () => {
       return;
     }
 
-    const trainInfo = convertTrainNumSpeedMileage(row.message_content);
-    if (trainInfo.err || !trainInfo.data) {
+    const msgObj = convertTrainNumSpeedMileage(row.message_content);
+    if (msgObj.err || !msgObj.data) {
       //   console.error('Invalid POCSAG message body', row);
       return;
     }
 
-    checiMap[trainInfo.data.trainNumber] = [
-      ...(checiMap[trainInfo.data.trainNumber] || []),
-      trainInfo.data,
+    const record: TrainSignalRecord = {
+      timestamp: row.timestamp,
+      address: row.address,
+      messageType: row.message_format as MessageType,
+      functionCode: parseInt(row.function_bits),
+      payload: {
+        ...msgObj.data,
+        rawData: row.message_content,
+      },
+    };
+
+    if (!record.payload.trainNumber) {
+      console.error('Invalid POCSAG record, missing train number', row);
+      return;
+    }
+
+    trainSignalRecordsMap[record.payload.trainNumber] = [
+      ...(trainSignalRecordsMap[record.payload.trainNumber] || []),
+      record,
     ];
   });
 
@@ -86,13 +102,15 @@ const PocsagViewer = () => {
   const toolParams = urlParams.get('toolParams');
   if (toolParams) {
     const toolParamsObj = JSON.parse(toolParams);
-    const checiInfos = checiMap[toolParamsObj.trainNumber];
+    const trainSignalRecords = trainSignalRecordsMap[toolParamsObj.trainNumber];
     // render train detail page for a specific train number
     return (
       <div>
         <h1>TrainDetail</h1>
         <div>TrainNumber: {toolParamsObj.trainNumber}</div>
-        {checiInfos && <CheciDetail trainInfos={checiInfos} />}
+        {trainSignalRecords && (
+          <CheciDetail trainSignalRecords={trainSignalRecords} />
+        )}
       </div>
     );
   }
@@ -100,7 +118,9 @@ const PocsagViewer = () => {
   return (
     <div>
       <h1>PocsagViewer</h1>
-      {checiMap && <CheciTable checiMap={checiMap} />}
+      {trainSignalRecordsMap && (
+        <CheciTable trainSignalRecordsMap={trainSignalRecordsMap} />
+      )}
     </div>
   );
 };

@@ -1,20 +1,23 @@
-import CommonChart from './CommonChart';
-import { TrainInfo } from './types';
 import { TooltipItem } from 'chart.js';
 
+import CommonChart from './CommonChart';
+import { TrainSignalRecord } from './types';
+
 interface MileageChartProps {
-  trainInfos: TrainInfo[];
+  trainSignalRecords: TrainSignalRecord[];
 }
 
-const MileageChart = ({ trainInfos }: MileageChartProps) => {
+const MileageChart = ({ trainSignalRecords }: MileageChartProps) => {
   const chartConfig = {
     type: 'line' as const,
     data: {
-      labels: trainInfos.map((_, index) => `Point ${index + 1}`),
+      labels: trainSignalRecords.map(
+        (record) => record.timestamp.split(' ')[1]
+      ),
       datasets: [
         {
           label: 'Mileage',
-          data: trainInfos.map((info) => info.mileage),
+          data: trainSignalRecords.map((record) => record.payload.mileage),
           backgroundColor: 'rgba(54, 162, 235, 0.2)',
           borderColor: 'rgba(54, 162, 235, 1)',
           borderWidth: 2,

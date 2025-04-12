@@ -2,20 +2,28 @@ import { useEffect, useState } from 'react';
 
 import { Button, Slider } from 'antd';
 
-import { TrainInfo } from './types';
+import { TrainSignalRecord } from './types';
 import MileageChart from './MileageChart';
 
 /**
  * Show the detail of a train's checi
  * Show an animation of the handler on slider
  */
-const CheciDetail = ({ trainInfos }: { trainInfos: TrainInfo[] }) => {
+const CheciDetail = ({
+  trainSignalRecords,
+}: {
+  trainSignalRecords: TrainSignalRecord[];
+}) => {
   const [arrIndexValue, setArrIndexValue] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
   // Find the min and max mileage values
-  const minMileage = Math.min(...trainInfos.map((info) => info.mileage));
-  const maxMileage = Math.max(...trainInfos.map((info) => info.mileage));
+  const minMileage = Math.min(
+    ...trainSignalRecords.map((record) => record.payload.mileage)
+  );
+  const maxMileage = Math.max(
+    ...trainSignalRecords.map((record) => record.payload.mileage)
+  );
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -24,7 +32,7 @@ const CheciDetail = ({ trainInfos }: { trainInfos: TrainInfo[] }) => {
       interval = setInterval(() => {
         setArrIndexValue((prevValue) => {
           const nextValue = prevValue + 1;
-          if (nextValue > trainInfos.length - 1) {
+          if (nextValue > trainSignalRecords.length - 1) {
             setIsPlaying(false);
             return prevValue;
           }
@@ -38,7 +46,7 @@ const CheciDetail = ({ trainInfos }: { trainInfos: TrainInfo[] }) => {
         clearInterval(interval);
       }
     };
-  }, [isPlaying, trainInfos.length]);
+  }, [isPlaying, trainSignalRecords.length]);
 
   const handlePlay = () => {
     setArrIndexValue(0);
@@ -56,7 +64,7 @@ const CheciDetail = ({ trainInfos }: { trainInfos: TrainInfo[] }) => {
   return (
     <div>
       <Slider
-        value={trainInfos[arrIndexValue].mileage}
+        value={trainSignalRecords[arrIndexValue].payload.mileage}
         onChange={handleSlideChange}
         min={minMileage}
         max={maxMileage}
@@ -68,7 +76,7 @@ const CheciDetail = ({ trainInfos }: { trainInfos: TrainInfo[] }) => {
       />
       <Button onClick={handlePlay}>Play</Button>
       <Button onClick={handlePause}>Pause</Button>
-      <MileageChart trainInfos={trainInfos} />
+      <MileageChart trainSignalRecords={trainSignalRecords} />
     </div>
   );
 };
