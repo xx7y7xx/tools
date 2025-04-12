@@ -7,6 +7,7 @@ import Papa from 'papaparse';
 import { PocsagData } from '../PocsagViewer/types';
 import { MessageType } from '../PocsagViewer/types';
 import { convertTrainNumSpeedMileage } from '../PocsagViewer/utils';
+import { filterPocsagData } from './filter';
 
 /**
  * PocsagSignalViewer is a web application that allows you to view POCSAG data.
@@ -119,14 +120,12 @@ const PocsagSignalViewer = () => {
     return () => window.removeEventListener('resize', updateHeight);
   }, []);
 
-  const filteredData = data.filter(
-    (record) =>
-      record.message_content.toLowerCase().includes(searchText.toLowerCase()) &&
-      record.address.toLowerCase().includes(addressSearchText.toLowerCase()) &&
-      (messageTypeSearchText === null ||
-        record.message_format === messageTypeSearchText) &&
-      record.timestamp.toLowerCase().includes(timestampSearchText.toLowerCase())
-  );
+  const filteredData = filterPocsagData(data, {
+    content: searchText,
+    address: addressSearchText,
+    type: messageTypeSearchText,
+    timestamp: timestampSearchText,
+  });
 
   const columns: ColumnType<PocsagData>[] = [
     {
