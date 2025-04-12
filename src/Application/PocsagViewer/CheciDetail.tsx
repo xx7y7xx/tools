@@ -4,6 +4,7 @@ import { Button, Slider } from 'antd';
 
 import { TrainSignalRecord } from './types';
 import MileageChart from './MileageChart';
+import SpeedChart from './SpeedChart';
 
 /**
  * Show the detail of a train's checi
@@ -77,6 +78,7 @@ const CheciDetail = ({
       <Button onClick={handlePlay}>Play</Button>
       <Button onClick={handlePause}>Pause</Button>
       <MileageChart trainSignalRecords={trainSignalRecords} />
+      <SpeedChart trainSignalRecords={trainSignalRecords} />
     </div>
   );
 };
