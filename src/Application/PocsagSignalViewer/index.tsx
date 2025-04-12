@@ -70,8 +70,10 @@ const PocsagSignalViewer = () => {
       setLoading(true);
       setError(null);
       try {
+        // we have problem in the format of CSV file, because the `messageContent` may contain commas and quotes
+        // so maybe we need TSV file for other program to process
         const response = await fetch(
-          'http://localhost:3001/data/pocsag_data_v2.csv'
+          'http://localhost:3001/data/pocsag_data_v2.tsv'
         );
         if (!response) {
           throw new TypeError('Network error - server may be down');
@@ -83,6 +85,7 @@ const PocsagSignalViewer = () => {
         Papa.parse(text, {
           header: true,
           skipEmptyLines: true,
+          delimiter: '\t',
           complete: (results) => {
             setData(results.data as unknown as PocsagData[]);
             setLoading(false);
