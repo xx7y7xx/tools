@@ -42,6 +42,9 @@ const MileageChart = ({ trainSignalRecords }: MileageChartProps) => {
     options: {
       maintainAspectRatio: false,
       plugins: {
+        legend: {
+          display: false,
+        },
         title: {
           display: true,
           text: 'Train Mileage Over Time',

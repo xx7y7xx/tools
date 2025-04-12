@@ -41,6 +41,9 @@ const SpeedChart = ({ trainSignalRecords }: SpeedChartProps) => {
     options: {
       maintainAspectRatio: false,
       plugins: {
+        legend: {
+          display: false,
+        },
         title: {
           display: true,
           text: 'Train Speed Over Time',
