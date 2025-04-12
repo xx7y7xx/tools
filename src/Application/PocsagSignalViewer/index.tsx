@@ -6,7 +6,10 @@ import Papa from 'papaparse';
 
 import { PocsagData } from '../PocsagViewer/types';
 import { MessageType } from '../PocsagViewer/types';
-import { convertTrainNumSpeedMileage } from '../PocsagViewer/utils';
+import {
+  convertTrainNumSpeedMileage,
+  parsePocsag1234002,
+} from '../PocsagViewer/utils';
 import { filterPocsagData } from './filter';
 
 /**
@@ -110,11 +113,27 @@ const PocsagSignalViewer = () => {
 
   useEffect(() => {
     const updateHeight = () => {
-      const headerHeight = document.querySelector('h1')?.offsetHeight || 0;
-      const tableHeaderHeight = 39; // Antd table header height
-      const padding = 32; // 16px margin top and bottom
+      const headerElement = document.querySelector('h1');
+      const tableHeaderElement: HTMLElement | null =
+        document.querySelector('.ant-table-header');
+      const tableFooterElement: HTMLElement | null =
+        document.querySelector('.ant-table-footer');
+      const headerHeight = headerElement
+        ? headerElement.offsetHeight +
+          parseInt(window.getComputedStyle(headerElement).marginTop) +
+          parseInt(window.getComputedStyle(headerElement).marginBottom)
+        : 0;
+      const tableHeaderHeight = tableHeaderElement
+        ? tableHeaderElement.offsetHeight
+        : 0;
+      const tableFooterHeight = tableFooterElement
+        ? tableFooterElement.offsetHeight
+        : 0;
       const availableHeight =
-        window.innerHeight - headerHeight - tableHeaderHeight - padding;
+        window.innerHeight -
+        headerHeight -
+        tableHeaderHeight -
+        tableFooterHeight;
       setTableHeight(availableHeight);
     };
 
@@ -235,7 +254,28 @@ const PocsagSignalViewer = () => {
             </div>
           );
         }
-        return text;
+        if (
+          record.address === '1234002' &&
+          record.message_format === MessageType.Numeric
+        ) {
+          const result = parsePocsag1234002(text);
+          if (result.err || !result.latitude || !result.longitude) {
+            return `Raw: "${text}"; Err: ${result.err}`;
+          }
+          return (
+            <div>
+              <a
+                href={`https://www.google.com/maps/search/${result.latitude}+${result.longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {result.latitude} {result.longitude}
+              </a>{' '}
+              Raw: <code>{text}</code>
+            </div>
+          );
+        }
+        return <code>{text}</code>;
       },
     },
   ];
@@ -252,8 +292,8 @@ const PocsagSignalViewer = () => {
         flexDirection: 'column',
       }}
     >
-      <h1 style={{ margin: '16px 0', flexShrink: 0 }}>POCSAG Signal Viewer</h1>
-      <div style={{ flex: 1, overflow: 'hidden', padding: '0 16px' }}>
+      <h1>POCSAG Signal Viewer</h1>
+      <div style={{ flex: 1, overflow: 'hidden' }}>
         <Table
           dataSource={filteredData}
           columns={columns}
@@ -267,6 +307,12 @@ const PocsagSignalViewer = () => {
             record.message_format +
             record.message_content
           }
+          footer={() => (
+            <div>
+              Filtered {filteredData.length} of {data.length} | Full data time
+              range: {data[0]?.timestamp} ~ {data[data.length - 1]?.timestamp}
+            </div>
+          )}
         />
       </div>
     </div>

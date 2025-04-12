@@ -1,4 +1,8 @@
-import { convertTrainNumSpeedMileage, getColorForSpeed } from './utils';
+import {
+  convertTrainNumSpeedMileage,
+  getColorForSpeed,
+  parsePocsag1234002,
+} from './utils';
 
 /*
 test data for 1234000
@@ -120,6 +124,24 @@ describe('convertTrainNumSpeedMileage', () => {
 describe('getColorForSpeed', () => {
   it('should return the correct color for a given speed', () => {
     const color = getColorForSpeed(10, 0, 20); // speed=10km/h, minSpeed=0km/h, maxSpeed=20km/h
-    expect(color).toEqual('rgba(255, 0, 0, 0.8)');
+    expect(color).toEqual('rgba(127, 0, 127, 0.8)');
+  });
+});
+
+describe('parsePocsag1234002', () => {
+  it('should parse the location', () => {
+    const location = parsePocsag1234002(
+      '20202350006330U].9UU.6 [-[202012037603931201079000'
+    );
+    expect(location).toEqual({
+      latitude: "31°20.1079'",
+      longitude: "120°37.6039'",
+    });
+  });
+  it('should return error if the message is not 50 characters', () => {
+    const location = parsePocsag1234002('20202350006330U].9UU.6 [-[2020');
+    expect(location).toEqual({
+      err: 'Invalid POCSAG message body length',
+    });
   });
 });

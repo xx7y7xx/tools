@@ -57,6 +57,38 @@ export const convertTrainNumSpeedMileage = (
 };
 
 /**
+ * Parse 1234002:Numberic
+ * ```
+ * 20202350006330U].9UU.6 [-[202012037603931201079000
+ * 202012037603931201079000
+ * ││││││││││││││││││││││││
+ * └─┬─┘└─┬─┘└───┬────┘
+ *   31°  120°   小数部分
+ *   20.1079'    37.6039'
+ * ```
+ * The parsed result is "31°20.1079' 120°37.6039'"
+ */
+export const parsePocsag1234002 = (msg: string) => {
+  // e.g. msg="20202350006330U].9UU.6 [-[202012037603931201079000"
+  if (msg.length !== 50) {
+    return {
+      err: 'Invalid POCSAG message body length',
+    };
+  }
+
+  const longitude: string = msg.slice(30, 33); // "120"
+  const longitudeDecimal: string =
+    msg.slice(33, 35) /* 37 */ + '.' + msg.slice(35, 39); /* 6039 */
+  const latitude: string = msg.slice(39, 41); // "31"
+  const latitudeDecimal: string =
+    msg.slice(41, 43) /* 20 */ + '.' + msg.slice(43, 47); /* 1079 */
+  return {
+    latitude: `${latitude}°${latitudeDecimal}'`, // "31°20.1079'"
+    longitude: `${longitude}°${longitudeDecimal}'`, // "120°37.6039'"
+  };
+};
+
+/**
  * Function to get color based on speed
  * The highest speed is red, the lowest speed is blue
  * @param speed
