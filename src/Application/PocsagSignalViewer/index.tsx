@@ -86,10 +86,24 @@ const PocsagViewer = () => {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
+  console.log(data);
+
   return (
     <div>
       <h1>POCSAG Signal Viewer</h1>
-      <Table dataSource={data} columns={columns} pagination={false} />
+      <Table
+        dataSource={data}
+        columns={columns}
+        pagination={false}
+        scroll={{ y: 600 }}
+        virtual
+        rowKey={(record) =>
+          record.timestamp +
+          record.address +
+          record.message_format +
+          record.message_content
+        }
+      />
     </div>
   );
 };
