@@ -58,6 +58,7 @@ export const convertTrainNumSpeedMileage = (
 
 /**
  * Function to get color based on speed
+ * The highest speed is red, the lowest speed is blue
  * @param speed
  * @returns color, e.g. rgba(255, 0, 0, 0.8)
  */
