@@ -1,4 +1,4 @@
-import { convertTrainNumSpeedMileage } from './utils';
+import { convertTrainNumSpeedMileage, getColorForSpeed } from './utils';
 
 /*
 test data for 1234000
@@ -114,5 +114,12 @@ describe('convertTrainNumSpeedMileage', () => {
       str: { trainNumber: '-----', speed: ' 19', mileage: '   28' },
       err: 'Invalid POCSAG message body',
     });
+  });
+});
+
+describe('getColorForSpeed', () => {
+  it('should return the correct color for a given speed', () => {
+    const color = getColorForSpeed(10, 0, 20); // speed=10km/h, minSpeed=0km/h, maxSpeed=20km/h
+    expect(color).toEqual('rgba(255, 0, 0, 0.8)');
   });
 });

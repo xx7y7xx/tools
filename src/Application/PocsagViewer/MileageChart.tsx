@@ -2,12 +2,19 @@ import { TooltipItem } from 'chart.js';
 
 import CommonChart from './CommonChart';
 import { TrainSignalRecord } from './types';
+import { getColorForSpeed, getMinMaxSpeed } from './utils';
 
 interface MileageChartProps {
   trainSignalRecords: TrainSignalRecord[];
 }
 
+/**
+ * MileageChart is a chart that displays the mileage of a train over time.
+ * It uses the color of the train to indicate the speed of the train.
+ */
 const MileageChart = ({ trainSignalRecords }: MileageChartProps) => {
+  const { minSpeed, maxSpeed } = getMinMaxSpeed(trainSignalRecords);
+
   const chartConfig = {
     type: 'line' as const,
     data: {
@@ -17,11 +24,18 @@ const MileageChart = ({ trainSignalRecords }: MileageChartProps) => {
       datasets: [
         {
           label: 'Mileage',
-          data: trainSignalRecords.map((record) => record.payload.mileage),
-          backgroundColor: 'rgba(54, 162, 235, 0.2)',
-          borderColor: 'rgba(54, 162, 235, 1)',
+          data: trainSignalRecords.map((record) => ({
+            x: record.timestamp.split(' ')[1],
+            y: record.payload.mileage,
+          })),
+          backgroundColor: trainSignalRecords.map((record) =>
+            getColorForSpeed(record.payload.speed, minSpeed, maxSpeed)
+          ),
+          borderColor: 'rgba(54, 162, 235, 0.5)',
           borderWidth: 2,
           tension: 0.1,
+          pointRadius: 6,
+          pointHoverRadius: 8,
         },
       ],
     },

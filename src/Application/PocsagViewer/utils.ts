@@ -1,4 +1,4 @@
-import { ConvertResult } from './types';
+import { ConvertResult, TrainSignalRecord } from './types';
 
 /**
  * Convert the message body which the address is 1234000
@@ -54,4 +54,28 @@ export const convertTrainNumSpeedMileage = (
   };
 
   return result;
+};
+
+/**
+ * Function to get color based on speed
+ * @param speed
+ * @returns color, e.g. rgba(255, 0, 0, 0.8)
+ */
+export const getColorForSpeed = (
+  speed: number,
+  minSpeed: number,
+  maxSpeed: number
+) => {
+  const ratio = (speed - minSpeed) / (maxSpeed - minSpeed);
+  const r = Math.floor(255 * ratio);
+  const b = Math.floor(255 * (1 - ratio));
+  return `rgba(${r}, 0, ${b}, 0.8)`;
+};
+
+export const getMinMaxSpeed = (trainSignalRecords: TrainSignalRecord[]) => {
+  const speeds = trainSignalRecords.map((record) => record.payload.speed);
+  return {
+    minSpeed: Math.min(...speeds),
+    maxSpeed: Math.max(...speeds),
+  };
 };
