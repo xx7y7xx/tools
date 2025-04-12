@@ -5,6 +5,7 @@ import { Alert } from 'antd';
 import SearchTrain from './RailwayTool';
 import Setting from './Settings';
 import PocsagViewer from './PocsagViewer';
+import PocsagSignalViewer from './PocsagSignalViewer';
 
 // Styles for application
 import './index.css';
@@ -71,6 +72,8 @@ export default function Application() {
         );
       case 'pocsagViewer':
         return <PocsagViewer />;
+      case 'pocsagSignalViewer':
+        return <PocsagSignalViewer />;
       case 'setting':
         return (
           <>
@@ -87,6 +90,9 @@ export default function Application() {
             </div>
             <div>
               <a href="/tools?tool=pocsagViewer">PocsagViewer</a>
+            </div>
+            <div>
+              <a href="/tools?tool=pocsagSignalViewer">PocsagSignalViewer</a>
             </div>
           </div>
         );
