@@ -26,6 +26,7 @@ const MileageChart = ({ trainSignalRecords }: MileageChartProps) => {
       ],
     },
     options: {
+      maintainAspectRatio: false,
       scales: {
         y: {
           beginAtZero: false,
@@ -51,7 +52,11 @@ const MileageChart = ({ trainSignalRecords }: MileageChartProps) => {
     },
   };
 
-  return <CommonChart chartConfig={chartConfig} />;
+  return (
+    <div style={{ height: '300px' }}>
+      <CommonChart chartConfig={chartConfig} />
+    </div>
+  );
 };
 
 export default MileageChart;
