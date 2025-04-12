@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
-
 import Papa from 'papaparse';
-
 import { PocsagData } from '../PocsagViewer/types';
 import { Table, Input, Select } from 'antd';
 import type { ColumnType } from 'antd/es/table';
@@ -17,10 +15,42 @@ const PocsagViewer = () => {
   const [data, setData] = useState<PocsagData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<React.ReactNode | null>(null);
-  const [searchText, setSearchText] = useState('');
-  const [addressSearchText, setAddressSearchText] = useState('');
+
+  // Initialize state from URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  const toolParams = urlParams.get('toolParams')
+    ? JSON.parse(urlParams.get('toolParams') || '{}')
+    : {};
+
+  const [searchText, setSearchText] = useState(toolParams.content || '');
+  const [addressSearchText, setAddressSearchText] = useState(
+    toolParams.address || ''
+  );
   const [messageTypeSearchText, setMessageTypeSearchText] =
-    useState<MessageType | null>(null);
+    useState<MessageType | null>(toolParams.type || null);
+
+  // Update URL params when search values change
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const newToolParams = {
+      ...(searchText && { content: searchText }),
+      ...(addressSearchText && { address: addressSearchText }),
+      ...(messageTypeSearchText && { type: messageTypeSearchText }),
+    };
+
+    if (Object.keys(newToolParams).length > 0) {
+      params.set('toolParams', JSON.stringify(newToolParams));
+    } else {
+      params.delete('toolParams');
+    }
+
+    // Update URL without page reload
+    window.history.replaceState(
+      {},
+      '',
+      `${window.location.pathname}?${params.toString()}`
+    );
+  }, [searchText, addressSearchText, messageTypeSearchText]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -84,6 +114,7 @@ const PocsagViewer = () => {
           <Input.Search
             placeholder="Search address"
             allowClear
+            value={addressSearchText}
             onChange={(e) => setAddressSearchText(e.target.value)}
             style={{ width: 100 }}
           />
@@ -106,6 +137,7 @@ const PocsagViewer = () => {
           <Select
             placeholder="Select type"
             allowClear
+            value={messageTypeSearchText}
             onChange={(value) => setMessageTypeSearchText(value)}
             style={{ width: 120 }}
             options={[
@@ -127,6 +159,7 @@ const PocsagViewer = () => {
           <Input.Search
             placeholder="Search messages"
             allowClear
+            value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: 200 }}
           />
