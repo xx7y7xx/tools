@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react';
 import Papa from 'papaparse';
 
 import { PocsagData } from '../PocsagViewer/types';
-import { Table, Input } from 'antd';
+import { Table, Input, Select } from 'antd';
 import type { ColumnType } from 'antd/es/table';
 import type { Key } from 'antd/es/table/interface';
+import { MessageType } from '../PocsagViewer/types';
 
 /**
  * PocsagViewer is a web application that allows you to view POCSAG data.
@@ -18,7 +19,8 @@ const PocsagViewer = () => {
   const [error, setError] = useState<React.ReactNode | null>(null);
   const [searchText, setSearchText] = useState('');
   const [addressSearchText, setAddressSearchText] = useState('');
-  const [messageTypeSearchText, setMessageTypeSearchText] = useState('');
+  const [messageTypeSearchText, setMessageTypeSearchText] =
+    useState<MessageType | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -64,9 +66,8 @@ const PocsagViewer = () => {
     (record) =>
       record.message_content.toLowerCase().includes(searchText.toLowerCase()) &&
       record.address.toLowerCase().includes(addressSearchText.toLowerCase()) &&
-      record.message_format
-        .toLowerCase()
-        .includes(messageTypeSearchText.toLowerCase())
+      (messageTypeSearchText === null ||
+        record.message_format === messageTypeSearchText)
   );
 
   const columns: ColumnType<PocsagData>[] = [
@@ -102,11 +103,16 @@ const PocsagViewer = () => {
       title: () => (
         <div>
           Message Type{' '}
-          <Input.Search
-            placeholder="Search type"
+          <Select
+            placeholder="Select type"
             allowClear
-            onChange={(e) => setMessageTypeSearchText(e.target.value)}
-            style={{ width: 100 }}
+            onChange={(value) => setMessageTypeSearchText(value)}
+            style={{ width: 120 }}
+            options={[
+              { value: MessageType.Numeric, label: 'Numeric' },
+              { value: MessageType.Alpha, label: 'Alpha' },
+              { value: MessageType.Skyper, label: 'Skyper' },
+            ]}
           />
         </div>
       ),
