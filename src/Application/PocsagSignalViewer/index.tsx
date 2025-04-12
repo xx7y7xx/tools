@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react';
-import Papa from 'papaparse';
-import { PocsagData } from '../PocsagViewer/types';
+
 import { Table, Input, Select } from 'antd';
 import type { ColumnType } from 'antd/es/table';
-import type { Key } from 'antd/es/table/interface';
+import Papa from 'papaparse';
+
+import { PocsagData } from '../PocsagViewer/types';
 import { MessageType } from '../PocsagViewer/types';
 
 /**
- * PocsagViewer is a web application that allows you to view POCSAG data.
+ * PocsagSignalViewer is a web application that allows you to view POCSAG data.
  * It reads the POCSAG data from a CSV file and displays it in a table.
  * It also allows you to filter the data by train number.
  */
-const PocsagViewer = () => {
+const PocsagSignalViewer = () => {
   const [data, setData] = useState<PocsagData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<React.ReactNode | null>(null);
@@ -116,14 +117,14 @@ const PocsagViewer = () => {
             allowClear
             value={addressSearchText}
             onChange={(e) => setAddressSearchText(e.target.value)}
-            style={{ width: 100 }}
+            style={{ width: 120 }}
             size="small"
           />
         </div>
       ),
       dataIndex: 'address',
       key: 'address',
-      width: 50,
+      width: 100,
     },
     {
       title: 'Function Code',
@@ -134,9 +135,8 @@ const PocsagViewer = () => {
     {
       title: () => (
         <div>
-          Message Type{' '}
           <Select
-            placeholder="Select type"
+            placeholder="Msg Type"
             allowClear
             value={messageTypeSearchText}
             onChange={(value) => setMessageTypeSearchText(value)}
@@ -198,4 +198,4 @@ const PocsagViewer = () => {
   );
 };
 
-export default PocsagViewer;
+export default PocsagSignalViewer;
