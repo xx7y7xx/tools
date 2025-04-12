@@ -17,6 +17,8 @@ const PocsagViewer = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<React.ReactNode | null>(null);
   const [searchText, setSearchText] = useState('');
+  const [addressSearchText, setAddressSearchText] = useState('');
+  const [messageTypeSearchText, setMessageTypeSearchText] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,8 +60,13 @@ const PocsagViewer = () => {
     fetchData();
   }, []);
 
-  const filteredData = data.filter((record) =>
-    record.message_content.toLowerCase().includes(searchText.toLowerCase())
+  const filteredData = data.filter(
+    (record) =>
+      record.message_content.toLowerCase().includes(searchText.toLowerCase()) &&
+      record.address.toLowerCase().includes(addressSearchText.toLowerCase()) &&
+      record.message_format
+        .toLowerCase()
+        .includes(messageTypeSearchText.toLowerCase())
   );
 
   const columns: ColumnType<PocsagData>[] = [
@@ -70,7 +77,17 @@ const PocsagViewer = () => {
       width: 100,
     },
     {
-      title: 'Address',
+      title: () => (
+        <div>
+          Address{' '}
+          <Input.Search
+            placeholder="Search address"
+            allowClear
+            onChange={(e) => setAddressSearchText(e.target.value)}
+            style={{ width: 100 }}
+          />
+        </div>
+      ),
       dataIndex: 'address',
       key: 'address',
       width: 50,
@@ -82,7 +99,17 @@ const PocsagViewer = () => {
       width: 80,
     },
     {
-      title: 'Message Type',
+      title: () => (
+        <div>
+          Message Type{' '}
+          <Input.Search
+            placeholder="Search type"
+            allowClear
+            onChange={(e) => setMessageTypeSearchText(e.target.value)}
+            style={{ width: 100 }}
+          />
+        </div>
+      ),
       dataIndex: 'message_format',
       key: 'message_format',
       width: 80,
