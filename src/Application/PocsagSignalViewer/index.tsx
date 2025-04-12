@@ -3,40 +3,9 @@ import { useEffect, useState } from 'react';
 import Papa from 'papaparse';
 
 import { PocsagData } from '../PocsagViewer/types';
-import { Table } from 'antd';
-
-const columns = [
-  {
-    title: 'Timestamp',
-    dataIndex: 'timestamp',
-    key: 'timestamp',
-    width: 100,
-  },
-  {
-    title: 'Address',
-    dataIndex: 'address',
-    key: 'address',
-    width: 50,
-  },
-  {
-    title: 'Function Code',
-    dataIndex: 'function_bits',
-    key: 'function_bits',
-    width: 80,
-  },
-  {
-    title: 'Message Type',
-    dataIndex: 'message_format',
-    key: 'message_format',
-    width: 80,
-  },
-  {
-    title: 'Message Content',
-    dataIndex: 'message_content',
-    key: 'message_content',
-    width: 400,
-  },
-];
+import { Table, Input } from 'antd';
+import type { ColumnType } from 'antd/es/table';
+import type { Key } from 'antd/es/table/interface';
 
 /**
  * PocsagViewer is a web application that allows you to view POCSAG data.
@@ -47,6 +16,7 @@ const PocsagViewer = () => {
   const [data, setData] = useState<PocsagData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<React.ReactNode | null>(null);
+  const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,6 +58,53 @@ const PocsagViewer = () => {
     fetchData();
   }, []);
 
+  const filteredData = data.filter((record) =>
+    record.message_content.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  const columns: ColumnType<PocsagData>[] = [
+    {
+      title: 'Timestamp',
+      dataIndex: 'timestamp',
+      key: 'timestamp',
+      width: 100,
+    },
+    {
+      title: 'Address',
+      dataIndex: 'address',
+      key: 'address',
+      width: 50,
+    },
+    {
+      title: 'Function Code',
+      dataIndex: 'function_bits',
+      key: 'function_bits',
+      width: 80,
+    },
+    {
+      title: 'Message Type',
+      dataIndex: 'message_format',
+      key: 'message_format',
+      width: 80,
+    },
+    {
+      title: () => (
+        <div>
+          Message Content{' '}
+          <Input.Search
+            placeholder="Search messages"
+            allowClear
+            onChange={(e) => setSearchText(e.target.value)}
+            style={{ width: 200 }}
+          />
+        </div>
+      ),
+      dataIndex: 'message_content',
+      key: 'message_content',
+      width: 400,
+    },
+  ];
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
@@ -95,7 +112,7 @@ const PocsagViewer = () => {
     <div>
       <h1>POCSAG Signal Viewer</h1>
       <Table
-        dataSource={data}
+        dataSource={filteredData}
         columns={columns}
         pagination={false}
         scroll={{ y: 600 }}
