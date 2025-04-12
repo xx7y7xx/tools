@@ -217,7 +217,9 @@ const SignalTable = ({ allSignalRows }: { allSignalRows: PocsagData[] }) => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {result.latitude} {result.longitude}
+                <code>
+                  {result.latitude} {result.longitude}
+                </code>
               </a>{' '}
               Raw: <code>{text}</code>
             </div>
