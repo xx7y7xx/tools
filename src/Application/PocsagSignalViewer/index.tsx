@@ -10,26 +10,31 @@ const columns = [
     title: 'Timestamp',
     dataIndex: 'timestamp',
     key: 'timestamp',
+    width: 100,
   },
   {
     title: 'Address',
     dataIndex: 'address',
     key: 'address',
+    width: 50,
   },
   {
     title: 'Function Code',
     dataIndex: 'function_bits',
     key: 'function_bits',
+    width: 80,
   },
   {
     title: 'Message Type',
     dataIndex: 'message_format',
     key: 'message_format',
+    width: 80,
   },
   {
     title: 'Message Content',
     dataIndex: 'message_content',
     key: 'message_content',
+    width: 400,
   },
 ];
 
@@ -85,8 +90,6 @@ const PocsagViewer = () => {
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
-
-  console.log(data);
 
   return (
     <div>
