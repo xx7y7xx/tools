@@ -45,7 +45,13 @@ const MileageChart = ({ trainSignalRecords }: MileageChartProps) => {
       plugins: {
         tooltip: {
           callbacks: {
-            label: (context: TooltipItem<'line'>) => `${context.parsed.y} km`,
+            label: (context: TooltipItem<'line'>) => {
+              const record = trainSignalRecords[context.dataIndex];
+              return [
+                `Mileage: ${context.parsed.y} km`,
+                `Speed: ${record.payload.speed} km/h`,
+              ];
+            },
           },
         },
       },
