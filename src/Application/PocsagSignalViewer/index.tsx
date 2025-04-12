@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react';
 import { Table, Input, Select } from 'antd';
 import type { ColumnType } from 'antd/es/table';
 import Papa from 'papaparse';
-import { SearchOutlined } from '@ant-design/icons';
 
 import { PocsagData } from '../PocsagViewer/types';
 import { MessageType } from '../PocsagViewer/types';
+import { convertTrainNumSpeedMileage } from '../PocsagViewer/utils';
 
 /**
  * PocsagSignalViewer is a web application that allows you to view POCSAG data.
@@ -172,6 +172,20 @@ const PocsagSignalViewer = () => {
       dataIndex: 'message_content',
       key: 'message_content',
       width: 400,
+      //if  address is 1234000 and message type is numeric, then use convertTrainNumSpeedMileage to parse the message content
+      render: (text, record) => {
+        if (
+          record.address === '1234000' &&
+          record.message_format === MessageType.Numeric
+        ) {
+          const result = convertTrainNumSpeedMileage(text);
+          if (result.err || !result.data) {
+            return `Raw: "${text}"; Err: ${result.err}`;
+          }
+          return `${result.data.trainNumber} ${result.data.speed} ${result.data.mileage}`;
+        }
+        return text;
+      },
     },
   ];
 
