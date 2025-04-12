@@ -17,6 +17,7 @@ const PocsagSignalViewer = () => {
   const [data, setData] = useState<PocsagData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<React.ReactNode | null>(null);
+  const [tableHeight, setTableHeight] = useState(600);
 
   // Initialize state from URL params
   const urlParams = new URLSearchParams(window.location.search);
@@ -101,6 +102,21 @@ const PocsagSignalViewer = () => {
     };
 
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const updateHeight = () => {
+      const headerHeight = document.querySelector('h1')?.offsetHeight || 0;
+      const tableHeaderHeight = 39; // Antd table header height
+      const padding = 32; // 16px margin top and bottom
+      const availableHeight =
+        window.innerHeight - headerHeight - tableHeaderHeight - padding;
+      setTableHeight(availableHeight);
+    };
+
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
   }, []);
 
   const filteredData = data.filter(
@@ -226,22 +242,31 @@ const PocsagSignalViewer = () => {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div>
-      <h1>POCSAG Signal Viewer</h1>
-      <Table
-        dataSource={filteredData}
-        columns={columns}
-        pagination={false}
-        scroll={{ y: 600 }}
-        virtual
-        size="small"
-        rowKey={(record) =>
-          record.timestamp +
-          record.address +
-          record.message_format +
-          record.message_content
-        }
-      />
+    <div
+      style={{
+        height: '100vh',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <h1 style={{ margin: '16px 0', flexShrink: 0 }}>POCSAG Signal Viewer</h1>
+      <div style={{ flex: 1, overflow: 'hidden', padding: '0 16px' }}>
+        <Table
+          dataSource={filteredData}
+          columns={columns}
+          pagination={false}
+          scroll={{ y: tableHeight }}
+          virtual
+          size="small"
+          rowKey={(record) =>
+            record.timestamp +
+            record.address +
+            record.message_format +
+            record.message_content
+          }
+        />
+      </div>
     </div>
   );
 };
