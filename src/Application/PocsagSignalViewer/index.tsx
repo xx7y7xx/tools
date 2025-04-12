@@ -182,7 +182,18 @@ const PocsagSignalViewer = () => {
           if (result.err || !result.data) {
             return `Raw: "${text}"; Err: ${result.err}`;
           }
-          return `${result.data.trainNumber} ${result.data.speed} ${result.data.mileage}`;
+          return (
+            <div>
+              <a
+                href={`http://localhost:3000/tools?tool=pocsagViewer&toolParams={"trainNumber":${result.data.trainNumber}}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {`${result.data.trainNumber}`}{' '}
+              </a>
+              {`${result.data.speed} ${result.data.mileage}`}
+            </div>
+          );
         }
         return text;
       },
