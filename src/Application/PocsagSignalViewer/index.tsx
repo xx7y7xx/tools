@@ -117,6 +117,7 @@ const PocsagViewer = () => {
             value={addressSearchText}
             onChange={(e) => setAddressSearchText(e.target.value)}
             style={{ width: 100 }}
+            size="small"
           />
         </div>
       ),
@@ -140,6 +141,7 @@ const PocsagViewer = () => {
             value={messageTypeSearchText}
             onChange={(value) => setMessageTypeSearchText(value)}
             style={{ width: 120 }}
+            size="small"
             options={[
               { value: MessageType.Numeric, label: 'Numeric' },
               { value: MessageType.Alpha, label: 'Alpha' },
@@ -162,6 +164,7 @@ const PocsagViewer = () => {
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: 200 }}
+            size="small"
           />
         </div>
       ),
@@ -183,6 +186,7 @@ const PocsagViewer = () => {
         pagination={false}
         scroll={{ y: 600 }}
         virtual
+        size="small"
         rowKey={(record) =>
           record.timestamp +
           record.address +
