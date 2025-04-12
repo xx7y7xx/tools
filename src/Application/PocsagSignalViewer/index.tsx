@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Table, Input, Select } from 'antd';
 import type { ColumnType } from 'antd/es/table';
 import Papa from 'papaparse';
+import { SearchOutlined } from '@ant-design/icons';
 
 import { PocsagData } from '../PocsagViewer/types';
 import { MessageType } from '../PocsagViewer/types';
@@ -112,7 +113,7 @@ const PocsagSignalViewer = () => {
       title: () => (
         <div>
           Address{' '}
-          <Input.Search
+          <Input
             placeholder="Search address"
             allowClear
             value={addressSearchText}
@@ -158,7 +159,7 @@ const PocsagSignalViewer = () => {
       title: () => (
         <div>
           Message Content{' '}
-          <Input.Search
+          <Input
             placeholder="Search messages"
             allowClear
             value={searchText}
