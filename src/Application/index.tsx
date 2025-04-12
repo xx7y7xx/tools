@@ -15,8 +15,12 @@ Sentry.init({
   dsn: 'https://f2bd9c0de1e6390cad39e357298557bd@o4507702515662848.ingest.us.sentry.io/4507702518874112',
   environment: process.env.NODE_ENV, // 'production' or 'development'
   integrations: [
-    Sentry.browserTracingIntegration(),
-    Sentry.browserProfilingIntegration(),
+    /**
+     * We disable profiling because this is served on Github Pages which the custom headers are not supported (Document-Policy: js-profiling)
+     * There is a discussion about migrating to Cloudflare Pages which supports custom headers, then we can enable profiling: https://github.com/orgs/community/discussions/54257#discussioncomment-9798851
+     */
+    // Sentry.browserTracingIntegration(),
+    // Sentry.browserProfilingIntegration(),
     Sentry.replayIntegration(),
   ],
   // Performance Monitoring
