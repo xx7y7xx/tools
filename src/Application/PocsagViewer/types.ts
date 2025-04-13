@@ -11,8 +11,8 @@ export type ConvertResult = {
   err?: string;
 };
 
-// POCSAG data from csv file
-export interface PocsagData {
+// Raw POCSAG data from csv file
+export interface RawPocsagRow {
   timestamp: string; // e.g. '2025-04-09 23:42:20'
   address: string; // e.g. '1234000'
   function_bits: string; // e.g. '3'
@@ -46,3 +46,9 @@ export interface TrainSignalRecord {
     rawData: string; // 原始数据 "21022  19    61"
   };
 }
+
+export type Pocsag1234002ParseResult = {
+  latitude?: string;
+  longitude?: string;
+  err?: string;
+};

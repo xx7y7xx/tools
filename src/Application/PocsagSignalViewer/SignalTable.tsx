@@ -3,15 +3,16 @@ import { useEffect, useState } from 'react';
 import { Table, Input, Select } from 'antd';
 import type { ColumnType } from 'antd/es/table';
 
-import { PocsagData } from '../PocsagViewer/types';
+import { RawPocsagRow } from '../PocsagViewer/types';
 import { MessageType } from '../PocsagViewer/types';
 import {
   convertTrainNumSpeedMileage,
   parsePocsag1234002,
 } from '../PocsagViewer/utils';
 import { filterPocsagData } from './filter';
+import GoogleMapLink from '../PocsagViewer/GoogleMapLink';
 
-const SignalTable = ({ allSignalRows }: { allSignalRows: PocsagData[] }) => {
+const SignalTable = ({ allSignalRows }: { allSignalRows: RawPocsagRow[] }) => {
   const [tableHeight, setTableHeight] = useState(600);
 
   // Initialize state from URL params
@@ -97,7 +98,7 @@ const SignalTable = ({ allSignalRows }: { allSignalRows: PocsagData[] }) => {
     timestamp: timestampSearchText,
   });
 
-  const columns: ColumnType<PocsagData>[] = [
+  const columns: ColumnType<RawPocsagRow>[] = [
     {
       title: () => (
         <div>
@@ -212,15 +213,10 @@ const SignalTable = ({ allSignalRows }: { allSignalRows: PocsagData[] }) => {
           }
           return (
             <div>
-              <a
-                href={`https://www.google.com/maps/search/${result.latitude}+${result.longitude}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <code>
-                  {result.latitude} {result.longitude}
-                </code>
-              </a>{' '}
+              <GoogleMapLink
+                latitude={result.latitude}
+                longitude={result.longitude}
+              />{' '}
               Raw: <code>{text}</code>
             </div>
           );

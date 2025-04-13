@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import Papa from 'papaparse';
 
-import { MessageType, PocsagData, TrainSignalRecord } from './types';
+import { MessageType, RawPocsagRow, TrainSignalRecord } from './types';
 import { convertTrainNumSpeedMileage } from './utils';
 import CheciDetail from './CheciDetail';
 import CheciTable from './CheciTable';
@@ -13,7 +13,7 @@ import CheciTable from './CheciTable';
  * It also allows you to filter the data by train number.
  */
 const PocsagViewer = () => {
-  const [data, setData] = useState<PocsagData[]>([]);
+  const [rawPocsagRows, setRawPocsagRows] = useState<RawPocsagRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<React.ReactNode | null>(null);
 
@@ -36,7 +36,7 @@ const PocsagViewer = () => {
           header: true,
           skipEmptyLines: true,
           complete: (results) => {
-            setData(results.data as unknown as PocsagData[]);
+            setRawPocsagRows(results.data as unknown as RawPocsagRow[]);
             setLoading(false);
           },
           error: (err: Error) => {
@@ -64,7 +64,7 @@ const PocsagViewer = () => {
     // e.g. 69012: TrainSignalRecord[]
   };
 
-  data.forEach((row) => {
+  rawPocsagRows.forEach((row) => {
     if (row.address !== '1234000') {
       //   console.log('skip', row);
       return;
@@ -119,7 +119,10 @@ const PocsagViewer = () => {
     <div>
       <h1>PocsagViewer</h1>
       {trainSignalRecordsMap && (
-        <CheciTable trainSignalRecordsMap={trainSignalRecordsMap} />
+        <CheciTable
+          trainSignalRecordsMap={trainSignalRecordsMap}
+          rawPocsagRows={rawPocsagRows}
+        />
       )}
     </div>
   );

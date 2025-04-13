@@ -1,4 +1,8 @@
-import { ConvertResult, TrainSignalRecord } from './types';
+import {
+  ConvertResult,
+  Pocsag1234002ParseResult,
+  TrainSignalRecord,
+} from './types';
 
 /**
  * Convert the message body which the address is 1234000
@@ -68,7 +72,7 @@ export const convertTrainNumSpeedMileage = (
  * ```
  * The parsed result is "31°20.1079' 120°37.6039'"
  */
-export const parsePocsag1234002 = (msg: string) => {
+export const parsePocsag1234002 = (msg: string): Pocsag1234002ParseResult => {
   // e.g. msg="20202350006330U].9UU.6 [-[202012037603931201079000"
   if (msg.length !== 50) {
     return {
@@ -111,4 +115,24 @@ export const getMinMaxSpeed = (trainSignalRecords: TrainSignalRecord[]) => {
     minSpeed: Math.min(...speeds),
     maxSpeed: Math.max(...speeds),
   };
+};
+
+/**
+ * Get next second from timestamp, need to keep the same timezone
+ * @param timestamp e.g. "2025-04-09 23:42:48"
+ * @returns string, e.g. "2025-04-09 23:42:49"
+ */
+export const getNextSecond = (timestamp: string) => {
+  const date = new Date(timestamp.replace(' ', 'T')); // Convert to ISO format for parsing
+  date.setSeconds(date.getSeconds() + 1);
+
+  // Format using local timezone
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };

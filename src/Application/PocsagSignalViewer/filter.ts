@@ -1,4 +1,4 @@
-import { PocsagData } from '../PocsagViewer/types';
+import { RawPocsagRow } from '../PocsagViewer/types';
 import { MessageType } from '../PocsagViewer/types';
 
 export interface FilterParams {
@@ -9,9 +9,9 @@ export interface FilterParams {
 }
 
 export const filterPocsagData = (
-  data: PocsagData[],
+  data: RawPocsagRow[],
   { content = '', address = '', type = null, timestamp = '' }: FilterParams
-): PocsagData[] => {
+): RawPocsagRow[] => {
   return data.filter(
     (record) =>
       record.message_content.toLowerCase().includes(content.toLowerCase()) &&

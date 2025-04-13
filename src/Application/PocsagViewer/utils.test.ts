@@ -1,6 +1,7 @@
 import {
   convertTrainNumSpeedMileage,
   getColorForSpeed,
+  getNextSecond,
   parsePocsag1234002,
 } from './utils';
 
@@ -143,5 +144,12 @@ describe('parsePocsag1234002', () => {
     expect(location).toEqual({
       err: 'Invalid POCSAG message body length',
     });
+  });
+});
+
+describe('getNextSecond', () => {
+  it('should return the next second', () => {
+    const nextSecond = getNextSecond('2025-04-09 23:42:48');
+    expect(nextSecond).toEqual('2025-04-09 23:42:49');
   });
 });
