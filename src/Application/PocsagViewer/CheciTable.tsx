@@ -9,8 +9,16 @@ interface DataType {
   infoLength: number;
 }
 
-const expandColumns: TableColumnsType<TrainSignalRecord> = [
+type ExtendedTableColumnsType = {
+  timestamp: string;
+  trainNumber: number;
+  speed: number;
+  mileage: number;
+};
+
+const expandColumns: TableColumnsType<ExtendedTableColumnsType> = [
   { title: 'Key', dataIndex: 'key', key: 'key' },
+  { title: 'Timestamp', dataIndex: 'timestamp', key: 'timestamp' },
   { title: 'TrainNumber', dataIndex: 'trainNumber', key: 'trainNumber' },
   { title: 'Speed', dataIndex: 'speed', key: 'speed' },
   { title: 'Mileage', dataIndex: 'mileage', key: 'mileage' },
@@ -62,12 +70,17 @@ const CheciTable = ({
 
   const expandedRowRender = (record: DataType) => {
     const trainSignalRecords = trainSignalRecordsMap[record.trainNumber];
-    const trainSignalRecordsWithKey = trainSignalRecords.map((record, idx) => ({
-      ...record,
-      key: idx.toString(),
-    }));
+    const trainSignalRecordsWithKey: ExtendedTableColumnsType[] =
+      trainSignalRecords.map((record: TrainSignalRecord, idx: number) => ({
+        key: idx.toString(),
+        timestamp: record.timestamp,
+        trainNumber: record.payload.trainNumber,
+        speed: record.payload.speed,
+        mileage: record.payload.mileage,
+      }));
+    console.log(trainSignalRecordsWithKey);
     return (
-      <Table<TrainSignalRecord>
+      <Table<ExtendedTableColumnsType>
         columns={expandColumns}
         dataSource={trainSignalRecordsWithKey}
         pagination={false}
