@@ -1,4 +1,4 @@
-import { Table } from 'antd';
+import { Button, Table } from 'antd';
 
 import {
   expandColumns,
@@ -6,6 +6,7 @@ import {
   getRelated1234002Row,
 } from './CheciTable';
 import { RawPocsagRow, TrainSignalRecord } from './types';
+import { convertGps, convertGpsListToWkt } from './utils';
 
 const CodeSpeedMileageTable = ({
   trainSignalRecords,
@@ -33,6 +34,29 @@ const CodeSpeedMileageTable = ({
         columns={expandColumns}
         dataSource={trainSignalRecordsWithKey}
         pagination={false}
+        title={() => (
+          <div>
+            <Button
+              onClick={() => {
+                const gpsList = trainSignalRecordsWithKey
+                  .map((record) => record._related1234002Row?.gps)
+                  .filter((gps) => !!gps)
+                  .map((gps) =>
+                    convertGps(gps || { latitude: '', longitude: '' })
+                  );
+                const wkt = convertGpsListToWkt(gpsList);
+                const a = document.createElement('a');
+                a.href = `data:text/csv;charset=utf-8,${encodeURIComponent(
+                  wkt
+                )}`;
+                a.download = 'train_route.csv';
+                a.click();
+              }}
+            >
+              Export to KML
+            </Button>
+          </div>
+        )}
       />
     </div>
   );

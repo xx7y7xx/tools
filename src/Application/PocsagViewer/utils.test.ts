@@ -1,4 +1,6 @@
 import {
+  convertGps,
+  convertGpsListToWkt,
   convertTrainNumSpeedMileage,
   getColorForSpeed,
   getNextSecond,
@@ -151,5 +153,27 @@ describe('getNextSecond', () => {
   it('should return the next second', () => {
     const nextSecond = getNextSecond('2025-04-09 23:42:48');
     expect(nextSecond).toEqual('2025-04-09 23:42:49');
+  });
+});
+
+describe('convertGps', () => {
+  it('should convert the gps', () => {
+    const gps = convertGps({
+      latitude: "39°51.2936'",
+      longitude: "116°13.2274'",
+    });
+    expect(gps).toEqual({ latitude: 39.85489, longitude: 116.22046 });
+  });
+});
+
+describe('convertGpsListToWkt', () => {
+  it('should convert the gps list to WKT', () => {
+    const wkt = convertGpsListToWkt([
+      { latitude: 39.85489, longitude: 116.22046 },
+      { latitude: 39.85489, longitude: 116.22046 },
+    ]);
+    expect(wkt).toEqual(
+      'WKT,name,description\n"LINESTRING (116.22046 39.85489,116.22046 39.85489)",Line 1,'
+    );
   });
 });
