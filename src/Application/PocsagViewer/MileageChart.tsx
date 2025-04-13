@@ -1,8 +1,16 @@
 import { TooltipItem } from 'chart.js';
+import { Chart as ChartJS, TimeScale } from 'chart.js';
+import 'chartjs-adapter-date-fns';
+import zoomPlugin from 'chartjs-plugin-zoom';
+import { Button } from 'antd';
+import { useRef } from 'react';
 
 import CommonChart from './CommonChart';
 import { TrainSignalRecord } from './types';
 import { getColorForSpeed, getMinMaxSpeed } from './utils';
+
+// Register the time scale and zoom plugin
+ChartJS.register(TimeScale, zoomPlugin);
 
 interface MileageChartProps {
   trainSignalRecords: TrainSignalRecord[];
@@ -14,18 +22,17 @@ interface MileageChartProps {
  */
 const MileageChart = ({ trainSignalRecords }: MileageChartProps) => {
   const { minSpeed, maxSpeed } = getMinMaxSpeed(trainSignalRecords);
+  const chartRef = useRef<ChartJS | null>(null);
 
   const chartConfig = {
     type: 'line' as const,
     data: {
-      labels: trainSignalRecords.map(
-        (record) => record.timestamp.split(' ')[1]
-      ),
+      labels: trainSignalRecords.map((record) => record.timestamp),
       datasets: [
         {
           label: 'Mileage',
           data: trainSignalRecords.map((record) => ({
-            x: record.timestamp.split(' ')[1],
+            x: new Date(record.timestamp).getTime(),
             y: record.payload.mileage,
           })),
           backgroundColor: trainSignalRecords.map((record) =>
@@ -64,6 +71,21 @@ const MileageChart = ({ trainSignalRecords }: MileageChartProps) => {
             },
           },
         },
+        zoom: {
+          pan: {
+            enabled: true,
+            mode: 'x',
+          },
+          zoom: {
+            wheel: {
+              enabled: true,
+            },
+            pinch: {
+              enabled: true,
+            },
+            mode: 'x',
+          },
+        },
       },
       scales: {
         y: {
@@ -74,18 +96,37 @@ const MileageChart = ({ trainSignalRecords }: MileageChartProps) => {
           },
         },
         x: {
+          type: 'time',
+          time: {
+            unit: 'minute',
+            displayFormats: {
+              minute: 'HH:mm:ss',
+            },
+            parser: 'yyyy-MM-dd HH:mm:ss',
+          },
           title: {
             display: true,
-            text: 'Time Points',
+            text: 'Time',
           },
         },
       },
     },
   };
 
+  const handleResetZoom = () => {
+    if (chartRef.current) {
+      chartRef.current.resetZoom();
+    }
+  };
+
   return (
-    <div style={{ height: '300px' }}>
-      <CommonChart chartConfig={chartConfig} />
+    <div>
+      <div style={{ marginBottom: '10px' }}>
+        <Button onClick={handleResetZoom}>Reset Zoom</Button>
+      </div>
+      <div style={{ height: '300px' }}>
+        <CommonChart chartConfig={chartConfig} ref={chartRef} />
+      </div>
     </div>
   );
 };
