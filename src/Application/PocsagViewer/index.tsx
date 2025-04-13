@@ -109,7 +109,10 @@ const PocsagViewer = () => {
         <h1>TrainDetail</h1>
         <div>TrainNumber: {toolParamsObj.trainNumber}</div>
         {trainSignalRecords && (
-          <CheciDetail trainSignalRecords={trainSignalRecords} />
+          <CheciDetail
+            trainSignalRecords={trainSignalRecords}
+            rawPocsagRows={rawPocsagRows}
+          />
         )}
       </div>
     );

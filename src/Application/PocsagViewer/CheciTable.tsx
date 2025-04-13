@@ -10,7 +10,7 @@ interface CheciRowType {
   infoLength: number;
 }
 
-type ExtendedTableColumnsType = {
+export type ExtendedTableColumnsType = {
   key: string;
   timestamp: string;
   trainNumber: number;
@@ -31,7 +31,7 @@ type getRelated1234002RowType = {
  * record is 1234000, from this record's timestamp, we may find the corresponding 1234002 Numberic record which contains the GPS info
  * if cannot find the 1234002 record at the same timestamp, we use the next 1s record
  */
-const getRelated1234002Row = (
+export const getRelated1234002Row = (
   record: TrainSignalRecord,
   rawPocsagRows: RawPocsagRow[]
 ) => {
@@ -59,7 +59,8 @@ const getRelated1234002Row = (
     });
   if (foundRows.length > 1) {
     console.warn(
-      `Found ${foundRows.length} related 1234002 records for ${record.payload.trainNumber} at ${record.timestamp}`
+      `Found ${foundRows.length} related 1234002 rows for ${record.payload.trainNumber} at ${record.timestamp}:`,
+      foundRows
     );
   }
   if (foundRows.length === 0) {
@@ -68,7 +69,7 @@ const getRelated1234002Row = (
   return foundRows[0];
 };
 
-const expandColumns: TableColumnsType<ExtendedTableColumnsType> = [
+export const expandColumns: TableColumnsType<ExtendedTableColumnsType> = [
   { title: 'Key', dataIndex: 'key', key: 'key' },
   { title: 'Timestamp', dataIndex: 'timestamp', key: 'timestamp' },
   { title: 'TrainNumber', dataIndex: 'trainNumber', key: 'trainNumber' },
@@ -94,6 +95,7 @@ const expandColumns: TableColumnsType<ExtendedTableColumnsType> = [
     },
   },
 ];
+
 const columns: TableColumnsType<CheciRowType> = [
   {
     title: 'TrainNumber',
