@@ -80,15 +80,32 @@ export const parsePocsag1234002 = (msg: string): Pocsag1234002ParseResult => {
     };
   }
 
-  const longitude: string = msg.slice(30, 33); // "120"
-  const longitudeDecimal: string =
-    msg.slice(33, 35) /* 37 */ + '.' + msg.slice(35, 39); /* 6039 */
-  const latitude: string = msg.slice(39, 41); // "31"
-  const latitudeDecimal: string =
-    msg.slice(41, 43) /* 20 */ + '.' + msg.slice(43, 47); /* 1079 */
+  const longitudeDegrees = msg.slice(30, 33); // "120"
+  const longitudeMinutes = msg.slice(33, 35); // "37"
+  const longitudeMinutesDecimal = msg.slice(35, 39); // "6039"
+
+  const latitudeDegrees = msg.slice(39, 41); // "31"
+  const latitudeMinutes = msg.slice(41, 43); // "20"
+  const latitudeMinutesDecimal = msg.slice(43, 47); // "1079"
+
+  // sometimes the message may contain not_a_number
+  // for example "20202310526732U7]1 9U3 [-[20205.632891339521253000", you can see the longitudeDegrees is "5.6", but `.` is not a number
+  if (
+    !/^\d+$/.test(longitudeDegrees) ||
+    !/^\d+$/.test(longitudeMinutes) ||
+    !/^\d+$/.test(longitudeMinutesDecimal) ||
+    !/^\d+$/.test(latitudeDegrees) ||
+    !/^\d+$/.test(latitudeMinutes) ||
+    !/^\d+$/.test(latitudeMinutesDecimal)
+  ) {
+    return {
+      err: 'Invalid POCSAG message body because of not_a_number',
+    };
+  }
+
   return {
-    latitude: `${latitude}°${latitudeDecimal}'`, // "31°20.1079'"
-    longitude: `${longitude}°${longitudeDecimal}'`, // "120°37.6039'"
+    latitude: `${latitudeDegrees}°${latitudeMinutes}.${latitudeMinutesDecimal}'`, // "31°20.1079'"
+    longitude: `${longitudeDegrees}°${longitudeMinutes}.${longitudeMinutesDecimal}'`, // "120°37.6039'"
   };
 };
 

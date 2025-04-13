@@ -147,6 +147,14 @@ describe('parsePocsag1234002', () => {
       err: 'Invalid POCSAG message body length',
     });
   });
+  it('should return error if some part is not number', () => {
+    const location = parsePocsag1234002(
+      '20202310526732U7]1 9U3 [-[20205.632891339521253000'
+    );
+    expect(location).toEqual({
+      err: 'Invalid POCSAG message body because of not_a_number',
+    });
+  });
 });
 
 describe('getNextSecond', () => {

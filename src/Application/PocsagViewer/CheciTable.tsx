@@ -45,6 +45,7 @@ export const getRelated1234002Row = (
           row.timestamp === getNextSecond(record.timestamp))
     )
     .forEach((row) => {
+      // TODO 当找到了，但是解析失败，是否还被认为是没有找到？
       const result = parsePocsag1234002(row.message_content);
       if (result.err || !result.latitude || !result.longitude) {
         return;
