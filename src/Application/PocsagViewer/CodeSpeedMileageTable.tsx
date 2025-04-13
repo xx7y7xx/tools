@@ -1,4 +1,6 @@
 import { Button, Table } from 'antd';
+// @ts-ignore
+import * as coordtransform from 'coordtransform';
 
 import {
   expandColumns,
@@ -41,9 +43,19 @@ const CodeSpeedMileageTable = ({
                 const gpsList = trainSignalRecordsWithKey
                   .map((record) => record._related1234002Row?.gps)
                   .filter((gps) => !!gps)
-                  .map((gps) =>
-                    convertGps(gps || { latitude: '', longitude: '' })
-                  );
+                  .map((gps) => {
+                    const wgs84 = convertGps(
+                      gps || { latitude: '', longitude: '' }
+                    );
+                    const gcj02 = coordtransform.wgs84togcj02(
+                      wgs84.longitude,
+                      wgs84.latitude
+                    );
+                    return {
+                      latitude: gcj02[1],
+                      longitude: gcj02[0],
+                    };
+                  });
                 const wkt = convertGpsListToWkt(gpsList);
                 const a = document.createElement('a');
                 a.href = `data:text/csv;charset=utf-8,${encodeURIComponent(
@@ -54,7 +66,14 @@ const CodeSpeedMileageTable = ({
               }}
             >
               Export to KML
-            </Button>
+            </Button>{' '}
+            <a
+              target="_blank"
+              rel="noreferrer"
+              href="https://www.google.com/mymaps"
+            >
+              https://www.google.com/mymaps
+            </a>
           </div>
         )}
       />

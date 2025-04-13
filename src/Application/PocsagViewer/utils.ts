@@ -137,7 +137,7 @@ export const getNextSecond = (timestamp: string) => {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
-// conver {latitude: "39°51.2936'", longitude: "116°13.2274'"} to {latitude: 39.85489, longitude: 116.22072}
+// convert {latitude: "39°51.2936'", longitude: "116°13.2274'"} to {latitude: 39.85489, longitude: 116.22072}
 export const convertGps = (gps: { latitude: string; longitude: string }) => {
   const convertCoordinate = (coord: string) => {
     const match = coord.match(/(\d+)°(\d+\.\d+)'/);
