@@ -2,6 +2,11 @@ import CommonChart from './CommonChart';
 import { TrainSignalRecord } from './types';
 import { TooltipItem } from 'chart.js';
 import { getColorForSpeed, getMinMaxSpeed } from './utils';
+import { Chart as ChartJS, TimeScale } from 'chart.js';
+import 'chartjs-adapter-date-fns';
+
+// Register the time scale
+ChartJS.register(TimeScale);
 
 interface SpeedChartProps {
   trainSignalRecords: TrainSignalRecord[];
@@ -13,18 +18,17 @@ interface SpeedChartProps {
  */
 const SpeedChart = ({ trainSignalRecords }: SpeedChartProps) => {
   const { minSpeed, maxSpeed } = getMinMaxSpeed(trainSignalRecords);
+  console.log('trainSignalRecords', trainSignalRecords);
 
   const chartConfig = {
     type: 'line' as const,
     data: {
-      labels: trainSignalRecords.map(
-        (record) => record.timestamp.split(' ')[1]
-      ),
+      labels: trainSignalRecords.map((record) => record.timestamp),
       datasets: [
         {
           label: 'Speed',
           data: trainSignalRecords.map((record) => ({
-            x: record.timestamp.split(' ')[1],
+            x: new Date(record.timestamp).getTime(),
             y: record.payload.speed,
           })),
           backgroundColor: trainSignalRecords.map((record) =>
@@ -73,9 +77,17 @@ const SpeedChart = ({ trainSignalRecords }: SpeedChartProps) => {
           },
         },
         x: {
+          type: 'time',
+          time: {
+            unit: 'minute',
+            displayFormats: {
+              minute: 'HH:mm:ss',
+            },
+            parser: 'yyyy-MM-dd HH:mm:ss',
+          },
           title: {
             display: true,
-            text: 'Time Points',
+            text: 'Time',
           },
         },
       },
