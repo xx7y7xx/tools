@@ -60,7 +60,13 @@ const CheciInfo = ({ checi }: { checi: string }) => {
   return (
     <div>
       车次 {checi} 的详细数据对应的日期: {date}
-      <CheciInfoDescriptions trainFullInfo={trainsFullInfoMap[checi]} />
+      {trainsFullInfoMap[checi] ? (
+        <CheciInfoDescriptions trainFullInfo={trainsFullInfoMap[checi]} />
+      ) : (
+        <div>
+          Not found in <code>trainsFullInfoMap</code>
+        </div>
+      )}
       {loading ? (
         <Spin />
       ) : (
