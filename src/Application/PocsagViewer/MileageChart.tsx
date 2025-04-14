@@ -1,16 +1,12 @@
-import { TooltipItem } from 'chart.js';
-import { Chart as ChartJS, TimeScale } from 'chart.js';
+import { TooltipItem, Chart as ChartJS, TimeScale } from 'chart.js';
 import 'chartjs-adapter-date-fns';
-import zoomPlugin from 'chartjs-plugin-zoom';
-import { Button } from 'antd';
-import { useRef } from 'react';
 
 import CommonChart from './CommonChart';
 import { TrainSignalRecord } from './types';
 import { getColorForSpeed, getMinMaxSpeed } from './utils';
 
-// Register the time scale and zoom plugin
-ChartJS.register(TimeScale, zoomPlugin);
+// Register the time scale
+ChartJS.register(TimeScale);
 
 interface MileageChartProps {
   trainSignalRecords: TrainSignalRecord[];
@@ -22,7 +18,6 @@ interface MileageChartProps {
  */
 const MileageChart = ({ trainSignalRecords }: MileageChartProps) => {
   const { minSpeed, maxSpeed } = getMinMaxSpeed(trainSignalRecords);
-  const chartRef = useRef<ChartJS | null>(null);
 
   const chartConfig = {
     type: 'line' as const,
@@ -71,21 +66,6 @@ const MileageChart = ({ trainSignalRecords }: MileageChartProps) => {
             },
           },
         },
-        zoom: {
-          pan: {
-            enabled: true,
-            mode: 'x',
-          },
-          zoom: {
-            wheel: {
-              enabled: true,
-            },
-            pinch: {
-              enabled: true,
-            },
-            mode: 'x',
-          },
-        },
       },
       scales: {
         y: {
@@ -113,20 +93,9 @@ const MileageChart = ({ trainSignalRecords }: MileageChartProps) => {
     },
   };
 
-  const handleResetZoom = () => {
-    if (chartRef.current) {
-      chartRef.current.resetZoom();
-    }
-  };
-
   return (
-    <div>
-      <div style={{ marginBottom: '10px' }}>
-        <Button onClick={handleResetZoom}>Reset Zoom</Button>
-      </div>
-      <div style={{ height: '300px' }}>
-        <CommonChart chartConfig={chartConfig} ref={chartRef} />
-      </div>
+    <div style={{ height: '300px' }}>
+      <CommonChart chartConfig={chartConfig} />
     </div>
   );
 };

@@ -1,15 +1,12 @@
+import { Chart as ChartJS, TimeScale, TooltipItem } from 'chart.js';
+import 'chartjs-adapter-date-fns';
+
 import CommonChart from './CommonChart';
 import { TrainSignalRecord } from './types';
-import { TooltipItem } from 'chart.js';
 import { getColorForSpeed, getMinMaxSpeed } from './utils';
-import { Chart as ChartJS, TimeScale } from 'chart.js';
-import 'chartjs-adapter-date-fns';
-import zoomPlugin from 'chartjs-plugin-zoom';
-import { Button } from 'antd';
-import { useRef } from 'react';
 
-// Register the time scale and zoom plugin
-ChartJS.register(TimeScale, zoomPlugin);
+// Register the time scale
+ChartJS.register(TimeScale);
 
 interface SpeedChartProps {
   trainSignalRecords: TrainSignalRecord[];
@@ -21,8 +18,6 @@ interface SpeedChartProps {
  */
 const SpeedChart = ({ trainSignalRecords }: SpeedChartProps) => {
   const { minSpeed, maxSpeed } = getMinMaxSpeed(trainSignalRecords);
-  const chartRef = useRef<ChartJS | null>(null);
-  console.log('trainSignalRecords', trainSignalRecords);
 
   const chartConfig = {
     type: 'line' as const,
@@ -71,21 +66,6 @@ const SpeedChart = ({ trainSignalRecords }: SpeedChartProps) => {
             },
           },
         },
-        zoom: {
-          pan: {
-            enabled: true,
-            mode: 'x',
-          },
-          zoom: {
-            wheel: {
-              enabled: true,
-            },
-            pinch: {
-              enabled: true,
-            },
-            mode: 'x',
-          },
-        },
       },
       scales: {
         y: {
@@ -113,20 +93,9 @@ const SpeedChart = ({ trainSignalRecords }: SpeedChartProps) => {
     },
   };
 
-  const handleResetZoom = () => {
-    if (chartRef.current) {
-      chartRef.current.resetZoom();
-    }
-  };
-
   return (
-    <div>
-      <div style={{ marginBottom: '10px' }}>
-        <Button onClick={handleResetZoom}>Reset Zoom</Button>
-      </div>
-      <div style={{ height: '300px' }}>
-        <CommonChart chartConfig={chartConfig} ref={chartRef} />
-      </div>
+    <div style={{ height: '300px' }}>
+      <CommonChart chartConfig={chartConfig} />
     </div>
   );
 };
