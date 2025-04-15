@@ -17,5 +17,8 @@ app.use(cors());
 app.use('/data', express.static(path.join(__dirname, '../pocsag-data')));
 
 app.listen(port, () => {
+  console.log('--------------------------------');
+  console.log('POCSAG DATA SERVER');
   console.log(`Server running at http://localhost:${port}`);
+  console.log('--------------------------------');
 });
