@@ -72,6 +72,8 @@ const SignalTable = ({
   useEffect(() => {
     const updateHeight = () => {
       const headerElement = document.querySelector('h1');
+      const tableTitleElement: HTMLElement | null =
+        document.querySelector('.ant-table-title');
       const tableHeaderElement: HTMLElement | null =
         document.querySelector('.ant-table-header');
       const tableFooterElement: HTMLElement | null =
@@ -80,6 +82,9 @@ const SignalTable = ({
         ? headerElement.offsetHeight +
           parseInt(window.getComputedStyle(headerElement).marginTop) +
           parseInt(window.getComputedStyle(headerElement).marginBottom)
+        : 0;
+      const tableTitleHeight = tableTitleElement
+        ? tableTitleElement.offsetHeight
         : 0;
       const tableHeaderHeight = tableHeaderElement
         ? tableHeaderElement.offsetHeight
@@ -90,6 +95,7 @@ const SignalTable = ({
       const availableHeight =
         window.innerHeight -
         headerHeight -
+        tableTitleHeight -
         tableHeaderHeight -
         tableFooterHeight;
       setTableHeight(availableHeight);
