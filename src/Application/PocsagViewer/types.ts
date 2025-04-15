@@ -8,16 +8,44 @@ export interface TrainInfo {
 export type ConvertResult = {
   str: { trainNumber: string; speed: string; mileage: string };
   data?: TrainInfo;
-  err?: string;
+  err: string | null;
 };
 
-// Raw POCSAG data from csv file
+// Raw POCSAG data from csv/tsv file
 export interface RawPocsagRow {
   timestamp: string; // e.g. '2025-04-09 23:42:20'
   address: string; // e.g. '1234000'
   function_bits: string; // e.g. '3'
   message_format: string; // e.g. 'Numeric'
   message_content: string; // e.g. '69012  19    33'
+}
+
+// Parsed POCSAG data from csv/tsv file
+
+// 1234000 payload
+export interface ParsedPocsagPayload1234000 {
+  trainNumber: number; // 列车号 21022
+  speed: number; // 速度 19 (km/h)
+  mileage: number; // 里程 61 (km)
+}
+
+// 1234002 payload
+export interface ParsedPocsagPayload1234002 {
+  wgs84Str?: string; // e.g. "31°20.1079' 120°37.6039'"
+  gcj02?: {
+    latitude: number; // 纬度 39.85489
+    longitude: number; // 经度 116.22072
+  };
+}
+
+export interface ParsedPocsagRow {
+  timestamp: string; // e.g. '2025-04-09 23:42:17'
+  address: number; // e.g. 1234000
+  functionBits: number; // e.g. 3
+  messageFormat: MessageType; // e.g. 'Numeric'
+  messagePayload?: ParsedPocsagPayload1234000 | ParsedPocsagPayload1234002;
+  parsedErrorMessage: string | null; // e.g. 'Invalid message content'
+  rawSignal: RawPocsagRow;
 }
 
 export enum MessageType {
@@ -48,7 +76,14 @@ export interface TrainSignalRecord {
 }
 
 export type Pocsag1234002ParseResult = {
-  latitude?: string;
-  longitude?: string;
-  err?: string;
+  err: string | null;
+  wgs84Str?: string;
+  wgs84?: {
+    latitude: number;
+    longitude: number;
+  };
+  gcj02?: {
+    latitude: number;
+    longitude: number;
+  };
 };

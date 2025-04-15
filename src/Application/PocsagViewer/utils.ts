@@ -1,113 +1,4 @@
-import {
-  ConvertResult,
-  Pocsag1234002ParseResult,
-  TrainSignalRecord,
-} from './types';
-
-/**
- * Convert the message body which the address is 1234000
- * How to split "69012  19    33"
- * ```
- * ----- --- -----
- * 69012  19    33
- * ```
- * Format: `{5} {2} {5}` (the number is the length of the string)
- * @param trainNumSpeedMileage The train number, speed, and mileage. e.g. "69012  19    33"
- * @returns ConvertResult object with parsed values
- */
-export const convertTrainNumSpeedMileage = (
-  trainNumSpeedMileage: string
-): ConvertResult => {
-  // trainNumSpeedMileage="69012  19    33"
-  const trainNumStrPart = trainNumSpeedMileage.substring(0, 5); // '69012'
-  const speedStrPart = trainNumSpeedMileage.substring(6, 9); // ' 19'
-  const mileageStrPart = trainNumSpeedMileage.substring(10, 15); // '   33'
-
-  let isErr = false;
-
-  const result: ConvertResult = {
-    str: {
-      trainNumber: trainNumStrPart,
-      speed: speedStrPart,
-      mileage: mileageStrPart,
-    },
-  };
-
-  // '12345' and ' 1234' is valid, '-----' is invalid
-  if (!/^\s*\d+$/.test(trainNumStrPart) || trainNumStrPart.length !== 5) {
-    isErr = true;
-  }
-  // '219' and ' 19' is valid, '---' is invalid
-  if (!/^\s*\d+$/.test(speedStrPart) || speedStrPart.length !== 3) {
-    isErr = true;
-  }
-  // '44433' and '   33' is valid, '-----' is invalid
-  if (!/^\s*\d+$/.test(mileageStrPart) || mileageStrPart.length !== 5) {
-    isErr = true;
-  }
-
-  if (isErr) {
-    result.err = 'Invalid POCSAG message body';
-    return result;
-  }
-
-  result.data = {
-    trainNumber: parseInt(trainNumStrPart),
-    speed: parseInt(speedStrPart),
-    mileage: parseFloat(mileageStrPart) / 10,
-  };
-
-  return result;
-};
-
-/**
- * Parse 1234002:Numberic
- * ```
- * 20202350006330U].9UU.6 [-[202012037603931201079000
- * 202012037603931201079000
- * ││││││││││││││││││││││││
- * └─┬─┘└─┬─┘└───┬────┘
- *   31°  120°   小数部分
- *   20.1079'    37.6039'
- * ```
- * The parsed result is "31°20.1079' 120°37.6039'"
- */
-export const parsePocsag1234002 = (msg: string): Pocsag1234002ParseResult => {
-  // e.g. msg="20202350006330U].9UU.6 [-[202012037603931201079000"
-  if (msg.length !== 50) {
-    return {
-      err: 'Invalid POCSAG message body length',
-    };
-  }
-
-  const longitudeDegrees = msg.slice(30, 33); // "120"
-  const longitudeMinutes = msg.slice(33, 35); // "37"
-  const longitudeMinutesDecimal = msg.slice(35, 39); // "6039"
-
-  const latitudeDegrees = msg.slice(39, 41); // "31"
-  const latitudeMinutes = msg.slice(41, 43); // "20"
-  const latitudeMinutesDecimal = msg.slice(43, 47); // "1079"
-
-  // sometimes the message may contain not_a_number
-  // for example "20202310526732U7]1 9U3 [-[20205.632891339521253000", you can see the longitudeDegrees is "5.6", but `.` is not a number
-  if (
-    !/^\d+$/.test(longitudeDegrees) ||
-    !/^\d+$/.test(longitudeMinutes) ||
-    !/^\d+$/.test(longitudeMinutesDecimal) ||
-    !/^\d+$/.test(latitudeDegrees) ||
-    !/^\d+$/.test(latitudeMinutes) ||
-    !/^\d+$/.test(latitudeMinutesDecimal)
-  ) {
-    return {
-      err: 'Invalid POCSAG message body because of not_a_number',
-    };
-  }
-
-  return {
-    latitude: `${latitudeDegrees}°${latitudeMinutes}.${latitudeMinutesDecimal}'`, // "31°20.1079'"
-    longitude: `${longitudeDegrees}°${longitudeMinutes}.${longitudeMinutesDecimal}'`, // "120°37.6039'"
-  };
-};
+import { TrainSignalRecord } from './types';
 
 /**
  * Function to get color based on speed
@@ -185,4 +76,46 @@ export const convertGpsListToWkt = (
     .map((gps) => `${gps.longitude} ${gps.latitude}`)
     .join(',')})`;
   return `WKT,name,description\n"${wkt}",Line 1,`;
+};
+
+/*
+describe('convertGpsListToWktPoint', () => {
+  it('should convert the gps list to WKT point', () => {
+    const wkt = convertGpsListToWktPoint([
+      { latitude: 39.8869744, longitude: 116.2386613 },
+      { latitude: 39.8749211, longitude: 116.25454 },
+    ]);
+    expect(wkt).toEqual(
+      'WKT,name,description\n"POINT (116.2386613 39.8869744)",Point 1,\n"POINT (116.25454 39.8749211)",Point 2,'
+    );
+  });
+});*/
+
+/**
+ * Convert the gps list to WKT format (with header)
+ * Output:
+ * ```csv
+ * WKT,name,description
+ * "POINT (116.2386613 39.8869744)",Point 1,
+ * "POINT (116.25454 39.8749211)",Point 2,
+ * ```
+ */
+export const convertGpsListToWktPoint = (
+  gpsList: { latitude: number; longitude: number }[]
+) => {
+  const header = 'WKT,name,description';
+  const wktList = gpsList
+    .map(
+      (gps, idx) =>
+        `"POINT (${gps.longitude} ${gps.latitude})",Point ${idx + 1},`
+    )
+    .join('\n');
+  return `${header}\n${wktList}`;
+};
+
+export const downloadFile = (content: string, filename: string) => {
+  const a = document.createElement('a');
+  a.href = `data:text/csv;charset=utf-8,${encodeURIComponent(content)}`;
+  a.download = filename;
+  a.click();
 };

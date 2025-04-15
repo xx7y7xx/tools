@@ -1,18 +1,27 @@
 import { useEffect, useState } from 'react';
 
-import { Table, Input, Select } from 'antd';
+import { Table, Input, Select, Button } from 'antd';
 import type { ColumnType } from 'antd/es/table';
 
-import { RawPocsagRow } from '../PocsagViewer/types';
-import { MessageType } from '../PocsagViewer/types';
 import {
-  convertTrainNumSpeedMileage,
-  parsePocsag1234002,
-} from '../PocsagViewer/utils';
+  ParsedPocsagRow,
+  ParsedPocsagPayload1234000,
+  ParsedPocsagPayload1234002,
+} from '../PocsagViewer/types';
+import { MessageType } from '../PocsagViewer/types';
 import { filterPocsagData } from './filter';
 import GoogleMapLink from '../PocsagViewer/GoogleMapLink';
+import {
+  convertGpsListToWkt,
+  convertGpsListToWktPoint,
+  downloadFile,
+} from '../PocsagViewer/utils';
 
-const SignalTable = ({ allSignalRows }: { allSignalRows: RawPocsagRow[] }) => {
+const SignalTable = ({
+  parsedSignalRows,
+}: {
+  parsedSignalRows: ParsedPocsagRow[];
+}) => {
   const [tableHeight, setTableHeight] = useState(600);
 
   // Initialize state from URL params
@@ -91,14 +100,14 @@ const SignalTable = ({ allSignalRows }: { allSignalRows: RawPocsagRow[] }) => {
     return () => window.removeEventListener('resize', updateHeight);
   }, []);
 
-  const filteredData = filterPocsagData(allSignalRows, {
+  const filteredData: ParsedPocsagRow[] = filterPocsagData(parsedSignalRows, {
     content: searchText,
     address: addressSearchText,
     type: messageTypeSearchText,
     timestamp: timestampSearchText,
   });
 
-  const columns: ColumnType<RawPocsagRow>[] = [
+  const columns: ColumnType<ParsedPocsagRow>[] = [
     {
       title: () => (
         <div>
@@ -137,8 +146,8 @@ const SignalTable = ({ allSignalRows }: { allSignalRows: RawPocsagRow[] }) => {
     },
     {
       title: 'Function Code',
-      dataIndex: 'function_bits',
-      key: 'function_bits',
+      dataIndex: 'functionBits',
+      key: 'functionBits',
       width: 80,
     },
     {
@@ -159,8 +168,8 @@ const SignalTable = ({ allSignalRows }: { allSignalRows: RawPocsagRow[] }) => {
           />
         </div>
       ),
-      dataIndex: 'message_format',
-      key: 'message_format',
+      dataIndex: 'messageFormat',
+      key: 'messageFormat',
       width: 80,
     },
     {
@@ -177,54 +186,89 @@ const SignalTable = ({ allSignalRows }: { allSignalRows: RawPocsagRow[] }) => {
           />
         </div>
       ),
-      dataIndex: 'message_content',
-      key: 'message_content',
+      dataIndex: 'messagePayload',
+      key: 'messagePayload',
       width: 400,
       //if  address is 1234000 and message type is numeric, then use convertTrainNumSpeedMileage to parse the message content
-      render: (text, record) => {
+      render: (_, record: ParsedPocsagRow) => {
         if (
-          record.address === '1234000' &&
-          record.message_format === MessageType.Numeric
+          record.address === 1234000 &&
+          record.messageFormat === MessageType.Numeric
         ) {
-          const result = convertTrainNumSpeedMileage(text);
-          if (result.err || !result.data) {
-            return `Raw: "${text}"; Err: ${result.err}`;
+          const payload = record.messagePayload as ParsedPocsagPayload1234000;
+          if (record.parsedErrorMessage) {
+            return `Raw: "${record.rawSignal.message_content}"; Err: ${record.parsedErrorMessage}`;
           }
           return (
             <div>
               <a
-                href={`http://localhost:3000/tools?tool=pocsagViewer&toolParams={"trainNumber":${result.data.trainNumber}}`}
+                href={`http://localhost:3000/tools?tool=pocsagViewer&toolParams={"trainNumber":${payload.trainNumber}}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {`${result.data.trainNumber}`}{' '}
+                {`${payload.trainNumber}`}{' '}
               </a>
-              {`${result.data.speed} ${result.data.mileage}`}
+              {`${payload.speed} ${payload.mileage}`}
             </div>
           );
         }
         if (
-          record.address === '1234002' &&
-          record.message_format === MessageType.Numeric
+          record.address === 1234002 &&
+          record.messageFormat === MessageType.Numeric
         ) {
-          const result = parsePocsag1234002(text);
-          if (result.err || !result.latitude || !result.longitude) {
-            return `Raw: "${text}"; Err: ${result.err}`;
+          const payload = record.messagePayload as ParsedPocsagPayload1234002;
+          if (record.parsedErrorMessage) {
+            return `Raw: "${record.rawSignal.message_content}"; Err: ${record.parsedErrorMessage}`;
           }
           return (
             <div>
-              <GoogleMapLink
-                latitude={result.latitude}
-                longitude={result.longitude}
-              />{' '}
-              Raw: <code>{text}</code>
+              <GoogleMapLink wgs84Str={payload.wgs84Str || ''} /> Raw:{' '}
+              <code>{record.rawSignal.message_content}</code>
             </div>
           );
         }
-        return <code>{text}</code>;
+        return <code>{record.rawSignal.message_content}</code>;
       },
     },
   ];
+
+  const handleExportToKML = () => {
+    const gpsList = filteredData
+      .filter(
+        (row: ParsedPocsagRow) =>
+          row.address === 1234002 &&
+          row.messageFormat === MessageType.Numeric &&
+          row.messagePayload
+      )
+      .map((row: ParsedPocsagRow) => {
+        const payload = row.messagePayload as ParsedPocsagPayload1234002;
+        return {
+          latitude: payload.gcj02 ? payload.gcj02.latitude : 0,
+          longitude: payload.gcj02 ? payload.gcj02.longitude : 0,
+        };
+      });
+    const wkt = convertGpsListToWkt(gpsList);
+    downloadFile(wkt, 'train_route.csv');
+  };
+
+  const handleExportToKMLPoint = () => {
+    const gpsList = filteredData
+      .filter(
+        (row: ParsedPocsagRow) =>
+          row.address === 1234002 &&
+          row.messageFormat === MessageType.Numeric &&
+          row.messagePayload
+      )
+      .map((row: ParsedPocsagRow) => {
+        const payload = row.messagePayload as ParsedPocsagPayload1234002;
+        return {
+          latitude: payload.gcj02 ? payload.gcj02.latitude : 0,
+          longitude: payload.gcj02 ? payload.gcj02.longitude : 0,
+        };
+      });
+    const wkt = convertGpsListToWktPoint(gpsList);
+    downloadFile(wkt, 'train_route.csv');
+  };
 
   return (
     <Table
@@ -237,14 +281,24 @@ const SignalTable = ({ allSignalRows }: { allSignalRows: RawPocsagRow[] }) => {
       rowKey={(record) =>
         record.timestamp +
         record.address +
-        record.message_format +
-        record.message_content
+        record.messageFormat +
+        record.rawSignal
       }
+      title={() => (
+        <div>
+          <Button type="primary" onClick={handleExportToKML}>
+            Export to KML Line
+          </Button>{' '}
+          <Button type="primary" onClick={handleExportToKMLPoint}>
+            Export to KML Point
+          </Button>
+        </div>
+      )}
       footer={() => (
         <div>
-          Filtered {filteredData.length} of {allSignalRows.length} | Full data
-          time range: {allSignalRows[0]?.timestamp} ~{' '}
-          {allSignalRows[allSignalRows.length - 1]?.timestamp}
+          Filtered {filteredData.length} of {parsedSignalRows.length} | Full
+          data time range: {parsedSignalRows[0]?.timestamp} ~{' '}
+          {parsedSignalRows[parsedSignalRows.length - 1]?.timestamp}
         </div>
       )}
     />

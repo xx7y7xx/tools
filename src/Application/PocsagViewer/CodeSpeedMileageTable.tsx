@@ -1,25 +1,27 @@
 import { Button, Table } from 'antd';
-// @ts-ignore
-import * as coordtransform from 'coordtransform';
 
 import {
   expandColumns,
   ExtendedTableColumnsType,
   getRelated1234002Row,
 } from './CheciTable';
-import { RawPocsagRow, TrainSignalRecord } from './types';
-import { convertGps, convertGpsListToWkt } from './utils';
+import {
+  ParsedPocsagPayload1234002,
+  ParsedPocsagRow,
+  TrainSignalRecord,
+} from './types';
+import { convertGpsListToWkt, downloadFile } from './utils';
 
 const CodeSpeedMileageTable = ({
   trainSignalRecords,
-  rawPocsagRows,
+  parsedPocsagRows,
 }: {
   trainSignalRecords: TrainSignalRecord[];
-  rawPocsagRows: RawPocsagRow[];
+  parsedPocsagRows: ParsedPocsagRow[];
 }) => {
   const trainSignalRecordsWithKey: ExtendedTableColumnsType[] =
     trainSignalRecords.map((record: TrainSignalRecord, idx: number) => {
-      const related1234002Row = getRelated1234002Row(record, rawPocsagRows);
+      const related1234002Row = getRelated1234002Row(record, parsedPocsagRows);
       return {
         key: idx.toString(),
         timestamp: record.timestamp,
@@ -41,28 +43,17 @@ const CodeSpeedMileageTable = ({
             <Button
               onClick={() => {
                 const gpsList = trainSignalRecordsWithKey
-                  .map((record) => record._related1234002Row?.gps)
-                  .filter((gps) => !!gps)
-                  .map((gps) => {
-                    const wgs84 = convertGps(
-                      gps || { latitude: '', longitude: '' }
-                    );
-                    const gcj02 = coordtransform.wgs84togcj02(
-                      wgs84.longitude,
-                      wgs84.latitude
-                    );
+                  .map((record) => {
+                    const payload = record._related1234002Row
+                      ?.messagePayload as ParsedPocsagPayload1234002;
                     return {
-                      latitude: gcj02[1],
-                      longitude: gcj02[0],
+                      latitude: payload?.gcj02 ? payload?.gcj02.latitude : 0,
+                      longitude: payload?.gcj02 ? payload?.gcj02.longitude : 0,
                     };
-                  });
+                  })
+                  .filter((gps) => !!gps);
                 const wkt = convertGpsListToWkt(gpsList);
-                const a = document.createElement('a');
-                a.href = `data:text/csv;charset=utf-8,${encodeURIComponent(
-                  wkt
-                )}`;
-                a.download = 'train_route.csv';
-                a.click();
+                downloadFile(wkt, 'train_route.csv');
               }}
             >
               Export to KML

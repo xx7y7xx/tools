@@ -1,4 +1,4 @@
-import { RawPocsagRow, TrainSignalRecord } from './types';
+import { ParsedPocsagRow, TrainSignalRecord } from './types';
 import MileageChart from './MileageChart';
 import SpeedChart from './SpeedChart';
 import TrainSlider from './TrainSlider';
@@ -10,10 +10,10 @@ import CodeSpeedMileageTable from './CodeSpeedMileageTable';
  */
 const CheciDetail = ({
   trainSignalRecords,
-  rawPocsagRows,
+  parsedPocsagRows,
 }: {
   trainSignalRecords: TrainSignalRecord[];
-  rawPocsagRows: RawPocsagRow[];
+  parsedPocsagRows: ParsedPocsagRow[];
 }) => {
   return (
     <div>
@@ -22,7 +22,7 @@ const CheciDetail = ({
       <SpeedChart trainSignalRecords={trainSignalRecords} />
       <CodeSpeedMileageTable
         trainSignalRecords={trainSignalRecords}
-        rawPocsagRows={rawPocsagRows}
+        parsedPocsagRows={parsedPocsagRows}
       />
     </div>
   );

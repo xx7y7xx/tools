@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 
 import Papa from 'papaparse';
 
-import { RawPocsagRow } from '../PocsagViewer/types';
+import { ParsedPocsagRow, RawPocsagRow } from '../PocsagViewer/types';
 import SignalTable from './SignalTable';
+import { parsePocsagData } from '../PocsagViewer/pocsagParser';
 
 /**
  * PocsagSignalViewer is a web application that allows you to view POCSAG data.
@@ -11,7 +12,7 @@ import SignalTable from './SignalTable';
  * It also allows you to filter the data by train number.
  */
 const PocsagSignalViewer = () => {
-  const [data, setData] = useState<RawPocsagRow[]>([]);
+  const [parsedData, setParsedData] = useState<ParsedPocsagRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<React.ReactNode | null>(null);
 
@@ -37,7 +38,9 @@ const PocsagSignalViewer = () => {
           skipEmptyLines: true,
           delimiter: '\t',
           complete: (results) => {
-            setData(results.data as unknown as RawPocsagRow[]);
+            setParsedData(
+              parsePocsagData(results.data as unknown as RawPocsagRow[])
+            );
             setLoading(false);
           },
           error: (err: Error) => {
@@ -72,7 +75,7 @@ const PocsagSignalViewer = () => {
     >
       <h1>POCSAG Signal Viewer</h1>
       <div style={{ flex: 1, overflow: 'hidden' }}>
-        <SignalTable allSignalRows={data} />
+        <SignalTable parsedSignalRows={parsedData} />
       </div>
     </div>
   );

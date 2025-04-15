@@ -1,8 +1,14 @@
 import type { TableColumnsType } from 'antd';
 import { Table } from 'antd';
 
-import { MessageType, RawPocsagRow, TrainSignalRecord } from './types';
-import { getNextSecond, parsePocsag1234002 } from './utils';
+import {
+  MessageType,
+  ParsedPocsagRow,
+  ParsedPocsagPayload1234002,
+  TrainSignalRecord,
+} from './types';
+import { getNextSecond } from './utils';
+import { parsePocsag1234002 } from './pocsagParser';
 import GoogleMapLink from './GoogleMapLink';
 
 interface CheciRowType {
@@ -16,15 +22,7 @@ export type ExtendedTableColumnsType = {
   trainNumber: number;
   speed: number;
   mileage: number;
-  _related1234002Row: getRelated1234002RowType | null;
-};
-
-type getRelated1234002RowType = {
-  originalRow: RawPocsagRow;
-  gps: {
-    latitude: string;
-    longitude: string;
-  };
+  _related1234002Row: ParsedPocsagRow | null;
 };
 
 /**
@@ -33,30 +31,24 @@ type getRelated1234002RowType = {
  */
 export const getRelated1234002Row = (
   record: TrainSignalRecord,
-  rawPocsagRows: RawPocsagRow[]
+  parsedPocsagRows: ParsedPocsagRow[]
 ) => {
-  const foundRows: getRelated1234002RowType[] = [];
-  rawPocsagRows
+  const foundRows: ParsedPocsagRow[] = [];
+  parsedPocsagRows
     .filter(
       (row) =>
-        row.address === '1234002' &&
-        row.message_format === MessageType.Numeric &&
+        row.address === 1234002 &&
+        row.messageFormat === MessageType.Numeric &&
         (row.timestamp === record.timestamp ||
           row.timestamp === getNextSecond(record.timestamp))
     )
     .forEach((row) => {
       // TODO 当找到了，但是解析失败，是否还被认为是没有找到？
-      const result = parsePocsag1234002(row.message_content);
-      if (result.err || !result.latitude || !result.longitude) {
+      const result = parsePocsag1234002(row.rawSignal.message_content);
+      if (result.err || !result.gcj02) {
         return;
       }
-      foundRows.push({
-        originalRow: row,
-        gps: {
-          latitude: result.latitude,
-          longitude: result.longitude,
-        },
-      });
+      foundRows.push(row);
     });
   if (foundRows.length > 1) {
     console.warn(
@@ -80,17 +72,16 @@ export const expandColumns: TableColumnsType<ExtendedTableColumnsType> = [
     title: 'Related 1234002 Row',
     dataIndex: '_related1234002Row',
     key: '_related1234002Row',
-    render: (related1234002Row: getRelated1234002RowType | null) => {
+    render: (related1234002Row: ParsedPocsagRow | null) => {
       if (!related1234002Row) {
-        return 'Related 1234002 record not found';
+        return 'Related 1234002 row not found';
       }
+      const payload =
+        related1234002Row.messagePayload as ParsedPocsagPayload1234002;
       return (
         <div>
-          <GoogleMapLink
-            latitude={related1234002Row.gps.latitude}
-            longitude={related1234002Row.gps.longitude}
-          />{' '}
-          Raw: <code>{related1234002Row.originalRow.message_content}</code>
+          <GoogleMapLink wgs84Str={payload.wgs84Str || ''} /> Raw:{' '}
+          <code>{related1234002Row.rawSignal.message_content}</code>
         </div>
       );
     },
@@ -126,10 +117,10 @@ const columns: TableColumnsType<CheciRowType> = [
 
 const CheciTable = ({
   trainSignalRecordsMap,
-  rawPocsagRows,
+  parsedPocsagRows,
 }: {
   trainSignalRecordsMap: Record<string, TrainSignalRecord[]>;
-  rawPocsagRows: RawPocsagRow[];
+  parsedPocsagRows: ParsedPocsagRow[];
 }) => {
   const checiRows = Object.values(trainSignalRecordsMap).map<CheciRowType>(
     (trainSignalRecords) => ({
@@ -141,7 +132,10 @@ const CheciTable = ({
     const trainSignalRecords = trainSignalRecordsMap[record.trainNumber];
     const trainSignalRecordsWithKey: ExtendedTableColumnsType[] =
       trainSignalRecords.map((record: TrainSignalRecord, idx: number) => {
-        const related1234002Row = getRelated1234002Row(record, rawPocsagRows);
+        const related1234002Row = getRelated1234002Row(
+          record,
+          parsedPocsagRows
+        );
         return {
           key: idx.toString(),
           timestamp: record.timestamp,

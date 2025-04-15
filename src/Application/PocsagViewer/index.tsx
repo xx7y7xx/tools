@@ -2,8 +2,13 @@ import { useEffect, useState } from 'react';
 
 import Papa from 'papaparse';
 
-import { MessageType, RawPocsagRow, TrainSignalRecord } from './types';
-import { convertTrainNumSpeedMileage } from './utils';
+import {
+  ParsedPocsagRow,
+  ParsedPocsagPayload1234000,
+  RawPocsagRow,
+  TrainSignalRecord,
+} from './types';
+import { parsePocsagData } from './pocsagParser';
 import CheciDetail from './CheciDetail';
 import CheciTable from './CheciTable';
 
@@ -13,7 +18,9 @@ import CheciTable from './CheciTable';
  * It also allows you to filter the data by train number.
  */
 const PocsagViewer = () => {
-  const [rawPocsagRows, setRawPocsagRows] = useState<RawPocsagRow[]>([]);
+  const [parsedPocsagRows, setParsedPocsagRows] = useState<ParsedPocsagRow[]>(
+    []
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<React.ReactNode | null>(null);
 
@@ -36,7 +43,9 @@ const PocsagViewer = () => {
           header: true,
           skipEmptyLines: true,
           complete: (results) => {
-            setRawPocsagRows(results.data as unknown as RawPocsagRow[]);
+            setParsedPocsagRows(
+              parsePocsagData(results.data as unknown as RawPocsagRow[])
+            );
             setLoading(false);
           },
           error: (err: Error) => {
@@ -64,26 +73,29 @@ const PocsagViewer = () => {
     // e.g. 69012: TrainSignalRecord[]
   };
 
-  rawPocsagRows.forEach((row) => {
-    if (row.address !== '1234000') {
+  parsedPocsagRows.forEach((row) => {
+    if (row.address !== 1234000) {
       //   console.log('skip', row);
       return;
     }
 
-    const msgObj = convertTrainNumSpeedMileage(row.message_content);
-    if (msgObj.err || !msgObj.data) {
+    if (row.parsedErrorMessage) {
       //   console.error('Invalid POCSAG message body', row);
       return;
     }
 
+    const payload = row.messagePayload as ParsedPocsagPayload1234000;
+
     const record: TrainSignalRecord = {
       timestamp: row.timestamp,
-      address: row.address,
-      messageType: row.message_format as MessageType,
-      functionCode: parseInt(row.function_bits),
+      address: row.rawSignal.address,
+      messageType: row.messageFormat,
+      functionCode: row.functionBits,
       payload: {
-        ...msgObj.data,
-        rawData: row.message_content,
+        trainNumber: payload.trainNumber,
+        speed: payload.speed,
+        mileage: payload.mileage,
+        rawData: row.rawSignal.message_content,
       },
     };
 
@@ -111,7 +123,7 @@ const PocsagViewer = () => {
         {trainSignalRecords && (
           <CheciDetail
             trainSignalRecords={trainSignalRecords}
-            rawPocsagRows={rawPocsagRows}
+            parsedPocsagRows={parsedPocsagRows}
           />
         )}
       </div>
@@ -124,7 +136,7 @@ const PocsagViewer = () => {
       {trainSignalRecordsMap && (
         <CheciTable
           trainSignalRecordsMap={trainSignalRecordsMap}
-          rawPocsagRows={rawPocsagRows}
+          parsedPocsagRows={parsedPocsagRows}
         />
       )}
     </div>

@@ -1,19 +1,11 @@
-const GoogleMapLink = ({
-  latitude,
-  longitude,
-}: {
-  latitude: string;
-  longitude: string;
-}) => {
+const GoogleMapLink = ({ wgs84Str }: { wgs84Str: string }) => {
   return (
     <a
-      href={`https://www.google.com/maps/search/${latitude}+${longitude}`}
+      href={`https://www.google.com/maps/search/${wgs84Str}`}
       target="_blank"
       rel="noopener noreferrer"
     >
-      <code>
-        {latitude} {longitude}
-      </code>
+      <code>{wgs84Str}</code>
     </a>
   );
 };
