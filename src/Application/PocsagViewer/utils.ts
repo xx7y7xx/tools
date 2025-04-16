@@ -78,19 +78,6 @@ export const convertGpsListToWkt = (
   return `WKT,name,description\n"${wkt}",Line 1,`;
 };
 
-/*
-describe('convertGpsListToWktPoint', () => {
-  it('should convert the gps list to WKT point', () => {
-    const wkt = convertGpsListToWktPoint([
-      { latitude: 39.8869744, longitude: 116.2386613 },
-      { latitude: 39.8749211, longitude: 116.25454 },
-    ]);
-    expect(wkt).toEqual(
-      'WKT,name,description\n"POINT (116.2386613 39.8869744)",Point 1,\n"POINT (116.25454 39.8749211)",Point 2,'
-    );
-  });
-});*/
-
 /**
  * Convert the gps list to WKT format (with header)
  * Output:
@@ -111,6 +98,24 @@ export const convertGpsListToWktPoint = (
     )
     .join('\n');
   return `${header}\n${wktList}`;
+};
+
+/**
+ * Convert the gps list to Kepler.gl CSV format
+ * Output:
+ * ```csv
+ * latitude,longitude,rawMessage
+ * 39.8869744,116.2386613,"20202310190532U7]1 9U3 [-[202011614023139505802000"
+ * 39.8749211,116.25454,"20202310190532U7]1 9U3 [-[202011614023139505802000"
+ */
+export const convertGpsListToKeplerGlCsv = (
+  gpsList: { latitude: number; longitude: number; rawMessage: string }[]
+) => {
+  const header = 'latitude,longitude,rawMessage';
+  const csvList = gpsList
+    .map((gps) => `${gps.latitude},${gps.longitude},"${gps.rawMessage}"`)
+    .join('\n');
+  return `${header}\n${csvList}`;
 };
 
 export const downloadFile = (content: string, filename: string) => {

@@ -36,6 +36,10 @@ export interface ParsedPocsagPayload1234002 {
     latitude: number; // 纬度 39.85489
     longitude: number; // 经度 116.22072
   };
+  wgs84?: {
+    latitude: number;
+    longitude: number;
+  };
 }
 
 export interface ParsedPocsagRow {

@@ -8,7 +8,6 @@ import {
   TrainSignalRecord,
 } from './types';
 import { getNextSecond } from './utils';
-import { parsePocsag1234002 } from './pocsagParser';
 import GoogleMapLink from './GoogleMapLink';
 
 interface CheciRowType {
@@ -44,8 +43,10 @@ export const getRelated1234002Row = (
     )
     .forEach((row) => {
       // TODO 当找到了，但是解析失败，是否还被认为是没有找到？
-      const result = parsePocsag1234002(row.rawSignal.message_content);
-      if (result.err || !result.gcj02) {
+      if (row.parsedErrorMessage) {
+        console.error(
+          `Found 1234002 row for ${record.payload.trainNumber} at ${record.timestamp} but parse error: ${row.parsedErrorMessage}`
+        );
         return;
       }
       foundRows.push(row);

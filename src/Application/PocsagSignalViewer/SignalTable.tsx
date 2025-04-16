@@ -12,6 +12,7 @@ import { MessageType } from '../PocsagViewer/types';
 import { filterPocsagData } from './filter';
 import GoogleMapLink from '../PocsagViewer/GoogleMapLink';
 import {
+  convertGpsListToKeplerGlCsv,
   convertGpsListToWkt,
   convertGpsListToWktPoint,
   downloadFile,
@@ -276,6 +277,27 @@ const SignalTable = ({
     downloadFile(wkt, 'train_route.csv');
   };
 
+  const handleExportToKeplerGl = () => {
+    const gpsList = filteredData
+      .filter(
+        (row: ParsedPocsagRow) =>
+          row.address === 1234002 &&
+          row.messageFormat === MessageType.Numeric &&
+          row.messagePayload
+      )
+      .map((row: ParsedPocsagRow) => {
+        const payload = row.messagePayload as ParsedPocsagPayload1234002;
+        return {
+          // no idea why but wgs84 works on Kepler.gl's satelite map
+          latitude: payload.wgs84 ? payload.wgs84.latitude : 0,
+          longitude: payload.wgs84 ? payload.wgs84.longitude : 0,
+          rawMessage: row.rawSignal.message_content,
+        };
+      });
+    const csv = convertGpsListToKeplerGlCsv(gpsList);
+    downloadFile(csv, 'train_route.csv');
+  };
+
   return (
     <Table
       dataSource={filteredData}
@@ -297,6 +319,9 @@ const SignalTable = ({
           </Button>{' '}
           <Button type="primary" onClick={handleExportToKMLPoint}>
             Export to KML Point
+          </Button>{' '}
+          <Button type="primary" onClick={handleExportToKeplerGl}>
+            Export to Kepler.gl CSV
           </Button>
         </div>
       )}
