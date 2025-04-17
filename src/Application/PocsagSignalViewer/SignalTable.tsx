@@ -239,7 +239,7 @@ const SignalTable = ({
     },
   ];
 
-  const handleExportToKML = () => {
+  const handleExportToGoogleMapKML = () => {
     const gpsList = filteredData
       .filter(
         (row: ParsedPocsagRow) =>
@@ -258,7 +258,7 @@ const SignalTable = ({
     downloadFile(wkt, 'train_route.csv');
   };
 
-  const handleExportToKMLPoint = () => {
+  const handleExportToGoogleMapKMLPoint = () => {
     const gpsList = filteredData
       .filter(
         (row: ParsedPocsagRow) =>
@@ -314,11 +314,11 @@ const SignalTable = ({
       }
       title={() => (
         <div>
-          <Button type="primary" onClick={handleExportToKML}>
-            Export to KML Line
+          <Button type="primary" onClick={handleExportToGoogleMapKML}>
+            Export to Google Map KML Line
           </Button>{' '}
-          <Button type="primary" onClick={handleExportToKMLPoint}>
-            Export to KML Point
+          <Button type="primary" onClick={handleExportToGoogleMapKMLPoint}>
+            Export to Google Map KML Point
           </Button>{' '}
           <Button type="primary" onClick={handleExportToKeplerGl}>
             Export to Kepler.gl CSV
