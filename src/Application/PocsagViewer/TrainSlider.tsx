@@ -2,25 +2,28 @@ import { useEffect, useState } from 'react';
 
 import { Button, Slider } from 'antd';
 
-import { TrainSignalRecord } from './types';
+import { useTimeRange } from './TimeRangeContext';
 
 /**
  * Show an animation of the handler on slider
  */
-const TrainSlider = ({
-  trainSignalRecords,
-}: {
-  trainSignalRecords: TrainSignalRecord[];
-}) => {
+const TrainSlider = () => {
+  const { filteredTrainSignalRecords } = useTimeRange();
   const [arrIndexValue, setArrIndexValue] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  // Reset slider state when filtered records change
+  useEffect(() => {
+    setArrIndexValue(0);
+    setIsPlaying(false);
+  }, [filteredTrainSignalRecords]);
+
   // Find the min and max mileage values
   const minMileage = Math.min(
-    ...trainSignalRecords.map((record) => record.payload.mileage)
+    ...filteredTrainSignalRecords.map((record) => record.payload.mileage)
   );
   const maxMileage = Math.max(
-    ...trainSignalRecords.map((record) => record.payload.mileage)
+    ...filteredTrainSignalRecords.map((record) => record.payload.mileage)
   );
 
   useEffect(() => {
@@ -30,7 +33,7 @@ const TrainSlider = ({
       interval = setInterval(() => {
         setArrIndexValue((prevValue) => {
           const nextValue = prevValue + 1;
-          if (nextValue > trainSignalRecords.length - 1) {
+          if (nextValue > filteredTrainSignalRecords.length - 1) {
             setIsPlaying(false);
             return prevValue;
           }
@@ -44,7 +47,7 @@ const TrainSlider = ({
         clearInterval(interval);
       }
     };
-  }, [isPlaying, trainSignalRecords.length]);
+  }, [isPlaying, filteredTrainSignalRecords.length]);
 
   const handlePlay = () => {
     setArrIndexValue(0);
@@ -63,7 +66,7 @@ const TrainSlider = ({
     <div>
       <h3>Train Mileage Over Time</h3>
       <Slider
-        value={trainSignalRecords[arrIndexValue].payload.mileage}
+        value={filteredTrainSignalRecords[arrIndexValue]?.payload.mileage}
         onChange={handleSlideChange}
         min={minMileage}
         max={maxMileage}

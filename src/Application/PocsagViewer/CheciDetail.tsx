@@ -3,6 +3,8 @@ import MileageChart from './MileageChart';
 import SpeedChart from './SpeedChart';
 import TrainSlider from './TrainSlider';
 import CodeSpeedMileageTable from './CodeSpeedMileageTable';
+import TimeRangeFilter from './TimeRangeFilter';
+import { TimeRangeProvider } from './TimeRangeContext';
 
 /**
  * Show the detail of a train's checi
@@ -16,15 +18,18 @@ const CheciDetail = ({
   parsedPocsagRows: ParsedPocsagRow[];
 }) => {
   return (
-    <div>
-      <TrainSlider trainSignalRecords={trainSignalRecords} />
-      <MileageChart trainSignalRecords={trainSignalRecords} />
-      <SpeedChart trainSignalRecords={trainSignalRecords} />
-      <CodeSpeedMileageTable
-        trainSignalRecords={trainSignalRecords}
-        parsedPocsagRows={parsedPocsagRows}
-      />
-    </div>
+    <TimeRangeProvider
+      trainSignalRecords={trainSignalRecords}
+      parsedPocsagRows={parsedPocsagRows}
+    >
+      <div>
+        <TimeRangeFilter />
+        <TrainSlider />
+        <MileageChart />
+        <SpeedChart />
+        <CodeSpeedMileageTable />
+      </div>
+    </TimeRangeProvider>
   );
 };
 

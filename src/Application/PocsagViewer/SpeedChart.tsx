@@ -1,36 +1,33 @@
 import { Chart as ChartJS, TimeScale, TooltipItem } from 'chart.js';
 import 'chartjs-adapter-date-fns';
 
+import { useTimeRange } from './TimeRangeContext';
 import CommonChart from './CommonChart';
-import { TrainSignalRecord } from './types';
 import { getColorForSpeed, getMinMaxSpeed } from './utils';
 
 // Register the time scale
 ChartJS.register(TimeScale);
 
-interface SpeedChartProps {
-  trainSignalRecords: TrainSignalRecord[];
-}
-
 /**
  * SpeedChart is a chart that displays the speed of a train over time.
  * It uses the color of the train to indicate the speed of the train.
  */
-const SpeedChart = ({ trainSignalRecords }: SpeedChartProps) => {
-  const { minSpeed, maxSpeed } = getMinMaxSpeed(trainSignalRecords);
+const SpeedChart = () => {
+  const { filteredTrainSignalRecords } = useTimeRange();
+  const { minSpeed, maxSpeed } = getMinMaxSpeed(filteredTrainSignalRecords);
 
   const chartConfig = {
     type: 'line' as const,
     data: {
-      labels: trainSignalRecords.map((record) => record.timestamp),
+      labels: filteredTrainSignalRecords.map((record) => record.timestamp),
       datasets: [
         {
           label: 'Speed',
-          data: trainSignalRecords.map((record) => ({
+          data: filteredTrainSignalRecords.map((record) => ({
             x: new Date(record.timestamp).getTime(),
             y: record.payload.speed,
           })),
-          backgroundColor: trainSignalRecords.map((record) =>
+          backgroundColor: filteredTrainSignalRecords.map((record) =>
             getColorForSpeed(record.payload.speed, minSpeed, maxSpeed)
           ),
           borderColor: 'rgba(54, 162, 235, 0.5)',
@@ -58,7 +55,7 @@ const SpeedChart = ({ trainSignalRecords }: SpeedChartProps) => {
         tooltip: {
           callbacks: {
             label: (context: TooltipItem<'line'>) => {
-              const record = trainSignalRecords[context.dataIndex];
+              const record = filteredTrainSignalRecords[context.dataIndex];
               return [
                 `Speed: ${context.parsed.y} km/h`,
                 `Mileage: ${record.payload.mileage} km`,
@@ -78,15 +75,20 @@ const SpeedChart = ({ trainSignalRecords }: SpeedChartProps) => {
         x: {
           type: 'time',
           time: {
-            unit: 'minute',
+            unit: 'hour',
             displayFormats: {
-              minute: 'HH:mm:ss',
+              hour: 'MMM d, HH:mm',
             },
             parser: 'yyyy-MM-dd HH:mm:ss',
           },
           title: {
             display: true,
             text: 'Time',
+          },
+          ticks: {
+            maxRotation: 45,
+            minRotation: 45,
+            maxTicksLimit: 8,
           },
         },
       },
