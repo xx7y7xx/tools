@@ -1,21 +1,43 @@
-import { createContext, useContext, useState, useMemo, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  ReactNode,
+  useEffect,
+} from 'react';
+
 import dayjs from 'dayjs';
+
 import { ParsedPocsagRow, TrainSignalRecord } from './types';
 
-interface TimeRangeContextType {
-  timeRange: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null;
-  setTimeRange: (
-    dates: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null
-  ) => void;
-  filteredTrainSignalRecords: TrainSignalRecord[];
-  filteredParsedPocsagRows: ParsedPocsagRow[];
-  resetTimeRange: () => void;
-  trainSignalRecords: TrainSignalRecord[];
+interface TimeRange {
+  start: dayjs.Dayjs | null;
+  end: dayjs.Dayjs | null;
 }
 
-const TimeRangeContext = createContext<TimeRangeContextType | undefined>(
-  undefined
-);
+interface ToolParams {
+  timeRange?: [string, string];
+  [key: string]: any;
+}
+
+interface TimeRangeContextType {
+  timeRange: TimeRange;
+  setTimeRange: (range: TimeRange) => void;
+  resetTimeRange: () => void;
+  filteredTrainSignalRecords: TrainSignalRecord[];
+  filteredParsedPocsagRows: ParsedPocsagRow[];
+}
+
+const TimeRangeContext = createContext<TimeRangeContextType | null>(null);
+
+export const useTimeRange = () => {
+  const context = useContext(TimeRangeContext);
+  if (!context) {
+    throw new Error('useTimeRange must be used within a TimeRangeProvider');
+  }
+  return context;
+};
 
 interface TimeRangeProviderProps {
   children: ReactNode;
@@ -28,62 +50,105 @@ export const TimeRangeProvider = ({
   trainSignalRecords,
   parsedPocsagRows,
 }: TimeRangeProviderProps) => {
-  const [timeRange, setTimeRange] = useState<
-    [dayjs.Dayjs | null, dayjs.Dayjs | null] | null
-  >(null);
+  const [timeRange, setTimeRange] = useState<TimeRange>({
+    start: null,
+    end: null,
+  });
 
-  const resetTimeRange = () => setTimeRange(null);
+  // Initialize timeRange from URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const toolParams = urlParams.get('toolParams');
+    if (toolParams) {
+      try {
+        const params = JSON.parse(toolParams) as ToolParams;
+        if (params.timeRange) {
+          const [start, end] = params.timeRange;
+          setTimeRange({
+            start: dayjs(start),
+            end: dayjs(end),
+          });
+        }
+      } catch (error) {
+        console.error('Failed to parse toolParams:', error);
+      }
+    }
+  }, []);
+
+  // Update URL parameters when timeRange changes
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    let toolParams: ToolParams = { timeRange: undefined };
+    try {
+      const currentParams = urlParams.get('toolParams');
+      if (currentParams) {
+        toolParams = JSON.parse(currentParams) as ToolParams;
+      }
+    } catch (error) {
+      console.error('Failed to parse current toolParams:', error);
+    }
+
+    if (timeRange.start && timeRange.end) {
+      toolParams = {
+        ...toolParams,
+        timeRange: [
+          timeRange.start.format('YYYY-MM-DD HH:mm:ss'),
+          timeRange.end.format('YYYY-MM-DD HH:mm:ss'),
+        ],
+      };
+    } else {
+      toolParams.timeRange = undefined;
+    }
+
+    urlParams.set('toolParams', JSON.stringify(toolParams));
+    window.history.replaceState(
+      {},
+      '',
+      `${window.location.pathname}?${urlParams.toString()}`
+    );
+  }, [timeRange]);
+
+  const resetTimeRange = () => {
+    setTimeRange({ start: null, end: null });
+  };
 
   const filteredTrainSignalRecords = useMemo(() => {
-    if (!timeRange) return trainSignalRecords;
-    const [start, end] = timeRange;
-    if (!start || !end) return trainSignalRecords;
-
+    if (!timeRange.start || !timeRange.end) {
+      return trainSignalRecords;
+    }
     return trainSignalRecords.filter((record) => {
-      const recordTime = dayjs(record.timestamp);
-      return recordTime.isSameOrAfter(start) && recordTime.isSameOrBefore(end);
+      const timestamp = dayjs(record.timestamp);
+      return (
+        timestamp.isSameOrAfter(timeRange.start) &&
+        timestamp.isSameOrBefore(timeRange.end)
+      );
     });
   }, [trainSignalRecords, timeRange]);
 
   const filteredParsedPocsagRows = useMemo(() => {
-    if (!timeRange) return parsedPocsagRows;
-    const [start, end] = timeRange;
-    if (!start || !end) return parsedPocsagRows;
-
+    if (!timeRange.start || !timeRange.end) {
+      return parsedPocsagRows;
+    }
     return parsedPocsagRows.filter((row) => {
-      const rowTime = dayjs(row.timestamp);
-      return rowTime.isSameOrAfter(start) && rowTime.isSameOrBefore(end);
+      const timestamp = dayjs(row.timestamp);
+      return (
+        timestamp.isSameOrAfter(timeRange.start) &&
+        timestamp.isSameOrBefore(timeRange.end)
+      );
     });
   }, [parsedPocsagRows, timeRange]);
 
-  const value = useMemo(
-    () => ({
-      timeRange,
-      setTimeRange,
-      filteredTrainSignalRecords,
-      filteredParsedPocsagRows,
-      resetTimeRange,
-      trainSignalRecords,
-    }),
-    [
-      timeRange,
-      filteredTrainSignalRecords,
-      filteredParsedPocsagRows,
-      trainSignalRecords,
-    ]
-  );
-
   return (
-    <TimeRangeContext.Provider value={value}>
+    <TimeRangeContext.Provider
+      value={{
+        timeRange,
+        setTimeRange,
+        resetTimeRange,
+        filteredTrainSignalRecords,
+        filteredParsedPocsagRows,
+      }}
+    >
       {children}
     </TimeRangeContext.Provider>
   );
-};
-
-export const useTimeRange = () => {
-  const context = useContext(TimeRangeContext);
-  if (context === undefined) {
-    throw new Error('useTimeRange must be used within a TimeRangeProvider');
-  }
-  return context;
 };

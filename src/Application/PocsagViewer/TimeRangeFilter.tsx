@@ -1,5 +1,6 @@
 import { DatePicker } from 'antd';
 import dayjs from 'dayjs';
+
 import { useTimeRange } from './TimeRangeContext';
 import TimeRangeSlider from './TimeRangeSlider';
 
@@ -12,9 +13,15 @@ const TimeRangeFilter = () => {
     dates: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null
   ) => {
     if (dates && dates[0] && dates[1]) {
-      setTimeRange([dates[0], dates[1]]);
+      setTimeRange({
+        start: dates[0],
+        end: dates[1],
+      });
     } else {
-      setTimeRange(null);
+      setTimeRange({
+        start: null,
+        end: null,
+      });
     }
   };
 
@@ -22,10 +29,13 @@ const TimeRangeFilter = () => {
     <div style={{ marginBottom: 16 }}>
       <div style={{ marginBottom: 8 }}>
         <RangePicker
-          value={timeRange}
-          onChange={handleChange}
           showTime
-          format="YYYY-MM-DD HH:mm:ss"
+          value={
+            timeRange.start && timeRange.end
+              ? [timeRange.start, timeRange.end]
+              : null
+          }
+          onChange={handleChange}
           placeholder={['Start Time', 'End Time']}
           allowClear
         />
