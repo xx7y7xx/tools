@@ -1,14 +1,6 @@
 import { createContext, useContext, useState, useMemo, ReactNode } from 'react';
-
 import dayjs from 'dayjs';
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-
 import { ParsedPocsagRow, TrainSignalRecord } from './types';
-
-// Extend dayjs with the required plugins
-dayjs.extend(isSameOrAfter);
-dayjs.extend(isSameOrBefore);
 
 interface TimeRangeContextType {
   timeRange: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null;
