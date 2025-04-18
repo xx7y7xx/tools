@@ -100,7 +100,10 @@ export const TimeRangeProvider = ({
       toolParams.timeRange = undefined;
     }
 
-    setSearchParams({ toolParams: JSON.stringify(toolParams) });
+    // Preserve existing parameters like 'tool'
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('toolParams', JSON.stringify(toolParams));
+    setSearchParams(newParams);
   }, [timeRange, searchParams, setSearchParams]);
 
   const resetTimeRange = () => {
