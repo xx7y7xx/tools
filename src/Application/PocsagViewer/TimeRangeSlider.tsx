@@ -3,21 +3,22 @@ import { ReactNode } from 'react';
 import { Slider } from 'antd';
 import dayjs from 'dayjs';
 
+import { TrainSignalRecord } from './types';
 import { useTimeRange } from './TimeRangeContext';
 
 const TimeRangeSlider = () => {
-  const { timeRange, setTimeRange, filteredTrainSignalRecords } =
-    useTimeRange();
+  const { timeRange, setTimeRange, trainSignalRecords } = useTimeRange();
 
-  if (filteredTrainSignalRecords.length === 0) {
+  if (trainSignalRecords.length === 0) {
     return null;
   }
 
-  // Calculate min and max times from all records
-  const minTime = dayjs(filteredTrainSignalRecords[0].timestamp).valueOf();
-  const maxTime = dayjs(
-    filteredTrainSignalRecords[filteredTrainSignalRecords.length - 1].timestamp
-  ).valueOf();
+  // Calculate min and max times from all records (not just filtered ones)
+  const allTimes = trainSignalRecords.map((record: TrainSignalRecord) =>
+    dayjs(record.timestamp).valueOf()
+  );
+  const minTime = Math.min(...allTimes);
+  const maxTime = Math.max(...allTimes);
 
   // Convert current timeRange to slider values
   const sliderValue =

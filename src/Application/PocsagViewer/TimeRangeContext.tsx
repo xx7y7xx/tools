@@ -28,6 +28,7 @@ interface TimeRangeContextType {
   resetTimeRange: () => void;
   filteredTrainSignalRecords: TrainSignalRecord[];
   filteredParsedPocsagRows: ParsedPocsagRow[];
+  trainSignalRecords: TrainSignalRecord[];
 }
 
 const TimeRangeContext = createContext<TimeRangeContextType | null>(null);
@@ -144,6 +145,7 @@ export const TimeRangeProvider = ({
         resetTimeRange,
         filteredTrainSignalRecords,
         filteredParsedPocsagRows,
+        trainSignalRecords,
       }}
     >
       {children}
