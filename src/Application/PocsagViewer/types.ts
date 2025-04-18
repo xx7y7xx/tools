@@ -11,7 +11,7 @@ export type ConvertResult = {
   err: string | null;
 };
 
-// Raw POCSAG data from csv/tsv file
+// Raw POCSAG data from TSV file
 export interface RawPocsagRow {
   timestamp: string; // e.g. '2025-04-09 23:42:20'
   address: string; // e.g. '1234000'
@@ -20,7 +20,7 @@ export interface RawPocsagRow {
   message_content: string; // e.g. '69012  19    33'
 }
 
-// Parsed POCSAG data from csv/tsv file
+// Parsed POCSAG data from TSV file
 
 // 1234000 payload
 export interface ParsedPocsagPayload1234000 {
