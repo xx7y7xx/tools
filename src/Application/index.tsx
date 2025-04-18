@@ -3,7 +3,7 @@ import { Alert } from 'antd';
 import { BrowserRouter } from 'react-router-dom';
 
 // import { initGa } from './init';
-import './PocsagViewer/utils/dayjs'; // Import dayjs configuration
+import './utils/dayjs'; // Import dayjs configuration
 import SearchTrain from './RailwayTool';
 import Setting from './Settings';
 import PocsagViewer from './PocsagViewer';
