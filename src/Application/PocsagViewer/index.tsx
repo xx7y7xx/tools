@@ -30,7 +30,7 @@ const PocsagViewer = () => {
       setError(null);
       try {
         const response = await fetch(
-          'http://localhost:3001/data/pocsag_data_v2.csv'
+          'http://localhost:3001/data/pocsag_data_v2.tsv'
         );
         if (!response) {
           throw new TypeError('Network error - server may be down');
@@ -42,6 +42,7 @@ const PocsagViewer = () => {
         Papa.parse(text, {
           header: true,
           skipEmptyLines: true,
+          delimiter: '\t',
           complete: (results) => {
             setParsedPocsagRows(
               parsePocsagData(results.data as unknown as RawPocsagRow[])
