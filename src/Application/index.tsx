@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/react';
 import { Alert } from 'antd';
+import { BrowserRouter } from 'react-router-dom';
 
 // import { initGa } from './init';
 import './PocsagViewer/utils/dayjs'; // Import dayjs configuration
@@ -104,5 +105,9 @@ export default function Application() {
     }
   };
 
-  return <div className="application xxtools">{appSwitch()}</div>;
+  return (
+    <BrowserRouter>
+      <div className="application xxtools">{appSwitch()}</div>
+    </BrowserRouter>
+  );
 }

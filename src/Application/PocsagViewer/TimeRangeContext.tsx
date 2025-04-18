@@ -8,6 +8,7 @@ import {
 } from 'react';
 
 import dayjs from 'dayjs';
+import { useSearchParams } from 'react-router-dom';
 
 import { ParsedPocsagRow, TrainSignalRecord } from './types';
 
@@ -50,6 +51,7 @@ export const TimeRangeProvider = ({
   trainSignalRecords,
   parsedPocsagRows,
 }: TimeRangeProviderProps) => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [timeRange, setTimeRange] = useState<TimeRange>({
     start: null,
     end: null,
@@ -57,8 +59,7 @@ export const TimeRangeProvider = ({
 
   // Initialize timeRange from URL parameters
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const toolParams = urlParams.get('toolParams');
+    const toolParams = searchParams.get('toolParams');
     if (toolParams) {
       try {
         const params = JSON.parse(toolParams) as ToolParams;
@@ -73,14 +74,13 @@ export const TimeRangeProvider = ({
         console.error('Failed to parse toolParams:', error);
       }
     }
-  }, []);
+  }, [searchParams]);
 
   // Update URL parameters when timeRange changes
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
     let toolParams: ToolParams = { timeRange: undefined };
     try {
-      const currentParams = urlParams.get('toolParams');
+      const currentParams = searchParams.get('toolParams');
       if (currentParams) {
         toolParams = JSON.parse(currentParams) as ToolParams;
       }
@@ -100,13 +100,8 @@ export const TimeRangeProvider = ({
       toolParams.timeRange = undefined;
     }
 
-    urlParams.set('toolParams', JSON.stringify(toolParams));
-    window.history.replaceState(
-      {},
-      '',
-      `${window.location.pathname}?${urlParams.toString()}`
-    );
-  }, [timeRange]);
+    setSearchParams({ toolParams: JSON.stringify(toolParams) });
+  }, [timeRange, searchParams, setSearchParams]);
 
   const resetTimeRange = () => {
     setTimeRange({ start: null, end: null });
