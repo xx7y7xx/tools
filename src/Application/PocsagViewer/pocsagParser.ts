@@ -140,29 +140,6 @@ export const parsePocsag1234002 = (msg: string): Pocsag1234002ParseResult => {
   };
 };
 
-const validateRawPocsagRow = (row: RawPocsagRow) => {
-  // make sure timestamp is in the format of '2025-04-09 23:42:17'
-  if (!row.timestamp.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
-    console.error(`Invalid timestamp: ${row.timestamp}`);
-  }
-  // make sure address is in the format of '1234000'
-  if (!row.address.match(/^\d+$/)) {
-    console.error(`Invalid address: ${row.address}`);
-  }
-  // make sure functionBits is one of 1, 2, 3
-  if (!['0', '1', '2', '3'].includes(row.function_bits)) {
-    console.error(`Invalid functionBits: ${row.function_bits}`);
-  }
-  // make sure messageFormat is one of the values in MessageType
-  if (
-    ![MessageType.Numeric, MessageType.Alpha, MessageType.Skyper].includes(
-      row.message_format as MessageType
-    )
-  ) {
-    console.error(`Invalid messageFormat: ${row.message_format}`);
-  }
-};
-
 /**
  * 1st time parse:
  * - validate the raw data
@@ -175,8 +152,6 @@ const validateRawPocsagRow = (row: RawPocsagRow) => {
 export const parsePocsagData = (rawData: RawPocsagRow[]): ParsedPocsagRow[] => {
   console.time('parsed1TimeRows');
   const parsed1TimeRows = rawData.map((row) => {
-    validateRawPocsagRow(row);
-
     // Create base object that's common to all cases
     const baseRow: Omit<ParsedPocsagRow, 'messagePayload'> = {
       timestamp: row.timestamp,
