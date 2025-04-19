@@ -13,13 +13,18 @@ const mockData = [
       mileage: 12.5,
     },
     rawSignal: {
-      timestamp: '2024-01-01 12:00:00',
-      address: '1234000',
-      function_bits: '1',
-      message_format: MessageType.Numeric,
-      message_content: 'Train 123 speed 45 mileage 12.5',
+      'global_index(number)': '0',
+      'timestamp(string)': '2024-01-01 12:00:00',
+      'address(string)': '1234000',
+      'function_bits(string)': '1',
+      'message_format(string)': MessageType.Numeric,
+      'message_content(string)': 'Train 123 speed 45 mileage 12.5',
+      'parsed_error_message(null|string)': null,
+      'message_payload(json|null)': null,
+      'related_1234002_row_idx(number|null)': null,
     },
     parsedErrorMessage: null,
+    _related1234002RowIdx: null,
   },
   {
     timestamp: '2024-01-02 13:00:00',
@@ -32,13 +37,18 @@ const mockData = [
       mileage: 12.5,
     },
     rawSignal: {
-      timestamp: '2024-01-02 13:00:00',
-      address: '1234001',
-      function_bits: '2',
-      message_format: MessageType.Alpha,
-      message_content: 'Alpha message test',
+      'global_index(number)': '1',
+      'timestamp(string)': '2024-01-02 13:00:00',
+      'address(string)': '1234001',
+      'function_bits(string)': '2',
+      'message_format(string)': MessageType.Alpha,
+      'message_content(string)': 'Alpha message test',
+      'parsed_error_message(null|string)': null,
+      'message_payload(json|null)': null,
+      'related_1234002_row_idx(number|null)': null,
     },
     parsedErrorMessage: null,
+    _related1234002RowIdx: null,
   },
   {
     timestamp: '2024-01-03 14:00:00',
@@ -53,14 +63,19 @@ const mockData = [
       },
     },
     rawSignal: {
-      timestamp: '2024-01-03 14:00:00',
-      address: '1234002',
-      function_bits: '3',
-      message_format: MessageType.Skyper,
-      message_content:
+      'global_index(number)': '2',
+      'timestamp(string)': '2024-01-03 14:00:00',
+      'address(string)': '1234002',
+      'function_bits(string)': '3',
+      'message_format(string)': MessageType.Skyper,
+      'message_content(string)':
         '<SOH><ETX>G<DLE><SI>K`<BS>z;o[B>><NUL><SOH>!W<SI>61K+!i<NUL><DEL>',
+      'parsed_error_message(null|string)': null,
+      'message_payload(json|null)': null,
+      'related_1234002_row_idx(number|null)': null,
     },
     parsedErrorMessage: null,
+    _related1234002RowIdx: null,
   },
   {
     timestamp: '2025-04-11 19:39:09',
@@ -75,14 +90,19 @@ const mockData = [
       },
     },
     rawSignal: {
-      timestamp: '2025-04-11 19:39:09',
-      address: '1234002',
-      function_bits: '3',
-      message_format: MessageType.Skyper,
-      message_content:
+      'global_index(number)': '3',
+      'timestamp(string)': '2025-04-11 19:39:09',
+      'address(string)': '1234002',
+      'function_bits(string)': '3',
+      'message_format(string)': MessageType.Skyper,
+      'message_content(string)':
         '<SOH><ETX>G<DLE><SI>K`<BS>z;o[B>><NUL><SOH>!W<SI>61K+!i<NUL><DEL>',
+      'parsed_error_message(null|string)': null,
+      'message_payload(json|null)': null,
+      'related_1234002_row_idx(number|null)': null,
     },
     parsedErrorMessage: null,
+    _related1234002RowIdx: null,
   },
 ];
 
@@ -96,7 +116,7 @@ describe('filterPocsagData', () => {
   it('should filter by content (case insensitive)', () => {
     const result = filterPocsagData(mockData, { content: 'train' });
     expect(result).toHaveLength(1);
-    expect(result[0].rawSignal.message_content).toBe(
+    expect(result[0].rawSignal['message_content(string)']).toBe(
       'Train 123 speed 45 mileage 12.5'
     );
   });
@@ -126,7 +146,9 @@ describe('filterPocsagData', () => {
     });
     expect(result).toHaveLength(1);
     expect(result[0].messageFormat).toBe(MessageType.Alpha);
-    expect(result[0].rawSignal.message_content).toBe('Alpha message test');
+    expect(result[0].rawSignal['message_content(string)']).toBe(
+      'Alpha message test'
+    );
   });
 
   it('should handle empty filters', () => {

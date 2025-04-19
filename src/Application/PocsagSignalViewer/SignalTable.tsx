@@ -204,7 +204,7 @@ const SignalTable = ({
         ) {
           const payload = record.messagePayload as ParsedPocsagPayload1234000;
           if (record.parsedErrorMessage) {
-            return `Raw: "${record.rawSignal.message_content}"; Err: ${record.parsedErrorMessage}`;
+            return `Raw: "${record.rawSignal['message_content(string)']}"; Err: ${record.parsedErrorMessage}`;
           }
           return (
             <div>
@@ -225,16 +225,16 @@ const SignalTable = ({
         ) {
           const payload = record.messagePayload as ParsedPocsagPayload1234002;
           if (record.parsedErrorMessage) {
-            return `Raw: "${record.rawSignal.message_content}"; Err: ${record.parsedErrorMessage}`;
+            return `Raw: "${record.rawSignal['message_content(string)']}"; Err: ${record.parsedErrorMessage}`;
           }
           return (
             <div>
               <GoogleMapLink wgs84Str={payload.wgs84Str || ''} /> Raw:{' '}
-              <code>{record.rawSignal.message_content}</code>
+              <code>{record.rawSignal['message_content(string)']}</code>
             </div>
           );
         }
-        return <code>{record.rawSignal.message_content}</code>;
+        return <code>{record.rawSignal['message_content(string)']}</code>;
       },
     },
   ];
@@ -291,7 +291,7 @@ const SignalTable = ({
           // no idea why but wgs84 works on Kepler.gl's satelite map
           latitude: payload.wgs84 ? payload.wgs84.latitude : 0,
           longitude: payload.wgs84 ? payload.wgs84.longitude : 0,
-          rawMessage: row.rawSignal.message_content,
+          rawMessage: row.rawSignal['message_content(string)'],
         };
       });
     const csv = convertGpsListToKeplerGlCsv(gpsList);

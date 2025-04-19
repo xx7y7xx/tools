@@ -86,19 +86,23 @@ const PocsagViewer = () => {
     }
 
     const payload = row.messagePayload as ParsedPocsagPayload1234000;
+    if (!payload) {
+      // console.error('Invalid POCSAG record, missing payload', row);
+      return;
+    }
 
     const record: TrainSignalRecord = {
       timestamp: row.timestamp,
-      address: row.rawSignal.address,
+      address: row.rawSignal['address(string)'],
       messageType: row.messageFormat,
       functionCode: row.functionBits,
       payload: {
         trainNumber: payload.trainNumber,
         speed: payload.speed,
         mileage: payload.mileage,
-        rawData: row.rawSignal.message_content,
+        rawData: row.rawSignal['message_content(string)'],
       },
-      _related1234002Row: row._related1234002Row,
+      _related1234002RowIdx: row._related1234002RowIdx,
     };
 
     if (!record.payload.trainNumber) {

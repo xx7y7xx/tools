@@ -19,34 +19,43 @@ export type ExtendedTableColumnsType = {
   trainNumber: number;
   speed: number;
   mileage: number;
-  _related1234002Row?: ParsedPocsagRow;
+  _related1234002RowIdx: number | null;
 };
 
-export const expandColumns: TableColumnsType<ExtendedTableColumnsType> = [
-  { title: 'Key', dataIndex: 'key', key: 'key' },
-  { title: 'Timestamp', dataIndex: 'timestamp', key: 'timestamp' },
-  { title: 'TrainNumber', dataIndex: 'trainNumber', key: 'trainNumber' },
-  { title: 'Speed', dataIndex: 'speed', key: 'speed' },
-  { title: 'Mileage', dataIndex: 'mileage', key: 'mileage' },
-  {
-    title: 'Related 1234002 Row',
-    dataIndex: '_related1234002Row',
-    key: '_related1234002Row',
-    render: (related1234002Row: ParsedPocsagRow | null) => {
-      if (!related1234002Row) {
-        return 'Related 1234002 row not found';
-      }
-      const payload =
-        related1234002Row.messagePayload as ParsedPocsagPayload1234002;
-      return (
-        <div>
-          <GoogleMapLink wgs84Str={payload.wgs84Str || ''} /> Raw:{' '}
-          <code>{related1234002Row.rawSignal.message_content}</code>
-        </div>
-      );
+export const generateExpandColumns = (parsedPocsagRows: ParsedPocsagRow[]) => {
+  const expandColumns: TableColumnsType<ExtendedTableColumnsType> = [
+    { title: 'Key', dataIndex: 'key', key: 'key' },
+    { title: 'Timestamp', dataIndex: 'timestamp', key: 'timestamp' },
+    { title: 'TrainNumber', dataIndex: 'trainNumber', key: 'trainNumber' },
+    { title: 'Speed', dataIndex: 'speed', key: 'speed' },
+    { title: 'Mileage', dataIndex: 'mileage', key: 'mileage' },
+    {
+      title: 'Related 1234002 Row',
+      dataIndex: '_related1234002RowIdx',
+      key: '_related1234002RowIdx',
+      render: (related1234002RowIdx: number | null) => {
+        if (!related1234002RowIdx) {
+          return 'Related 1234002 row not found';
+        }
+        const payload = parsedPocsagRows[related1234002RowIdx]
+          .messagePayload as ParsedPocsagPayload1234002;
+        return (
+          <div>
+            <GoogleMapLink wgs84Str={payload.wgs84Str || ''} /> Raw:{' '}
+            <code>
+              {
+                parsedPocsagRows[related1234002RowIdx].rawSignal[
+                  'message_content(string)'
+                ]
+              }
+            </code>
+          </div>
+        );
+      },
     },
-  },
-];
+  ];
+  return expandColumns;
+};
 
 const columns: TableColumnsType<CheciRowType> = [
   {
@@ -88,6 +97,7 @@ const CheciTable = ({
       infoLength: trainSignalRecords.length,
     })
   );
+
   const expandedRowRender = (record: CheciRowType) => {
     const trainSignalRecords = trainSignalRecordsMap[record.trainNumber];
     const trainSignalRecordsWithKey: ExtendedTableColumnsType[] =
@@ -98,13 +108,13 @@ const CheciTable = ({
           trainNumber: record.payload.trainNumber,
           speed: record.payload.speed,
           mileage: record.payload.mileage,
-          _related1234002Row: record._related1234002Row,
+          _related1234002RowIdx: record._related1234002RowIdx,
         };
       });
 
     return (
       <Table<ExtendedTableColumnsType>
-        columns={expandColumns}
+        columns={generateExpandColumns(parsedPocsagRows)}
         dataSource={trainSignalRecordsWithKey}
         pagination={false}
       />

@@ -2,13 +2,12 @@ import { Button, Table } from 'antd';
 
 import { useTimeRange } from './TimeRangeContext';
 
-import { expandColumns, ExtendedTableColumnsType } from './CheciTable';
+import { generateExpandColumns, ExtendedTableColumnsType } from './CheciTable';
 import { ParsedPocsagPayload1234002 } from './types';
 import { convertGpsListToWkt, downloadFile } from './utils';
 
 const CodeSpeedMileageTable = () => {
-  const { filteredTrainSignalRecords, filteredParsedPocsagRows } =
-    useTimeRange();
+  const { filteredTrainSignalRecords, parsedPocsagRows } = useTimeRange();
 
   const trainSignalRecordsWithKey: ExtendedTableColumnsType[] =
     filteredTrainSignalRecords.map((record, idx: number) => {
@@ -18,14 +17,14 @@ const CodeSpeedMileageTable = () => {
         trainNumber: record.payload.trainNumber,
         speed: record.payload.speed,
         mileage: record.payload.mileage,
-        _related1234002Row: record._related1234002Row,
+        _related1234002RowIdx: record._related1234002RowIdx,
       };
     });
 
   return (
     <div>
       <Table<ExtendedTableColumnsType>
-        columns={expandColumns}
+        columns={generateExpandColumns(parsedPocsagRows)}
         dataSource={trainSignalRecordsWithKey}
         pagination={false}
         title={() => (
@@ -34,8 +33,15 @@ const CodeSpeedMileageTable = () => {
               onClick={() => {
                 const gpsList = trainSignalRecordsWithKey
                   .map((record) => {
-                    const payload = record._related1234002Row
-                      ?.messagePayload as ParsedPocsagPayload1234002;
+                    if (!record._related1234002RowIdx) {
+                      return {
+                        latitude: 0,
+                        longitude: 0,
+                      };
+                    }
+                    const payload = parsedPocsagRows[
+                      record._related1234002RowIdx
+                    ]?.messagePayload as ParsedPocsagPayload1234002;
                     return {
                       latitude: payload?.gcj02 ? payload?.gcj02.latitude : 0,
                       longitude: payload?.gcj02 ? payload?.gcj02.longitude : 0,

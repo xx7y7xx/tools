@@ -14,10 +14,10 @@ export const filterPocsagData = (
 ): ParsedPocsagRow[] => {
   return data.filter(
     (record) =>
-      record.rawSignal.message_content
+      record.rawSignal['message_content(string)']
         .toLowerCase()
         .includes(content.toLowerCase()) &&
-      record.address.toString().includes(address) &&
+      record.rawSignal['address(string)'].includes(address) &&
       (type === null || record.messageFormat === type) &&
       record.timestamp.toLowerCase().includes(timestamp.toLowerCase())
   );

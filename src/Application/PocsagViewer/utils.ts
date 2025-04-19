@@ -26,6 +26,8 @@ export const getMinMaxSpeed = (trainSignalRecords: TrainSignalRecord[]) => {
 };
 
 /**
+ * TODO move to sdr_pocsag
+ *
  * Get next second from timestamp, need to keep the same timezone
  * @param timestamp e.g. "2025-04-09 23:42:48"
  * @returns string, e.g. "2025-04-09 23:42:49"
@@ -43,22 +45,6 @@ export const getNextSecond = (timestamp: string) => {
   const seconds = String(date.getSeconds()).padStart(2, '0');
 
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-};
-
-// convert {latitude: "39°51.2936'", longitude: "116°13.2274'"} to {latitude: 39.85489, longitude: 116.22072}
-export const convertGps = (gps: { latitude: string; longitude: string }) => {
-  const convertCoordinate = (coord: string) => {
-    const match = coord.match(/(\d+)°(\d+\.\d+)'/);
-    if (!match) return 0;
-    const degrees = parseFloat(match[1]);
-    const minutes = parseFloat(match[2]);
-    return Number((degrees + minutes / 60).toFixed(5));
-  };
-
-  return {
-    latitude: convertCoordinate(gps.latitude),
-    longitude: convertCoordinate(gps.longitude),
-  };
 };
 
 /**

@@ -5,19 +5,18 @@ export interface TrainInfo {
   mileage: number;
 }
 
-export type ConvertResult = {
-  str: { trainNumber: string; speed: string; mileage: string };
-  data?: TrainInfo;
-  err: string | null;
-};
-
 // Raw POCSAG data from TSV file
+// global_index(number)	timestamp(string)	address(string)	function_bits(string)	message_format(string)	message_content(string)	parsed_error_message(null|string)	message_payload(json|null)
 export interface RawPocsagRow {
-  timestamp: string; // e.g. '2025-04-09 23:42:20'
-  address: string; // e.g. '1234000'
-  function_bits: string; // e.g. '3'
-  message_format: string; // e.g. 'Numeric'
-  message_content: string; // e.g. '69012  19    33'
+  'global_index(number)': string;
+  'timestamp(string)': string; // e.g. '2025-04-09 23:42:20'
+  'address(string)': string; // e.g. '1234000'
+  'function_bits(string)': string; // e.g. '3'
+  'message_format(string)': string; // e.g. 'Numeric'
+  'message_content(string)': string; // e.g. '69012  19    33'
+  'parsed_error_message(null|string)': string | null; // e.g. null
+  'message_payload(json|null)': string | null; // e.g. null
+  'related_1234002_row_idx(number|null)': string | null; // e.g. null
 }
 
 // Parsed POCSAG data from TSV file
@@ -50,7 +49,7 @@ export interface ParsedPocsagRow {
   messagePayload?: ParsedPocsagPayload1234000 | ParsedPocsagPayload1234002;
   parsedErrorMessage: string | null; // e.g. 'Invalid message content'
   rawSignal: RawPocsagRow;
-  _related1234002Row?: ParsedPocsagRow;
+  _related1234002RowIdx: number | null;
 }
 
 export enum MessageType {
@@ -78,20 +77,5 @@ export interface TrainSignalRecord {
     mileage: number; // 里程 61 (km)
     rawData: string; // 原始数据 "21022  19    61"
   };
-  _related1234002Row?: ParsedPocsagRow;
+  _related1234002RowIdx: number | null;
 }
-
-export type Pocsag1234002ParseResult = {
-  err: string | null;
-  data: null | {
-    wgs84Str?: string;
-    wgs84?: {
-      latitude: number;
-      longitude: number;
-    };
-    gcj02?: {
-      latitude: number;
-      longitude: number;
-    };
-  };
-};
