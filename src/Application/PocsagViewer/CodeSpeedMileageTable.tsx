@@ -2,11 +2,7 @@ import { Button, Table } from 'antd';
 
 import { useTimeRange } from './TimeRangeContext';
 
-import {
-  expandColumns,
-  ExtendedTableColumnsType,
-  getRelated1234002Row,
-} from './CheciTable';
+import { expandColumns, ExtendedTableColumnsType } from './CheciTable';
 import { ParsedPocsagPayload1234002 } from './types';
 import { convertGpsListToWkt, downloadFile } from './utils';
 
@@ -16,17 +12,13 @@ const CodeSpeedMileageTable = () => {
 
   const trainSignalRecordsWithKey: ExtendedTableColumnsType[] =
     filteredTrainSignalRecords.map((record, idx: number) => {
-      const related1234002Row = getRelated1234002Row(
-        record,
-        filteredParsedPocsagRows
-      );
       return {
         key: idx.toString(),
         timestamp: record.timestamp,
         trainNumber: record.payload.trainNumber,
         speed: record.payload.speed,
         mileage: record.payload.mileage,
-        _related1234002Row: related1234002Row,
+        _related1234002Row: record._related1234002Row,
       };
     });
 

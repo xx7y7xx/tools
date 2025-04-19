@@ -98,6 +98,7 @@ const PocsagViewer = () => {
         mileage: payload.mileage,
         rawData: row.rawSignal.message_content,
       },
+      _related1234002Row: row._related1234002Row,
     };
 
     if (!record.payload.trainNumber) {

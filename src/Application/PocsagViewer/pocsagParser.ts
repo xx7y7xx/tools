@@ -7,8 +7,9 @@ import {
   ParsedPocsagRow,
   RawPocsagRow,
   ConvertResult,
+  ParsedPocsagPayload1234000,
 } from './types';
-import { convertGps } from './utils';
+import { convertGps, getNextSecond } from './utils';
 
 /**
  * Convert the message body which the address is 1234000
@@ -84,6 +85,7 @@ export const parsePocsag1234002 = (msg: string): Pocsag1234002ParseResult => {
   if (msg.length !== 50) {
     return {
       err: 'Invalid POCSAG message body length',
+      data: null,
     };
   }
 
@@ -107,6 +109,7 @@ export const parsePocsag1234002 = (msg: string): Pocsag1234002ParseResult => {
   ) {
     return {
       err: 'Invalid POCSAG message body because of not_a_number',
+      data: null,
     };
   }
 
@@ -123,14 +126,16 @@ export const parsePocsag1234002 = (msg: string): Pocsag1234002ParseResult => {
 
   return {
     err: null,
-    wgs84Str: `${wgs84Str.latitude} ${wgs84Str.longitude}`,
-    wgs84: {
-      latitude: wgs84Num.latitude,
-      longitude: wgs84Num.longitude,
-    },
-    gcj02: {
-      latitude: gcj02Num[1],
-      longitude: gcj02Num[0],
+    data: {
+      wgs84Str: `${wgs84Str.latitude} ${wgs84Str.longitude}`,
+      wgs84: {
+        latitude: wgs84Num.latitude,
+        longitude: wgs84Num.longitude,
+      },
+      gcj02: {
+        latitude: gcj02Num[1],
+        longitude: gcj02Num[0],
+      },
     },
   };
 };
@@ -158,8 +163,18 @@ const validateRawPocsagRow = (row: RawPocsagRow) => {
   }
 };
 
+/**
+ * 1st time parse:
+ * - validate the raw data
+ * - convert 1234000 to trainNumber, speed, mileage
+ * - convert 1234002 to latitude, longitude
+ *
+ * 2nd time parse:
+ * - find the related 1234002 row for each 1234000 row
+ */
 export const parsePocsagData = (rawData: RawPocsagRow[]): ParsedPocsagRow[] => {
-  return rawData.map((row) => {
+  console.time('parsed1TimeRows');
+  const parsed1TimeRows = rawData.map((row) => {
     validateRawPocsagRow(row);
 
     // Create base object that's common to all cases
@@ -196,7 +211,7 @@ export const parsePocsagData = (rawData: RawPocsagRow[]): ParsedPocsagRow[] => {
       const result: Pocsag1234002ParseResult = parsePocsag1234002(
         row.message_content
       );
-      if (result.err || !result.gcj02) {
+      if (result.err || !result.data || !result.data.gcj02) {
         return {
           ...baseRow,
           parsedErrorMessage: result.err,
@@ -204,7 +219,7 @@ export const parsePocsagData = (rawData: RawPocsagRow[]): ParsedPocsagRow[] => {
       }
       return {
         ...baseRow,
-        messagePayload: result,
+        messagePayload: result.data,
       } as ParsedPocsagRow;
     }
 
@@ -213,4 +228,102 @@ export const parsePocsagData = (rawData: RawPocsagRow[]): ParsedPocsagRow[] => {
       parsedErrorMessage: 'Unknown message format',
     };
   });
+  console.timeEnd('parsed1TimeRows');
+
+  console.time('parsed2TimeRows');
+  const parsed2TimeRows = parsed1TimeRows.map((parsedRow, idx) => {
+    // print every 10000 rows
+    if (idx % 10000 === 0) {
+      console.log(`parsed2TimeRows index: ${idx}`);
+    }
+
+    // only parse 1234000
+    if (
+      parsedRow.address !== 1234000 ||
+      parsedRow.messageFormat !== MessageType.Numeric
+    ) {
+      return parsedRow;
+    }
+
+    // when this 1234000 row failed to parse (in last round), means we dont know the train number, just ignore it
+    if (parsedRow.parsedErrorMessage || !parsedRow.messagePayload) {
+      return parsedRow;
+    }
+
+    // find related 1234002 row with getRelated1234002Row
+    const parsed1234000RowMessagePayload =
+      parsedRow.messagePayload as ParsedPocsagPayload1234000;
+    const related1234002Row = getRelated1234002Row(
+      idx,
+      parsedRow,
+      parsed1234000RowMessagePayload,
+      parsed1TimeRows
+    );
+
+    // if we cannot find the related 1234002 row, just ignore it
+    if (!related1234002Row) {
+      return parsedRow;
+    }
+
+    return {
+      ...parsedRow,
+      _related1234002Row: related1234002Row,
+    } as ParsedPocsagRow;
+  });
+  console.timeEnd('parsed2TimeRows');
+
+  return parsed2TimeRows;
+};
+
+/**
+ * record is 1234000, from this record's timestamp, we may find the corresponding 1234002 Numberic record which contains the GPS info
+ * if cannot find the 1234002 record at the same timestamp, we use the next 1s record
+ */
+export const getRelated1234002Row = (
+  parsed1234000RowIndex: number,
+  parsed1234000Row: ParsedPocsagRow,
+  parsed1234000RowMessagePayload: ParsedPocsagPayload1234000,
+  parsedPocsagRows: ParsedPocsagRow[]
+) => {
+  const foundRows: ParsedPocsagRow[] = [];
+
+  // from parsed1234000RowIndex, find the related 1234002 row, but we should not find too many rows (100 rows) to avoid the performance issue
+  let nextIndex = parsed1234000RowIndex;
+  do {
+    const nextRow = parsedPocsagRows[nextIndex];
+    nextIndex++;
+
+    if (!nextRow) {
+      break;
+    }
+
+    if (
+      nextRow.address !== 1234002 ||
+      nextRow.messageFormat !== MessageType.Numeric ||
+      (nextRow.timestamp !== parsed1234000Row.timestamp &&
+        nextRow.timestamp !== getNextSecond(parsed1234000Row.timestamp))
+    ) {
+      continue;
+    }
+
+    // TODO 当找到了，但是解析失败，是否还被认为是没有找到？
+    if (nextRow.parsedErrorMessage) {
+      // console.error(
+      //   `Found 1234002 row for ${parsed1234000RowMessagePayload.trainNumber} at ${nextIndex}:${nextRow.timestamp} but parse error: ${nextRow.parsedErrorMessage}`
+      // );
+      continue;
+    }
+    foundRows.push(nextRow);
+  } while (foundRows.length === 0 || nextIndex - parsed1234000RowIndex < 100);
+
+  if (foundRows.length > 1) {
+    console.warn(
+      `Found ${foundRows.length} related 1234002 rows for ${parsed1234000RowMessagePayload.trainNumber} at ${parsed1234000Row.timestamp}:`,
+      foundRows
+    );
+  }
+  if (foundRows.length === 0) {
+    return null;
+  }
+  return foundRows[0];
 };

@@ -1,7 +1,10 @@
 import {
   parsePocsag1234002,
   convertTrainNumSpeedMileage,
+  getRelated1234002Row,
+  parsePocsagData,
 } from './pocsagParser';
+import { MessageType, ParsedPocsagRow, RawPocsagRow } from './types';
 
 /*
 test data for 1234000
@@ -134,14 +137,16 @@ describe('parsePocsag1234002', () => {
     );
     expect(location).toEqual({
       err: null,
-      wgs84Str: "31°20.1079' 120°37.6039'",
-      wgs84: {
-        latitude: 31.33513,
-        longitude: 120.62673,
-      },
-      gcj02: {
-        latitude: 31.332972872033253,
-        longitude: 120.63091655092123,
+      data: {
+        wgs84Str: "31°20.1079' 120°37.6039'",
+        wgs84: {
+          latitude: 31.33513,
+          longitude: 120.62673,
+        },
+        gcj02: {
+          latitude: 31.332972872033253,
+          longitude: 120.63091655092123,
+        },
       },
     });
   });
@@ -149,6 +154,7 @@ describe('parsePocsag1234002', () => {
     const location = parsePocsag1234002('20202350006330U].9UU.6 [-[2020');
     expect(location).toEqual({
       err: 'Invalid POCSAG message body length',
+      data: null,
     });
   });
   it('should return error if some part is not number', () => {
@@ -157,6 +163,111 @@ describe('parsePocsag1234002', () => {
     );
     expect(location).toEqual({
       err: 'Invalid POCSAG message body because of not_a_number',
+      data: null,
     });
+  });
+});
+
+describe('getRelated1234002Row', () => {
+  it('should return the related 1234002 row', () => {
+    const parsedPocsagRows = [
+      {
+        address: 1234000,
+        messageFormat: MessageType.Numeric,
+        timestamp: '2025-04-09 23:42:20',
+        functionBits: 3,
+        parsedErrorMessage: null,
+        rawSignal: {
+          timestamp: '2025-04-09 23:42:20',
+          address: '1234000',
+          function_bits: '3',
+          message_format: MessageType.Numeric,
+          message_content: '69012  19    33',
+        },
+      },
+    ];
+    const parsed1234000Row = parsedPocsagRows[0];
+    const parsed1234000RowMessagePayload = {
+      trainNumber: 69012,
+      speed: 19,
+      mileage: 3.3,
+    };
+    const related1234002Row = getRelated1234002Row(
+      0,
+      parsed1234000Row,
+      parsed1234000RowMessagePayload,
+      parsedPocsagRows
+    );
+    expect(related1234002Row).toEqual(null);
+  });
+});
+
+describe('parsePocsagData', () => {
+  it('should parse the pocsag data', () => {
+    const rawPocsagRows: RawPocsagRow[] = [
+      {
+        timestamp: '2025-04-09 23:42:20',
+        address: '1234000',
+        function_bits: '3',
+        message_format: MessageType.Numeric,
+        message_content: '69012  19    33',
+      },
+      {
+        timestamp: '2025-04-09 23:42:20',
+        address: '1234002',
+        function_bits: '3',
+        message_format: MessageType.Numeric,
+        message_content: '20202310190532U7]1 9U3 [-[202011614023139505802000',
+      },
+    ];
+    const parsedPocsagRows: ParsedPocsagRow[] = [
+      {
+        timestamp: '2025-04-09 23:42:20',
+        address: 1234000,
+        functionBits: 3,
+        messageFormat: MessageType.Numeric,
+        parsedErrorMessage: null,
+        messagePayload: {
+          trainNumber: 69012,
+          speed: 19,
+          mileage: 3.3,
+        },
+        rawSignal: {
+          timestamp: '2025-04-09 23:42:20',
+          address: '1234000',
+          function_bits: '3',
+          message_format: MessageType.Numeric,
+          message_content: '69012  19    33',
+        },
+      },
+      {
+        timestamp: '2025-04-09 23:42:20',
+        address: 1234002,
+        functionBits: 3,
+        messageFormat: MessageType.Numeric,
+        parsedErrorMessage: null,
+        messagePayload: {
+          wgs84Str: "39°50.5802' 116°14.0231'",
+          wgs84: {
+            latitude: 39.843,
+            longitude: 116.23372,
+          },
+          gcj02: {
+            latitude: 39.84421697498666,
+            longitude: 116.23975257786913,
+          },
+        },
+        rawSignal: {
+          timestamp: '2025-04-09 23:42:20',
+          address: '1234002',
+          function_bits: '3',
+          message_format: MessageType.Numeric,
+          message_content: '20202310190532U7]1 9U3 [-[202011614023139505802000',
+        },
+      },
+    ];
+    parsedPocsagRows[0]._related1234002Row = parsedPocsagRows[1];
+    const parsedPocsagData = parsePocsagData(rawPocsagRows);
+    expect(parsedPocsagData).toEqual(parsedPocsagRows);
   });
 });

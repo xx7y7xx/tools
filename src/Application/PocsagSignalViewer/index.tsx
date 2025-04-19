@@ -49,6 +49,7 @@ const PocsagSignalViewer = () => {
           },
         });
       } catch (err) {
+        console.error('Failed to fetch data or parse data, err:', err);
         if (err instanceof TypeError) {
           setError('Start the server: `node server.js`');
         } else {

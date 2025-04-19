@@ -50,6 +50,7 @@ export interface ParsedPocsagRow {
   messagePayload?: ParsedPocsagPayload1234000 | ParsedPocsagPayload1234002;
   parsedErrorMessage: string | null; // e.g. 'Invalid message content'
   rawSignal: RawPocsagRow;
+  _related1234002Row?: ParsedPocsagRow;
 }
 
 export enum MessageType {
@@ -77,17 +78,20 @@ export interface TrainSignalRecord {
     mileage: number; // 里程 61 (km)
     rawData: string; // 原始数据 "21022  19    61"
   };
+  _related1234002Row?: ParsedPocsagRow;
 }
 
 export type Pocsag1234002ParseResult = {
   err: string | null;
-  wgs84Str?: string;
-  wgs84?: {
-    latitude: number;
-    longitude: number;
-  };
-  gcj02?: {
-    latitude: number;
-    longitude: number;
+  data: null | {
+    wgs84Str?: string;
+    wgs84?: {
+      latitude: number;
+      longitude: number;
+    };
+    gcj02?: {
+      latitude: number;
+      longitude: number;
+    };
   };
 };
