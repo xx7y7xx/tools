@@ -1,3 +1,5 @@
+import Code from '../PocsagSignalViewer/Code';
+
 const GoogleMapLink = ({ wgs84Str }: { wgs84Str: string }) => {
   return (
     <a
@@ -5,7 +7,7 @@ const GoogleMapLink = ({ wgs84Str }: { wgs84Str: string }) => {
       target="_blank"
       rel="noopener noreferrer"
     >
-      <code>{wgs84Str}</code>
+      <Code>{wgs84Str}</Code>
     </a>
   );
 };

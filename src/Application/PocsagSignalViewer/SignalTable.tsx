@@ -17,6 +17,7 @@ import {
   convertGpsListToWktPoint,
   downloadFile,
 } from '../PocsagViewer/utils';
+import Code from './Code';
 
 const SignalTable = ({
   parsedSignalRows,
@@ -180,9 +181,18 @@ const SignalTable = ({
       width: 80,
     },
     {
+      title: 'Message Content',
+      dataIndex: 'rawSignal',
+      key: 'rawSignal',
+      width: 300,
+      render: (_, record: ParsedPocsagRow) => {
+        return <Code>{record.rawSignal['message_content(string)']}</Code>;
+      },
+    },
+    {
       title: () => (
         <div>
-          Message Content{' '}
+          Message Payload{' '}
           <Input
             placeholder="Search messages"
             allowClear
@@ -204,7 +214,7 @@ const SignalTable = ({
         ) {
           const payload = record.messagePayload as ParsedPocsagPayload1234000;
           if (record.parsedErrorMessage) {
-            return `Raw: "${record.rawSignal['message_content(string)']}"; Err: ${record.parsedErrorMessage}`;
+            return `Err: ${record.parsedErrorMessage}`;
           }
           return (
             <div>
@@ -225,16 +235,17 @@ const SignalTable = ({
         ) {
           const payload = record.messagePayload as ParsedPocsagPayload1234002;
           if (record.parsedErrorMessage) {
-            return `Raw: "${record.rawSignal['message_content(string)']}"; Err: ${record.parsedErrorMessage}`;
+            return `Err: ${record.parsedErrorMessage}`;
           }
           return (
             <div>
               <GoogleMapLink wgs84Str={payload.wgs84Str || ''} /> Raw:{' '}
-              <code>{record.rawSignal['message_content(string)']}</code>
+              <Code>{record.rawSignal['message_content(string)']}</Code>
             </div>
           );
         }
-        return <code>{record.rawSignal['message_content(string)']}</code>;
+
+        return <div>-</div>;
       },
     },
   ];

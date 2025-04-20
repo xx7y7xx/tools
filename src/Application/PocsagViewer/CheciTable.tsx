@@ -7,6 +7,7 @@ import {
   TrainSignalRecord,
 } from './types';
 import GoogleMapLink from './GoogleMapLink';
+import Code from '../PocsagSignalViewer/Code';
 
 interface CheciRowType {
   trainNumber: number;
@@ -42,13 +43,13 @@ export const generateExpandColumns = (parsedPocsagRows: ParsedPocsagRow[]) => {
         return (
           <div>
             <GoogleMapLink wgs84Str={payload.wgs84Str || ''} /> Raw:{' '}
-            <code>
+            <Code>
               {
                 parsedPocsagRows[related1234002RowIdx].rawSignal[
                   'message_content(string)'
                 ]
               }
-            </code>
+            </Code>
           </div>
         );
       },
