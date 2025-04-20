@@ -1,16 +1,14 @@
 import { useEffect, useState } from 'react';
 
-import Papa from 'papaparse';
-
 import {
   ParsedPocsagRow,
   ParsedPocsagPayload1234000,
-  RawPocsagRow,
   TrainSignalRecord,
 } from './types';
 import { parsePocsagData } from './pocsagParser';
 import CheciDetail from './CheciDetail';
 import CheciTable from './CheciTable';
+import { fetchTsvData } from './utils';
 
 /**
  * PocsagViewer is a web application that allows you to view POCSAG data.
@@ -25,46 +23,19 @@ const PocsagViewer = () => {
   const [error, setError] = useState<React.ReactNode | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(
-          'http://localhost:3001/data/pocsag_data_v2.tsv'
-        );
-        if (!response) {
-          throw new TypeError('Network error - server may be down');
-        }
-        if (!response.ok) {
-          throw new Error('Server not responding');
-        }
-        const text = await response.text();
-        Papa.parse(text, {
-          header: true,
-          skipEmptyLines: true,
-          delimiter: '\t',
-          complete: (results) => {
-            setParsedPocsagRows(
-              parsePocsagData(results.data as unknown as RawPocsagRow[])
-            );
-            setLoading(false);
-          },
-          error: (err: Error) => {
-            setError('Error parsing CSV: ' + err.message);
-            setLoading(false);
-          },
-        });
-      } catch (err) {
-        if (err instanceof TypeError) {
-          setError('Start the server: `node server.js`');
-        } else {
-          setError('Error fetching CSV: ' + (err as Error).message);
-        }
-        setLoading(false);
-      }
-    };
+    setLoading(true);
+    setError(null);
 
-    fetchData();
+    fetchTsvData()
+      .then((rows) => {
+        setParsedPocsagRows(parsePocsagData(rows));
+      })
+      .catch((err) => {
+        setError(err.message);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   if (loading) return <div>Loading...</div>;

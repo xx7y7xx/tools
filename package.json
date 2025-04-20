@@ -58,6 +58,7 @@
   "devDependencies": {
     "@babel/core": "^7.26.10",
     "@babel/preset-env": "^7.26.9",
-    "@types/papaparse": "^5.3.15"
+    "@types/papaparse": "^5.3.15",
+    "http-proxy-middleware": "^3.0.5"
   }
 }

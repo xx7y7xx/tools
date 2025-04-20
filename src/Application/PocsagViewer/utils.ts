@@ -1,4 +1,6 @@
-import { TrainSignalRecord } from './types';
+import Papa from 'papaparse';
+
+import { RawPocsagRow, TrainSignalRecord } from './types';
 
 /**
  * Function to get color based on speed
@@ -109,4 +111,36 @@ export const downloadFile = (content: string, filename: string) => {
   a.href = `data:text/csv;charset=utf-8,${encodeURIComponent(content)}`;
   a.download = filename;
   a.click();
+};
+
+export const fetchTsvData = async () => {
+  return new Promise<RawPocsagRow[]>(async (resolve, reject) => {
+    // we have problem in the format of CSV file, because the `messageContent` may contain commas and quotes
+    // so maybe we need TSV file for other program to process
+    const response = await fetch(
+      // The data is served by setupProxy.js
+      'http://localhost:3000/pocsag-data/pocsag_data_v2.tsv'
+    );
+    if (!response) {
+      throw new TypeError('Network error - server may be down');
+    }
+    if (!response.ok) {
+      throw new Error('Server not responding');
+    }
+    const text = await response.text();
+    if (text.startsWith('<!DOCTYPE html>')) {
+      reject(new Error('Response is not a valid TSV file'));
+    }
+    Papa.parse(text, {
+      header: true,
+      skipEmptyLines: true,
+      delimiter: '\t',
+      complete: (results) => {
+        resolve(results.data as unknown as RawPocsagRow[]);
+      },
+      error: (err: Error) => {
+        reject(new Error('Error parsing CSV: ' + err.message));
+      },
+    });
+  });
 };
