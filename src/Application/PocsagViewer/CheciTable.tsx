@@ -36,10 +36,16 @@ export const generateExpandColumns = (parsedPocsagRows: ParsedPocsagRow[]) => {
       key: '_related1234002RowIdx',
       render: (related1234002RowIdx: number | null) => {
         if (!related1234002RowIdx) {
-          return 'Related 1234002 row not found';
+          return 'The related 1234002 row index is not found';
+        }
+        if (!parsedPocsagRows[related1234002RowIdx]) {
+          return 'The related 1234002 row is not found';
         }
         const payload = parsedPocsagRows[related1234002RowIdx]
           .messagePayload as ParsedPocsagPayload1234002;
+        if (!payload) {
+          return 'The payload of related 1234002 row is not found';
+        }
         return (
           <div>
             <GoogleMapLink wgs84Str={payload.wgs84Str || ''} /> Raw:{' '}
