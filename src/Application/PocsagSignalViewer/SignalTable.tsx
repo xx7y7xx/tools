@@ -239,8 +239,7 @@ const SignalTable = ({
           }
           return (
             <div>
-              <GoogleMapLink wgs84Str={payload.wgs84Str || ''} /> Raw:{' '}
-              <Code>{record.rawSignal['message_content(string)']}</Code>
+              <GoogleMapLink wgs84Str={payload.wgs84Str || ''} />
             </div>
           );
         }
