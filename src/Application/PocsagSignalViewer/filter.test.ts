@@ -3,6 +3,7 @@ import { MessageType } from '../PocsagViewer/types';
 
 const mockData = [
   {
+    globalIndex: 0,
     timestamp: '2024-01-01 12:00:00',
     address: 1234000,
     functionBits: 1,
@@ -27,6 +28,7 @@ const mockData = [
     _related1234002RowIdx: null,
   },
   {
+    globalIndex: 1,
     timestamp: '2024-01-02 13:00:00',
     address: 1234001,
     functionBits: 2,
@@ -51,6 +53,7 @@ const mockData = [
     _related1234002RowIdx: null,
   },
   {
+    globalIndex: 2,
     timestamp: '2024-01-03 14:00:00',
     address: 1234002,
     functionBits: 3,
@@ -78,6 +81,7 @@ const mockData = [
     _related1234002RowIdx: null,
   },
   {
+    globalIndex: 3,
     timestamp: '2025-04-11 19:39:09',
     address: 1234002,
     functionBits: 3,

@@ -32,6 +32,7 @@ export const parsePocsagData = (rawData: RawPocsagRow[]): ParsedPocsagRow[] => {
     }
 
     const baseRow: ParsedPocsagRow = {
+      globalIndex: parseInt(rawRow['global_index(number)']),
       timestamp: rawRow['timestamp(string)'],
       address: parseInt(rawRow['address(string)']),
       functionBits: parseInt(rawRow['function_bits(string)']),

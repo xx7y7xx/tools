@@ -42,6 +42,7 @@ export interface ParsedPocsagPayload1234002 {
 }
 
 export interface ParsedPocsagRow {
+  globalIndex: number; // e.g. 1
   timestamp: string; // e.g. '2025-04-09 23:42:17'
   address: number; // e.g. 1234000
   functionBits: number; // e.g. 3

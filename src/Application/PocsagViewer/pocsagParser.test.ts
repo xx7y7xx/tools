@@ -44,6 +44,7 @@ describe('parsePocsagData', () => {
     ];
     const parsedPocsagRows: ParsedPocsagRow[] = [
       {
+        globalIndex: 0,
         timestamp: '2025-04-09 23:42:20',
         address: 1234000,
         functionBits: 3,
@@ -72,6 +73,7 @@ describe('parsePocsagData', () => {
         _related1234002RowIdx: null,
       },
       {
+        globalIndex: 1,
         timestamp: '2025-04-09 23:42:20',
         address: 1234002,
         functionBits: 3,

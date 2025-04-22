@@ -117,6 +117,12 @@ const SignalTable = ({
 
   const columns: ColumnType<ParsedPocsagRow>[] = [
     {
+      title: 'Global Index',
+      dataIndex: 'globalIndex',
+      key: 'globalIndex',
+      width: 60,
+    },
+    {
       title: () => (
         <div>
           Timestamp{' '}
@@ -337,8 +343,9 @@ const SignalTable = ({
       )}
       footer={() => (
         <div>
-          Filtered {filteredData.length} of {parsedSignalRows.length} | Full
-          data time range: {parsedSignalRows[0]?.timestamp} ~{' '}
+          Filtered {filteredData.length} of {parsedSignalRows.length} |{' '}
+          {`Full data time range: `}
+          {parsedSignalRows[0]?.timestamp} ~{' '}
           {parsedSignalRows[parsedSignalRows.length - 1]?.timestamp}
         </div>
       )}
