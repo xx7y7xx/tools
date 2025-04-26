@@ -119,7 +119,7 @@ export const fetchTsvData = async () => {
     // so maybe we need TSV file for other program to process
     const response = await fetch(
       // The data is served by setupProxy.js
-      'http://localhost:3000/pocsag-data/pocsag_data_v2.tsv'
+      'http://localhost:3000/pocsag-data/pocsag_data_20250415_home.tsv'
     );
     if (!response) {
       throw new TypeError('Network error - server may be down');
