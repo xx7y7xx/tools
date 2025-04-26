@@ -140,7 +140,7 @@ export const fetchTsvData = async () => {
       complete: (results) => {
         // if the the line count before papaparse is not the same as the line count after papaparse,
         // it means the tsv file is not valid
-        if (results.data.length !== text.split('\n').length) {
+        if (results.data.length !== text.split('\n').length - 1) {
           console.error(
             `There is something wrong when parsing the TSV file, please check the original file and also the PapaParse error message. The original line count is ${
               text.split('\n').length
@@ -151,7 +151,7 @@ export const fetchTsvData = async () => {
         resolve(results.data as unknown as RawPocsagRow[]);
       },
       error: (err: Error) => {
-        reject(new Error('Error parsing CSV: ' + err.message));
+        reject(new Error('Error parsing TSV: ' + err.message));
       },
     });
   });

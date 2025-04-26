@@ -39,7 +39,7 @@ describe('convertGpsListToWktPoint', () => {
 
 // use UT to understand how Papa parse the tsv file
 describe('Papa parse for the tsv file', () => {
-  it('should parse the tsv file', () => {
+  it('should parse the tsv file when the input TSV is generate manually', () => {
     const tsvFileContent = `global_index(number)	timestamp(string)	address(string)	function_bits(string)	message_format(string)	message_content(string)	parsed_error_message(null|string)	message_payload(json|null)	related_1234002_row_idx(number|null)
 1243	2025-04-10 01:34:29	2048069	0	Alpha	#XPRLl,b	null	null	null
 1244	2025-04-10 01:34:29	2048069	0	Skyper	"WOQKk+a	null	null	null
@@ -84,6 +84,39 @@ describe('Papa parse for the tsv file', () => {
       // 'parsed_error_message(null|string)': 'null',
       // 'message_payload(json|null)': 'null',
       // 'related_1234002_row_idx(number|null)': 'null',
+    });
+  });
+
+  it('should parse the tsv file when the input TSV is generate by PapaParse', () => {
+    // copy from pocsag_data_v2.tsv
+    const tsvFileContent = `"global_index(number)"	"timestamp(string)"	"address(string)"	"function_bits(string)"	"message_format(string)"	"message_content(string)"	"parsed_error_message(null|string)"	"message_payload(json|null)"	"related_1234002_row_idx(number|null)"
+"1243"	"2025-04-10 01:34:29"	"2048069"	"0"	"Alpha"	"#XPRLl,b"	"null"	"null"	"null"
+"1244"	"2025-04-10 01:34:29"	"2048069"	"0"	"Skyper"	"""WOQKk+a"	"null"	"null"	"null"
+"1245"	"2025-04-10 01:34:36"	"2048069"	"0"	"Numeric"	"32 24U8 863U48235000]5193"	"null"	"null"	"null"`;
+    const result = Papa.parse(tsvFileContent, { header: true });
+    expect(result.data.length).toEqual(3);
+    expect(result.errors.length).toEqual(0);
+    expect(result.data[0]).toEqual({
+      'global_index(number)': '1243',
+      'timestamp(string)': '2025-04-10 01:34:29',
+      'address(string)': '2048069',
+      'function_bits(string)': '0',
+      'message_format(string)': 'Alpha',
+      'message_content(string)': '#XPRLl,b',
+      'parsed_error_message(null|string)': 'null',
+      'message_payload(json|null)': 'null',
+      'related_1234002_row_idx(number|null)': 'null',
+    });
+    expect(result.data[1]).toEqual({
+      'global_index(number)': '1244',
+      'timestamp(string)': '2025-04-10 01:34:29',
+      'address(string)': '2048069',
+      'function_bits(string)': '0',
+      'message_format(string)': 'Skyper',
+      'message_content(string)': `"WOQKk+a`,
+      'parsed_error_message(null|string)': 'null',
+      'message_payload(json|null)': 'null',
+      'related_1234002_row_idx(number|null)': 'null',
     });
   });
 });
