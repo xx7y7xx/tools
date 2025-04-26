@@ -258,7 +258,9 @@ const SignalTable = ({
     },
   ];
 
-  const handleExportToGoogleMapKML = () => {
+  // get gcj02 by default, can pass "wgs84" to get wgs84
+  // no idea why but wgs84 works on Kepler.gl's satelite map
+  const getGpsList = (type: 'gcj02' | 'wgs84' = 'gcj02') => {
     const gpsList = filteredData
       .filter(
         (row: ParsedPocsagRow) =>
@@ -269,50 +271,28 @@ const SignalTable = ({
       .map((row: ParsedPocsagRow) => {
         const payload = row.messagePayload as ParsedPocsagPayload1234002;
         return {
-          latitude: payload.gcj02 ? payload.gcj02.latitude : 0,
-          longitude: payload.gcj02 ? payload.gcj02.longitude : 0,
+          latitude: payload[type] ? payload[type].latitude : 0,
+          longitude: payload[type] ? payload[type].longitude : 0,
+          rawMessage: row.rawSignal['message_content(string)'],
         };
       });
+    return gpsList;
+  };
+
+  const handleExportToGoogleMapKML = () => {
+    const gpsList = getGpsList();
     const wkt = convertGpsListToWkt(gpsList);
     downloadFile(wkt, 'train_route.csv');
   };
 
   const handleExportToGoogleMapKMLPoint = () => {
-    const gpsList = filteredData
-      .filter(
-        (row: ParsedPocsagRow) =>
-          row.address === 1234002 &&
-          row.messageFormat === MessageType.Numeric &&
-          row.messagePayload
-      )
-      .map((row: ParsedPocsagRow) => {
-        const payload = row.messagePayload as ParsedPocsagPayload1234002;
-        return {
-          latitude: payload.gcj02 ? payload.gcj02.latitude : 0,
-          longitude: payload.gcj02 ? payload.gcj02.longitude : 0,
-        };
-      });
+    const gpsList = getGpsList();
     const wkt = convertGpsListToWktPoint(gpsList);
     downloadFile(wkt, 'train_route.csv');
   };
 
   const handleExportToKeplerGl = () => {
-    const gpsList = filteredData
-      .filter(
-        (row: ParsedPocsagRow) =>
-          row.address === 1234002 &&
-          row.messageFormat === MessageType.Numeric &&
-          row.messagePayload
-      )
-      .map((row: ParsedPocsagRow) => {
-        const payload = row.messagePayload as ParsedPocsagPayload1234002;
-        return {
-          // no idea why but wgs84 works on Kepler.gl's satelite map
-          latitude: payload.wgs84 ? payload.wgs84.latitude : 0,
-          longitude: payload.wgs84 ? payload.wgs84.longitude : 0,
-          rawMessage: row.rawSignal['message_content(string)'],
-        };
-      });
+    const gpsList = getGpsList('wgs84');
     const csv = convertGpsListToKeplerGlCsv(gpsList);
     downloadFile(csv, 'train_route.csv');
   };
