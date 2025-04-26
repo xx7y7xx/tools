@@ -80,3 +80,9 @@ export interface TrainSignalRecord {
   };
   _related1234002RowIdx: number | null;
 }
+
+export interface GpsPoint {
+  latitude: number;
+  longitude: number;
+  rawMessage: string;
+}

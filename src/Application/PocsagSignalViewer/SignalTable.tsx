@@ -7,6 +7,7 @@ import {
   ParsedPocsagRow,
   ParsedPocsagPayload1234000,
   ParsedPocsagPayload1234002,
+  GpsPoint,
 } from '../PocsagViewer/types';
 import { MessageType } from '../PocsagViewer/types';
 import { filterPocsagData } from './filter';
@@ -260,7 +261,7 @@ const SignalTable = ({
 
   // get gcj02 by default, can pass "wgs84" to get wgs84
   // no idea why but wgs84 works on Kepler.gl's satelite map
-  const getGpsList = (type: 'gcj02' | 'wgs84' = 'gcj02') => {
+  const getGpsList = (type: 'gcj02' | 'wgs84' = 'gcj02'): GpsPoint[] => {
     const gpsList = filteredData
       .filter(
         (row: ParsedPocsagRow) =>
@@ -271,10 +272,10 @@ const SignalTable = ({
       .map((row: ParsedPocsagRow) => {
         const payload = row.messagePayload as ParsedPocsagPayload1234002;
         return {
-          latitude: payload[type] ? payload[type].latitude : 0,
-          longitude: payload[type] ? payload[type].longitude : 0,
+          latitude: payload[type] ? payload[type]?.latitude : 0,
+          longitude: payload[type] ? payload[type]?.longitude : 0,
           rawMessage: row.rawSignal['message_content(string)'],
-        };
+        } as GpsPoint;
       });
     return gpsList;
   };

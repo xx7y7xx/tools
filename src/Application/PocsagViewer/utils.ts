@@ -1,6 +1,6 @@
 import Papa from 'papaparse';
 
-import { RawPocsagRow, TrainSignalRecord } from './types';
+import { GpsPoint, RawPocsagRow, TrainSignalRecord } from './types';
 
 /**
  * Function to get color based on speed
@@ -57,9 +57,7 @@ export const getNextSecond = (timestamp: string) => {
  * "LINESTRING (116.3785477 39.9068214, 116.3493653 39.8591369, 116.4108201 39.8493851, 116.4506455 39.8688872, 116.455452 39.8973398)",Line 1,
  * ```
  */
-export const convertGpsListToWkt = (
-  gpsList: { latitude: number; longitude: number }[]
-) => {
+export const convertGpsListToWkt = (gpsList: GpsPoint[]) => {
   const wkt = `LINESTRING (${gpsList
     .map((gps) => `${gps.longitude} ${gps.latitude}`)
     .join(',')})`;
@@ -75,14 +73,14 @@ export const convertGpsListToWkt = (
  * "POINT (116.25454 39.8749211)",Point 2,
  * ```
  */
-export const convertGpsListToWktPoint = (
-  gpsList: { latitude: number; longitude: number }[]
-) => {
+export const convertGpsListToWktPoint = (gpsList: GpsPoint[]) => {
   const header = 'WKT,name,description';
   const wktList = gpsList
     .map(
       (gps, idx) =>
-        `"POINT (${gps.longitude} ${gps.latitude})",Point ${idx + 1},`
+        `"POINT (${gps.longitude} ${gps.latitude})",Point ${idx + 1},"${
+          gps.rawMessage
+        }"`
     )
     .join('\n');
   return `${header}\n${wktList}`;
@@ -96,9 +94,7 @@ export const convertGpsListToWktPoint = (
  * 39.8869744,116.2386613,"20202310190532U7]1 9U3 [-[202011614023139505802000"
  * 39.8749211,116.25454,"20202310190532U7]1 9U3 [-[202011614023139505802000"
  */
-export const convertGpsListToKeplerGlCsv = (
-  gpsList: { latitude: number; longitude: number; rawMessage: string }[]
-) => {
+export const convertGpsListToKeplerGlCsv = (gpsList: GpsPoint[]) => {
   const header = 'latitude,longitude,rawMessage';
   const csvList = gpsList
     .map((gps) => `${gps.latitude},${gps.longitude},"${gps.rawMessage}"`)

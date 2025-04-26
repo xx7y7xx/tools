@@ -3,7 +3,7 @@ import { Button, Table } from 'antd';
 import { useTimeRange } from './TimeRangeContext';
 
 import { generateExpandColumns, ExtendedTableColumnsType } from './CheciTable';
-import { ParsedPocsagPayload1234002 } from './types';
+import { GpsPoint, ParsedPocsagPayload1234002 } from './types';
 import {
   convertGpsListToKeplerGlCsv,
   convertGpsListToWkt,
@@ -28,7 +28,7 @@ const CodeSpeedMileageTable = () => {
 
   // get gcj02 by default, can pass "wgs84" to get wgs84
   // no idea why but wgs84 works on Kepler.gl's satelite map
-  const getGpsList = (type: 'gcj02' | 'wgs84' = 'gcj02') => {
+  const getGpsList = (type: 'gcj02' | 'wgs84' = 'gcj02'): GpsPoint[] => {
     const gpsList = trainSignalRecordsWithKey
       .filter(
         (record): record is typeof record & { _related1234002RowIdx: number } =>
@@ -38,13 +38,13 @@ const CodeSpeedMileageTable = () => {
         const payload = parsedPocsagRows[record._related1234002RowIdx]
           ?.messagePayload as ParsedPocsagPayload1234002;
         return {
-          latitude: payload?.[type] ? payload?.[type].latitude : 0,
-          longitude: payload?.[type] ? payload?.[type].longitude : 0,
+          latitude: payload?.[type] ? payload?.[type]?.latitude : 0,
+          longitude: payload?.[type] ? payload?.[type]?.longitude : 0,
           rawMessage:
             parsedPocsagRows[record._related1234002RowIdx]?.rawSignal[
               'message_content(string)'
             ],
-        };
+        } as GpsPoint;
       });
     return gpsList;
   };
