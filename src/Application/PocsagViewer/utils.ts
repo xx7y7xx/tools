@@ -128,6 +128,8 @@ export const fetchTsvData = async () => {
       throw new Error('Server not responding');
     }
     const text = await response.text();
+    // When getting a HTML response, normally means a 404 not found error
+    // This is because the backend is webpack dev server, when file not found, the create-react-app will return a HTML page
     if (text.startsWith('<!DOCTYPE html>')) {
       reject(new Error('Response is not a valid TSV file'));
     }
@@ -136,6 +138,16 @@ export const fetchTsvData = async () => {
       skipEmptyLines: true,
       delimiter: '\t',
       complete: (results) => {
+        // if the the line count before papaparse is not the same as the line count after papaparse,
+        // it means the tsv file is not valid
+        if (results.data.length !== text.split('\n').length) {
+          console.error(
+            `There is something wrong when parsing the TSV file, please check the original file and also the PapaParse error message. The original line count is ${
+              text.split('\n').length
+            }, but the parsed line count is ${results.data.length}`
+          );
+          console.error(results.errors);
+        }
         resolve(results.data as unknown as RawPocsagRow[]);
       },
       error: (err: Error) => {
