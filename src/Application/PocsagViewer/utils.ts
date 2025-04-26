@@ -1,6 +1,7 @@
 import Papa from 'papaparse';
 
 import { GpsPoint, RawPocsagRow, TrainSignalRecord } from './types';
+import { POCSAG_DATA_URL } from './config';
 
 /**
  * Function to get color based on speed
@@ -113,10 +114,7 @@ export const fetchTsvData = async () => {
   return new Promise<RawPocsagRow[]>(async (resolve, reject) => {
     // we have problem in the format of CSV file, because the `messageContent` may contain commas and quotes
     // so maybe we need TSV file for other program to process
-    const response = await fetch(
-      // The data is served by setupProxy.js
-      'http://localhost:3000/pocsag-data/pocsag_data_20250415_home.tsv'
-    );
+    const response = await fetch(POCSAG_DATA_URL);
     if (!response) {
       throw new TypeError('Network error - server may be down');
     }
