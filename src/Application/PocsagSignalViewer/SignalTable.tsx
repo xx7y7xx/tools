@@ -32,13 +32,15 @@ const SignalTable = ({
     ? JSON.parse(urlParams.get('toolParams') || '{}')
     : {};
 
-  const [searchText, setSearchText] = useState(toolParams.content || '');
-  const [addressSearchText, setAddressSearchText] = useState(
+  const [searchText, setSearchText] = useState<string>(
+    toolParams.content || ''
+  );
+  const [addressSearchText, setAddressSearchText] = useState<string>(
     toolParams.address || ''
   );
   const [messageTypeSearchText, setMessageTypeSearchText] =
     useState<MessageType | null>(toolParams.type || null);
-  const [timestampSearchText, setTimestampSearchText] = useState(
+  const [timestampSearchText, setTimestampSearchText] = useState<string>(
     toolParams.timestamp || ''
   );
 
@@ -55,6 +57,7 @@ const SignalTable = ({
     if (Object.keys(newToolParams).length > 0) {
       params.set('toolParams', JSON.stringify(newToolParams));
     } else {
+      console.warn('delete toolParams');
       params.delete('toolParams');
     }
 
