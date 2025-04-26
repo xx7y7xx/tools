@@ -42,7 +42,6 @@ const PocsagSignalViewer = () => {
         flexDirection: 'column',
       }}
     >
-      <h1>POCSAG Signal Viewer</h1>
       <div style={{ flex: 1, overflow: 'hidden' }}>
         <SignalTable parsedSignalRows={parsedData} />
       </div>
