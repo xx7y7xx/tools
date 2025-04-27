@@ -33,6 +33,16 @@ const SearchByCode = () => {
         </Col>
       </Row>
       <SearchResult isExactMatch={isExactMatch} value={value} />
+      <div>
+        时刻表:{' '}
+        <a
+          href="https://kyfw.12306.cn/otn/queryTrainInfo/init"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          https://kyfw.12306.cn/otn/queryTrainInfo/init
+        </a>
+      </div>
     </div>
   );
 };
