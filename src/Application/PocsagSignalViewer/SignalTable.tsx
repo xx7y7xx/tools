@@ -39,8 +39,9 @@ const SignalTable = ({
   const [addressSearchText, setAddressSearchText] = useState<string>(
     toolParams.address || ''
   );
-  const [messageTypeSearchText, setMessageTypeSearchText] =
-    useState<MessageType | null>(toolParams.type || null);
+  const [selectedMessageTypes, setSelectedMessageTypes] = useState<
+    MessageType[]
+  >(toolParams.types ? JSON.parse(toolParams.types) : [MessageType.Numeric]);
   const [timestampSearchText, setTimestampSearchText] = useState<string>(
     toolParams.timestamp || ''
   );
@@ -51,7 +52,9 @@ const SignalTable = ({
     const newToolParams = {
       ...(searchText && { content: searchText }),
       ...(addressSearchText && { address: addressSearchText }),
-      ...(messageTypeSearchText && { type: messageTypeSearchText }),
+      ...(selectedMessageTypes.length > 0 && {
+        types: JSON.stringify(selectedMessageTypes),
+      }),
       ...(timestampSearchText && { timestamp: timestampSearchText }),
     };
 
@@ -71,7 +74,7 @@ const SignalTable = ({
   }, [
     searchText,
     addressSearchText,
-    messageTypeSearchText,
+    selectedMessageTypes,
     timestampSearchText,
   ]);
 
@@ -115,7 +118,7 @@ const SignalTable = ({
   const filteredData: ParsedPocsagRow[] = filterPocsagData(parsedSignalRows, {
     content: searchText,
     address: addressSearchText,
-    type: messageTypeSearchText,
+    types: selectedMessageTypes.length > 0 ? selectedMessageTypes : null,
     timestamp: timestampSearchText,
   });
 
@@ -172,10 +175,12 @@ const SignalTable = ({
       title: () => (
         <div>
           <Select
-            placeholder="Msg Type"
-            allowClear
-            value={messageTypeSearchText}
-            onChange={(value) => setMessageTypeSearchText(value)}
+            mode="multiple"
+            placeholder="Message Type"
+            value={selectedMessageTypes}
+            onChange={(values) =>
+              setSelectedMessageTypes(values as MessageType[])
+            }
             style={{ width: 120 }}
             size="small"
             options={[
