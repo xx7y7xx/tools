@@ -7,7 +7,7 @@ const GoogleMapLink = ({ wgs84Str }: { wgs84Str: string }) => {
       target="_blank"
       rel="noopener noreferrer"
     >
-      <Code>{wgs84Str}</Code>
+      wgs84: <Code>{wgs84Str}</Code>
     </a>
   );
 };
