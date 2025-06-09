@@ -32,7 +32,7 @@ describe('convertGpsListToWktPoint', () => {
       { latitude: 39.8749211, longitude: 116.25454, rawMessage: '' },
     ]);
     expect(wkt).toEqual(
-      'WKT,name,description\n"POINT (116.2386613 39.8869744)",Point 1,\n"POINT (116.25454 39.8749211)",Point 2,'
+      'WKT,name,description\n"POINT (116.2386613 39.8869744)",Point 1,""\n"POINT (116.25454 39.8749211)",Point 2,""'
     );
   });
 });
