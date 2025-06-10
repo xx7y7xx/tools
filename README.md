@@ -11,9 +11,10 @@ npm i
 npm start
 ```
 
-- http://localhost:3000/tools?app=setting&folderId=<gdrive_dir_id>&date=20241121 - Load data from google drive, save to indexedDB
-- http://localhost:3000/tools?app=trainSearch - Load data from indexedDB, search by train number
+- http://localhost:3000/tools?tool=setting&folderId=<gdrive_dir_id>&date=20241121 - Load data from google drive, save to indexedDB
+- http://localhost:3000/tools?tool=trainSearch - Load data from indexedDB, search by train number
+- http://localhost:3000/tools?tool=pocsagSignalViewer
 
 ## Production
 
-https://xx7y7xx.github.io/tools/?app=trainSearch
+https://xx7y7xx.github.io/tools/?tool=trainSearch
