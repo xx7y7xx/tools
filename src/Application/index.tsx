@@ -1,13 +1,13 @@
 import * as Sentry from '@sentry/react';
-import { Alert } from 'antd';
 import { BrowserRouter } from 'react-router-dom';
 
 // import { initGa } from './init';
 import './utils/dayjs'; // Import dayjs configuration
+import PocsagSignalViewer from './PocsagSignalViewer';
+import PocsagViewer from './PocsagViewer';
 import SearchTrain from './RailwayTool';
 import Setting from './Settings';
-import PocsagViewer from './PocsagViewer';
-import PocsagSignalViewer from './PocsagSignalViewer';
+import Checi from './Checi';
 
 // Styles for application
 import './index.css';
@@ -60,6 +60,8 @@ export default function Application() {
         return <PocsagSignalViewer />;
       case 'setting':
         return <Setting />;
+      case 'checi':
+        return <Checi />;
       default:
         return (
           <div>
@@ -71,6 +73,9 @@ export default function Application() {
             </div>
             <div>
               <a href="/tools?tool=pocsagSignalViewer">PocsagSignalViewer</a>
+            </div>
+            <div>
+              <a href="/tools?tool=checi">Checi</a>
             </div>
           </div>
         );
