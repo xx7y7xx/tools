@@ -17,6 +17,7 @@ import {
   LineChartOutlined,
   DownloadOutlined,
   FilterOutlined,
+  BarChartOutlined,
 } from '@ant-design/icons';
 import {
   Chart as ChartJS,
@@ -38,6 +39,7 @@ import {
   HistoricalTrainsData,
 } from '../../services/trainsData';
 import { recentDates } from './config';
+import TrainNoAnalysis from './TrainNoAnalysis';
 
 ChartJS.register(
   CategoryScale,
@@ -62,7 +64,7 @@ const Checi: React.FC = () => {
   );
   const [loadedDate, setLoadedDate] = useState<string>('');
   const [stationFilter, setStationFilter] = useState<string>('');
-  const [activeTab, setActiveTab] = useState('2');
+  const [activeTab, setActiveTab] = useState('3');
   const [trendData, setTrendData] = useState<
     { date: string; total_num: number; trainInfo?: TrainInfo }[]
   >([]);
@@ -207,6 +209,16 @@ const Checi: React.FC = () => {
 
   // Tab items configuration
   const tabItems = [
+    {
+      key: '3',
+      label: (
+        <span>
+          <BarChartOutlined />
+          train_no变化分析
+        </span>
+      ),
+      children: <TrainNoAnalysis />,
+    },
     {
       key: '2',
       label: (
