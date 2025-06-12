@@ -1,9 +1,22 @@
-import React, { useState, useMemo } from 'react';
-import { List, Card, Alert, Spin, Input, Space, Tabs, Typography } from 'antd';
+import React, { useState, useMemo, useEffect } from 'react';
+import {
+  List,
+  Card,
+  Alert,
+  Spin,
+  Input,
+  Space,
+  Tabs,
+  Typography,
+  Button,
+  Tag,
+} from 'antd';
 import {
   DatabaseOutlined,
   SearchOutlined,
   LineChartOutlined,
+  DownloadOutlined,
+  FilterOutlined,
 } from '@ant-design/icons';
 import {
   Chart as ChartJS,
@@ -18,9 +31,11 @@ import {
 import { Line } from 'react-chartjs-2';
 import {
   fetchTrainsData,
-  fetchTrainTrends,
+  fetchAllHistoricalData,
+  extractTrainTrendsFromHistoricalData,
   TrainInfo,
   TrainsDataResponse,
+  HistoricalTrainsData,
 } from '../../services/trainsData';
 import { recentDates } from './config';
 
@@ -40,8 +55,13 @@ const { TabPane } = Tabs;
 
 const Checi: React.FC = () => {
   const [loading, setLoading] = useState(false);
+  const [historicalLoading, setHistoricalLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [trainsData, setTrainsData] = useState<TrainsDataResponse>({});
+  const [historicalData, setHistoricalData] = useState<HistoricalTrainsData>(
+    {}
+  );
+  const [loadedDate, setLoadedDate] = useState<string>('');
   const [stationFilter, setStationFilter] = useState<string>('');
   const [activeTab, setActiveTab] = useState('1');
   const [trendData, setTrendData] = useState<
@@ -60,6 +80,35 @@ const Checi: React.FC = () => {
     );
   }, [trainsData, stationFilter]);
 
+  const totalTrainsCount = Object.keys(trainsData).length;
+  const hasData = totalTrainsCount > 0;
+  const hasHistoricalData = Object.keys(historicalData).length > 0;
+
+  // Load historical data when trend analysis tab is opened
+  useEffect(() => {
+    if (activeTab === '2' && !hasHistoricalData && !historicalLoading) {
+      loadHistoricalData();
+    }
+  }, [activeTab, hasHistoricalData, historicalLoading]);
+
+  // Load all historical data for trend analysis
+  const loadHistoricalData = async () => {
+    setHistoricalLoading(true);
+    setError(null);
+    try {
+      console.log('Loading historical data for trend analysis...');
+      const data = await fetchAllHistoricalData(recentDates);
+      setHistoricalData(data);
+      console.log('Historical data loaded successfully');
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to load historical data'
+      );
+    } finally {
+      setHistoricalLoading(false);
+    }
+  };
+
   // Fetch trains data by date
   const handleFetchTrainsByDate = async (dateString: string) => {
     if (!dateString.trim()) {
@@ -72,6 +121,7 @@ const Checi: React.FC = () => {
     try {
       const result = await fetchTrainsData(dateString);
       setTrainsData(result);
+      setLoadedDate(dateString);
       setStationFilter(''); // Clear any previous search filter
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -80,42 +130,35 @@ const Checi: React.FC = () => {
     }
   };
 
-  // Search trains by station name
-  const handleSearchByStation = async (stationName: string) => {
-    if (!stationName.trim()) {
-      setError('Please enter a station name');
-      return;
-    }
-
-    setError(null);
-    // If we don't have data yet, show error
-    if (Object.keys(trainsData).length === 0) {
-      setError('请先通过日期查询获取数据，然后再进行车站搜索');
-      return;
-    }
-
+  // Search trains by station name (local filtering)
+  const handleSearchByStation = (stationName: string) => {
     setStationFilter(stationName.trim());
   };
 
-  // Fetch trends for a specific train
-  const handleFetchTrainTrends = async (trainCode: string) => {
+  // Clear station filter
+  const handleClearFilter = () => {
+    setStationFilter('');
+  };
+
+  // Analyze trends for a specific train (using preloaded historical data)
+  const handleAnalyzeTrainTrends = (trainCode: string) => {
     if (!trainCode.trim()) {
       setError('请输入列车号');
       return;
     }
 
-    setLoading(true);
-    setError(null);
-    try {
-      const trends = await fetchTrainTrends(trainCode, recentDates);
-      setTrendData(trends);
-      setSelectedTrain(trainCode);
-      setStationFilter(''); // Clear search filter when showing trends
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
-    } finally {
-      setLoading(false);
+    if (!hasHistoricalData) {
+      setError('历史数据尚未加载完成，请稍候再试');
+      return;
     }
+
+    setError(null);
+    const trends = extractTrainTrendsFromHistoricalData(
+      trainCode,
+      historicalData
+    );
+    setTrendData(trends);
+    setSelectedTrain(trainCode);
   };
 
   // Prepare chart data
@@ -176,91 +219,161 @@ const Checi: React.FC = () => {
       {/* Main Interface */}
       <Card>
         <Tabs activeKey={activeTab} onChange={setActiveTab}>
+          {/* Tab 1: Date-specific Data Browsing */}
           <TabPane
             tab={
               <span>
                 <DatabaseOutlined />
-                列车数据
+                按日期浏览
               </span>
             }
             key="1"
           >
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
+              {/* Date Selection */}
               <div>
-                <Title level={4}>按日期查询列车数据</Title>
+                <Title level={4}>
+                  <DownloadOutlined /> 选择日期并加载数据
+                </Title>
                 <Paragraph>
-                  输入日期获取特定日期的列车数据 (格式: YYYYMMDD)
+                  输入日期一次性下载该日期的所有列车数据到本地 (格式: YYYYMMDD)
                   <br />
                   <strong>可用日期示例:</strong> 20250609, 20250608, 20250607,
                   20250302, 20241120
                 </Paragraph>
-                <Search
-                  placeholder="输入日期 (如: 20250609)"
-                  allowClear
-                  enterButton="查询列车数据"
-                  size="large"
-                  onSearch={handleFetchTrainsByDate}
-                  loading={loading}
-                />
+                <Space>
+                  <Search
+                    placeholder="输入日期 (如: 20250609)"
+                    allowClear
+                    enterButton="下载数据"
+                    size="large"
+                    onSearch={handleFetchTrainsByDate}
+                    loading={loading}
+                    style={{ width: '300px' }}
+                  />
+                  {hasData && (
+                    <Tag
+                      color="success"
+                      style={{ fontSize: '14px', padding: '4px 8px' }}
+                    >
+                      已加载 {loadedDate} 的数据 ({totalTrainsCount} 趟列车)
+                    </Tag>
+                  )}
+                </Space>
               </div>
+
+              {/* Station Filtering - Only show when data is loaded */}
+              {hasData && (
+                <div>
+                  <Title level={4}>
+                    <FilterOutlined /> 按车站筛选 (本地搜索，无需重新下载)
+                  </Title>
+                  <Paragraph>
+                    从已下载的 <Tag color="blue">{loadedDate}</Tag>{' '}
+                    数据中搜索包含指定车站的列车
+                  </Paragraph>
+                  <Space>
+                    <Search
+                      placeholder="输入车站名称 (如: 北京, 上海)"
+                      allowClear
+                      enterButton="筛选"
+                      size="large"
+                      onSearch={handleSearchByStation}
+                      style={{ width: '300px' }}
+                    />
+                    {stationFilter && (
+                      <Button onClick={handleClearFilter}>清除筛选</Button>
+                    )}
+                  </Space>
+                  {stationFilter && (
+                    <div style={{ marginTop: '10px' }}>
+                      <Tag color="blue">当前筛选: {stationFilter}</Tag>
+                      <Tag color="green">
+                        找到 {displayTrains.length} 趟列车
+                      </Tag>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* No Data State for Tab 1 */}
+              {!hasData && !loading && (
+                <Card style={{ textAlign: 'center', padding: '40px' }}>
+                  <DatabaseOutlined
+                    style={{
+                      fontSize: '48px',
+                      color: '#ccc',
+                      marginBottom: '16px',
+                    }}
+                  />
+                  <Title level={4} style={{ color: '#666' }}>
+                    暂无数据
+                  </Title>
+                  <Paragraph style={{ color: '#999' }}>
+                    请先选择日期并下载数据，然后即可进行车站搜索
+                  </Paragraph>
+                </Card>
+              )}
             </Space>
           </TabPane>
 
-          <TabPane
-            tab={
-              <span>
-                <SearchOutlined />
-                车站搜索
-              </span>
-            }
-            key="2"
-          >
-            <Space direction="vertical" size="large" style={{ width: '100%' }}>
-              <div>
-                <Title level={4}>按车站搜索</Title>
-                <Paragraph>
-                  输入车站名称搜索相关列车 (如: 北京、上海、广州)
-                  <br />
-                  <strong>注意:</strong>{' '}
-                  请先在"列车数据"标签页按日期查询数据，然后再进行车站搜索
-                </Paragraph>
-                <Search
-                  placeholder="输入车站名称 (如: 北京, 上海)"
-                  allowClear
-                  enterButton="搜索列车"
-                  size="large"
-                  onSearch={handleSearchByStation}
-                  loading={loading}
-                />
-              </div>
-            </Space>
-          </TabPane>
-
+          {/* Tab 2: Independent Trend Analysis */}
           <TabPane
             tab={
               <span>
                 <LineChartOutlined />
                 趋势分析
+                {historicalLoading && (
+                  <Spin size="small" style={{ marginLeft: '8px' }} />
+                )}
               </span>
             }
-            key="3"
+            key="2"
           >
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
+              {/* Historical Data Status */}
+              <Card
+                size="small"
+                style={{ background: '#f6ffed', border: '1px solid #b7eb8f' }}
+              >
+                <Space>
+                  <DatabaseOutlined style={{ color: '#52c41a' }} />
+                  <span>
+                    {historicalLoading ? (
+                      <span>
+                        正在加载历史数据... ({recentDates.length} 个日期)
+                      </span>
+                    ) : hasHistoricalData ? (
+                      <span>
+                        历史数据已加载完成 ({Object.keys(historicalData).length}
+                        /{recentDates.length} 个日期) - 可进行即时趋势分析
+                      </span>
+                    ) : (
+                      <span>历史数据加载中...</span>
+                    )}
+                  </span>
+                </Space>
+              </Card>
+
               <div>
-                <Title level={4}>列车趋势分析</Title>
+                <Title level={4}>列车趋势分析 (基于预加载数据)</Title>
                 <Paragraph>
-                  输入列车号查看其在不同日期的 total_num 变化趋势 (如: 1461,
-                  1462)
+                  输入列车号即可查看其在所有历史日期的 total_num 变化趋势 (如:
+                  1461, 1462)
                   <br />
-                  <strong>数据范围:</strong> 2024年7月至2025年6月 (共46个日期)
+                  <strong>数据范围:</strong> 2024年7月至2025年6月 (共
+                  {recentDates.length}个日期)
+                  <br />
+                  <strong>优势:</strong>{' '}
+                  所有历史数据已预加载，趋势分析瞬间完成！
                 </Paragraph>
                 <Search
                   placeholder="输入列车号 (如: 1461)"
                   allowClear
                   enterButton="分析趋势"
                   size="large"
-                  onSearch={handleFetchTrainTrends}
-                  loading={loading}
+                  onSearch={handleAnalyzeTrainTrends}
+                  disabled={!hasHistoricalData}
                 />
               </div>
             </Space>
@@ -282,19 +395,35 @@ const Checi: React.FC = () => {
       )}
 
       {/* Loading Spinner */}
-      {loading && (
+      {(loading || historicalLoading) && (
         <div style={{ textAlign: 'center', padding: '40px' }}>
           <Spin size="large" />
           <div style={{ marginTop: '16px' }}>
-            <Paragraph>正在获取列车数据...</Paragraph>
+            <Paragraph>
+              {loading && '正在获取列车数据...'}
+              {historicalLoading &&
+                `正在加载历史数据... (${recentDates.length} 个日期)`}
+            </Paragraph>
           </div>
         </div>
       )}
 
-      {/* Trains Display */}
-      {displayTrains && displayTrains.length > 0 && (
+      {/* Trains Display - Only for Tab 1 */}
+      {activeTab === '1' && displayTrains && displayTrains.length > 0 && (
         <Card
-          title={`🚄 列车信息 (共找到 ${displayTrains.length} 趟列车)`}
+          title={
+            <span>
+              🚄 列车信息
+              {stationFilter ? (
+                <span>
+                  {' '}
+                  - 筛选结果: "{stationFilter}" (共 {displayTrains.length} 趟)
+                </span>
+              ) : (
+                <span> (共 {displayTrains.length} 趟列车)</span>
+              )}
+            </span>
+          }
           style={{ marginTop: '20px' }}
         >
           <List
@@ -351,8 +480,8 @@ const Checi: React.FC = () => {
         </Card>
       )}
 
-      {/* Trend Chart Display */}
-      {trendData.length > 0 && selectedTrain && (
+      {/* Trend Chart Display - Only for Tab 2 */}
+      {activeTab === '2' && trendData.length > 0 && selectedTrain && (
         <Card
           title={`📈 列车 ${selectedTrain} 趋势分析`}
           style={{ marginTop: '20px' }}
@@ -416,7 +545,8 @@ const Checi: React.FC = () => {
         }}
       >
         <Paragraph style={{ margin: 0, color: '#666' }}>
-          🚂 Checi 使用 axios 从各种数据源获取中国铁路数据
+          🚂 Checi 使用 axios 从各种数据源获取中国铁路数据 |
+          优化版本：独立的数据浏览和趋势分析
         </Paragraph>
       </Card>
     </div>
