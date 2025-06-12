@@ -62,7 +62,7 @@ const Checi: React.FC = () => {
   );
   const [loadedDate, setLoadedDate] = useState<string>('');
   const [stationFilter, setStationFilter] = useState<string>('');
-  const [activeTab, setActiveTab] = useState('1');
+  const [activeTab, setActiveTab] = useState('2');
   const [trendData, setTrendData] = useState<
     { date: string; total_num: number; trainInfo?: TrainInfo }[]
   >([]);
@@ -208,6 +208,64 @@ const Checi: React.FC = () => {
   // Tab items configuration
   const tabItems = [
     {
+      key: '2',
+      label: (
+        <span>
+          <LineChartOutlined />
+          趋势分析
+          {historicalLoading && (
+            <Spin size="small" style={{ marginLeft: '8px' }} />
+          )}
+        </span>
+      ),
+      children: (
+        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          {/* Historical Data Status */}
+          <Card
+            size="small"
+            style={{ background: '#f6ffed', border: '1px solid #b7eb8f' }}
+          >
+            <Space>
+              <DatabaseOutlined style={{ color: '#52c41a' }} />
+              <span>
+                {historicalLoading ? (
+                  <span>正在加载历史数据... ({recentDates.length} 个日期)</span>
+                ) : hasHistoricalData ? (
+                  <span>
+                    历史数据已加载完成 ({Object.keys(historicalData).length}/
+                    {recentDates.length} 个日期) - 可进行即时趋势分析
+                  </span>
+                ) : (
+                  <span>历史数据加载中...</span>
+                )}
+              </span>
+            </Space>
+          </Card>
+
+          <div>
+            <Title level={4}>列车趋势分析 (基于预加载数据)</Title>
+            <Paragraph>
+              输入列车号即可查看其在所有历史日期的 total_num 变化趋势 (如: 1461,
+              1462)
+              <br />
+              <strong>数据范围:</strong> 2024年7月至2025年6月 (共
+              {recentDates.length}个日期)
+              <br />
+              <strong>优势:</strong> 所有历史数据已预加载，趋势分析瞬间完成！
+            </Paragraph>
+            <Search
+              placeholder="输入列车号 (如: 1461)"
+              allowClear
+              enterButton="分析趋势"
+              size="large"
+              onSearch={handleAnalyzeTrainTrends}
+              disabled={!hasHistoricalData}
+            />
+          </div>
+        </Space>
+      ),
+    },
+    {
       key: '1',
       label: (
         <span>
@@ -299,64 +357,6 @@ const Checi: React.FC = () => {
               </Paragraph>
             </Card>
           )}
-        </Space>
-      ),
-    },
-    {
-      key: '2',
-      label: (
-        <span>
-          <LineChartOutlined />
-          趋势分析
-          {historicalLoading && (
-            <Spin size="small" style={{ marginLeft: '8px' }} />
-          )}
-        </span>
-      ),
-      children: (
-        <Space direction="vertical" size="large" style={{ width: '100%' }}>
-          {/* Historical Data Status */}
-          <Card
-            size="small"
-            style={{ background: '#f6ffed', border: '1px solid #b7eb8f' }}
-          >
-            <Space>
-              <DatabaseOutlined style={{ color: '#52c41a' }} />
-              <span>
-                {historicalLoading ? (
-                  <span>正在加载历史数据... ({recentDates.length} 个日期)</span>
-                ) : hasHistoricalData ? (
-                  <span>
-                    历史数据已加载完成 ({Object.keys(historicalData).length}/
-                    {recentDates.length} 个日期) - 可进行即时趋势分析
-                  </span>
-                ) : (
-                  <span>历史数据加载中...</span>
-                )}
-              </span>
-            </Space>
-          </Card>
-
-          <div>
-            <Title level={4}>列车趋势分析 (基于预加载数据)</Title>
-            <Paragraph>
-              输入列车号即可查看其在所有历史日期的 total_num 变化趋势 (如: 1461,
-              1462)
-              <br />
-              <strong>数据范围:</strong> 2024年7月至2025年6月 (共
-              {recentDates.length}个日期)
-              <br />
-              <strong>优势:</strong> 所有历史数据已预加载，趋势分析瞬间完成！
-            </Paragraph>
-            <Search
-              placeholder="输入列车号 (如: 1461)"
-              allowClear
-              enterButton="分析趋势"
-              size="large"
-              onSearch={handleAnalyzeTrainTrends}
-              disabled={!hasHistoricalData}
-            />
-          </div>
         </Space>
       ),
     },
