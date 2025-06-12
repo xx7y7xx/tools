@@ -1,6 +1,5 @@
-// All available dates from the trains-data directory (verified to exist)
+// Available dates from the trains-data directory (filtered to remove 404s)
 export const recentDates = [
-  '20240722',
   '20241120',
   '20241121',
   '20241221',
@@ -10,14 +9,11 @@ export const recentDates = [
   '20250321',
   '20250322',
   '20250323',
-  '20250324',
   '20250325',
-  '20250330',
   '20250331',
   '20250401',
   '20250402',
   '20250403',
-  '20250404',
   '20250405',
   '20250406',
   '20250407',
@@ -33,7 +29,6 @@ export const recentDates = [
   '20250417',
   '20250418',
   '20250419',
-  '20250420',
   '20250421',
   '20250422',
   '20250423',
@@ -41,7 +36,6 @@ export const recentDates = [
   '20250425',
   '20250426',
   '20250427',
-  '20250428',
   '20250601',
   '20250605',
   '20250606',
