@@ -91,28 +91,27 @@ export const fetchAllHistoricalData = async (
  * Fetches data for a specific train across multiple dates
  * @param trainCode - Train code (e.g., '1461')
  * @param dates - Array of dates in YYYYMMDD format
- * @returns Promise containing train data trends
+ * @returns Promise containing train data trends (only includes dates with actual data)
  */
 export const fetchTrainTrends = async (
   trainCode: string,
   dates: string[]
-): Promise<{ date: string; total_num: number; trainInfo?: TrainInfo }[]> => {
+): Promise<{ date: string; total_num: number; trainInfo: TrainInfo }[]> => {
   const results = await Promise.allSettled(
     dates.map(async (date) => {
       try {
         const data = await fetchTrainsData(date);
         const trainInfo = data[trainCode];
-        return {
-          date,
-          total_num: trainInfo ? parseInt(trainInfo.total_num) : 0,
-          trainInfo: trainInfo || undefined,
-        };
+        if (trainInfo) {
+          return {
+            date,
+            total_num: parseInt(trainInfo.total_num),
+            trainInfo,
+          };
+        }
+        return null;
       } catch (error) {
-        return {
-          date,
-          total_num: 0,
-          trainInfo: undefined,
-        };
+        return null;
       }
     })
   );
@@ -120,7 +119,7 @@ export const fetchTrainTrends = async (
   return results
     .filter(
       (result): result is PromiseFulfilledResult<any> =>
-        result.status === 'fulfilled'
+        result.status === 'fulfilled' && result.value !== null
     )
     .map((result) => result.value)
     .sort((a, b) => a.date.localeCompare(b.date));
@@ -130,21 +129,30 @@ export const fetchTrainTrends = async (
  * Extract trend data for a specific train from preloaded historical data
  * @param trainCode - Train code (e.g., '1461')
  * @param historicalData - Preloaded historical data
- * @returns Array containing train data trends
+ * @returns Array containing train data trends (only includes dates with actual data)
  */
 export const extractTrainTrendsFromHistoricalData = (
   trainCode: string,
   historicalData: HistoricalTrainsData
-): { date: string; total_num: number; trainInfo?: TrainInfo }[] => {
+): { date: string; total_num: number; trainInfo: TrainInfo }[] => {
   const trends = Object.entries(historicalData)
     .map(([date, data]) => {
       const trainInfo = data[trainCode];
-      return {
-        date,
-        total_num: trainInfo ? parseInt(trainInfo.total_num) : 0,
-        trainInfo: trainInfo || undefined,
-      };
+      if (trainInfo) {
+        return {
+          date,
+          total_num: parseInt(trainInfo.total_num),
+          trainInfo,
+        };
+      }
+      return null;
     })
+    .filter(
+      (
+        item
+      ): item is { date: string; total_num: number; trainInfo: TrainInfo } =>
+        item !== null
+    )
     .sort((a, b) => a.date.localeCompare(b.date));
 
   return trends;
