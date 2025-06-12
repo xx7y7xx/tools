@@ -22,6 +22,7 @@ import {
   TrainInfo,
   TrainsDataResponse,
 } from '../../services/trainsData';
+import { recentDates } from './config';
 
 ChartJS.register(
   CategoryScale,
@@ -106,58 +107,6 @@ const Checi: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      // All available dates from the trains-data directory (verified to exist)
-      const recentDates = [
-        '20240722',
-        '20241120',
-        '20241121',
-        '20241221',
-        '20250302',
-        '20250303',
-        '20250320',
-        '20250321',
-        '20250322',
-        '20250323',
-        '20250324',
-        '20250325',
-        '20250330',
-        '20250331',
-        '20250401',
-        '20250402',
-        '20250403',
-        '20250404',
-        '20250405',
-        '20250406',
-        '20250407',
-        '20250408',
-        '20250409',
-        '20250410',
-        '20250411',
-        '20250412',
-        '20250413',
-        '20250414',
-        '20250415',
-        '20250416',
-        '20250417',
-        '20250418',
-        '20250419',
-        '20250420',
-        '20250421',
-        '20250422',
-        '20250423',
-        '20250424',
-        '20250425',
-        '20250426',
-        '20250427',
-        '20250428',
-        '20250601',
-        '20250605',
-        '20250606',
-        '20250607',
-        '20250608',
-        '20250609',
-      ];
-
       const trends = await fetchTrainTrends(trainCode, recentDates);
       setTrendData(trends);
       setSelectedTrain(trainCode);
