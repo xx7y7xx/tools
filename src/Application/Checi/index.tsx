@@ -515,7 +515,7 @@ const Checi: React.FC = () => {
               size="small"
               dataSource={trendData.filter((t) => t.total_num > 0)}
               renderItem={(item) => (
-                <List.Item>
+                <List.Item key={item.date}>
                   <span>
                     <strong>{item.date}:</strong> total_num = {item.total_num}
                     {item.trainInfo && (
