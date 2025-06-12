@@ -51,7 +51,6 @@ ChartJS.register(
 
 const { Search } = Input;
 const { Title, Paragraph } = Typography;
-const { TabPane } = Tabs;
 
 const Checi: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -206,6 +205,163 @@ const Checi: React.FC = () => {
     },
   };
 
+  // Tab items configuration
+  const tabItems = [
+    {
+      key: '1',
+      label: (
+        <span>
+          <DatabaseOutlined />
+          按日期浏览
+        </span>
+      ),
+      children: (
+        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          {/* Date Selection */}
+          <div>
+            <Title level={4}>
+              <DownloadOutlined /> 选择日期并加载数据
+            </Title>
+            <Paragraph>
+              输入日期一次性下载该日期的所有列车数据到本地 (格式: YYYYMMDD)
+              <br />
+              <strong>可用日期示例:</strong> 20250609, 20250608, 20250607,
+              20250302, 20241120
+            </Paragraph>
+            <Space>
+              <Search
+                placeholder="输入日期 (如: 20250609)"
+                allowClear
+                enterButton="下载数据"
+                size="large"
+                onSearch={handleFetchTrainsByDate}
+                loading={loading}
+                style={{ width: '300px' }}
+              />
+              {hasData && (
+                <Tag
+                  color="success"
+                  style={{ fontSize: '14px', padding: '4px 8px' }}
+                >
+                  已加载 {loadedDate} 的数据 ({totalTrainsCount} 趟列车)
+                </Tag>
+              )}
+            </Space>
+          </div>
+
+          {/* Station Filtering - Only show when data is loaded */}
+          {hasData && (
+            <div>
+              <Title level={4}>
+                <FilterOutlined /> 按车站筛选 (本地搜索，无需重新下载)
+              </Title>
+              <Paragraph>
+                从已下载的 <Tag color="blue">{loadedDate}</Tag>{' '}
+                数据中搜索包含指定车站的列车
+              </Paragraph>
+              <Space>
+                <Search
+                  placeholder="输入车站名称 (如: 北京, 上海)"
+                  allowClear
+                  enterButton="筛选"
+                  size="large"
+                  onSearch={handleSearchByStation}
+                  style={{ width: '300px' }}
+                />
+                {stationFilter && (
+                  <Button onClick={handleClearFilter}>清除筛选</Button>
+                )}
+              </Space>
+              {stationFilter && (
+                <div style={{ marginTop: '10px' }}>
+                  <Tag color="blue">当前筛选: {stationFilter}</Tag>
+                  <Tag color="green">找到 {displayTrains.length} 趟列车</Tag>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* No Data State for Tab 1 */}
+          {!hasData && !loading && (
+            <Card style={{ textAlign: 'center', padding: '40px' }}>
+              <DatabaseOutlined
+                style={{
+                  fontSize: '48px',
+                  color: '#ccc',
+                  marginBottom: '16px',
+                }}
+              />
+              <Title level={4} style={{ color: '#666' }}>
+                暂无数据
+              </Title>
+              <Paragraph style={{ color: '#999' }}>
+                请先选择日期并下载数据，然后即可进行车站搜索
+              </Paragraph>
+            </Card>
+          )}
+        </Space>
+      ),
+    },
+    {
+      key: '2',
+      label: (
+        <span>
+          <LineChartOutlined />
+          趋势分析
+          {historicalLoading && (
+            <Spin size="small" style={{ marginLeft: '8px' }} />
+          )}
+        </span>
+      ),
+      children: (
+        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          {/* Historical Data Status */}
+          <Card
+            size="small"
+            style={{ background: '#f6ffed', border: '1px solid #b7eb8f' }}
+          >
+            <Space>
+              <DatabaseOutlined style={{ color: '#52c41a' }} />
+              <span>
+                {historicalLoading ? (
+                  <span>正在加载历史数据... ({recentDates.length} 个日期)</span>
+                ) : hasHistoricalData ? (
+                  <span>
+                    历史数据已加载完成 ({Object.keys(historicalData).length}/
+                    {recentDates.length} 个日期) - 可进行即时趋势分析
+                  </span>
+                ) : (
+                  <span>历史数据加载中...</span>
+                )}
+              </span>
+            </Space>
+          </Card>
+
+          <div>
+            <Title level={4}>列车趋势分析 (基于预加载数据)</Title>
+            <Paragraph>
+              输入列车号即可查看其在所有历史日期的 total_num 变化趋势 (如: 1461,
+              1462)
+              <br />
+              <strong>数据范围:</strong> 2024年7月至2025年6月 (共
+              {recentDates.length}个日期)
+              <br />
+              <strong>优势:</strong> 所有历史数据已预加载，趋势分析瞬间完成！
+            </Paragraph>
+            <Search
+              placeholder="输入列车号 (如: 1461)"
+              allowClear
+              enterButton="分析趋势"
+              size="large"
+              onSearch={handleAnalyzeTrainTrends}
+              disabled={!hasHistoricalData}
+            />
+          </div>
+        </Space>
+      ),
+    },
+  ];
+
   return (
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
       {/* Header */}
@@ -218,167 +374,7 @@ const Checi: React.FC = () => {
 
       {/* Main Interface */}
       <Card>
-        <Tabs activeKey={activeTab} onChange={setActiveTab}>
-          {/* Tab 1: Date-specific Data Browsing */}
-          <TabPane
-            tab={
-              <span>
-                <DatabaseOutlined />
-                按日期浏览
-              </span>
-            }
-            key="1"
-          >
-            <Space direction="vertical" size="large" style={{ width: '100%' }}>
-              {/* Date Selection */}
-              <div>
-                <Title level={4}>
-                  <DownloadOutlined /> 选择日期并加载数据
-                </Title>
-                <Paragraph>
-                  输入日期一次性下载该日期的所有列车数据到本地 (格式: YYYYMMDD)
-                  <br />
-                  <strong>可用日期示例:</strong> 20250609, 20250608, 20250607,
-                  20250302, 20241120
-                </Paragraph>
-                <Space>
-                  <Search
-                    placeholder="输入日期 (如: 20250609)"
-                    allowClear
-                    enterButton="下载数据"
-                    size="large"
-                    onSearch={handleFetchTrainsByDate}
-                    loading={loading}
-                    style={{ width: '300px' }}
-                  />
-                  {hasData && (
-                    <Tag
-                      color="success"
-                      style={{ fontSize: '14px', padding: '4px 8px' }}
-                    >
-                      已加载 {loadedDate} 的数据 ({totalTrainsCount} 趟列车)
-                    </Tag>
-                  )}
-                </Space>
-              </div>
-
-              {/* Station Filtering - Only show when data is loaded */}
-              {hasData && (
-                <div>
-                  <Title level={4}>
-                    <FilterOutlined /> 按车站筛选 (本地搜索，无需重新下载)
-                  </Title>
-                  <Paragraph>
-                    从已下载的 <Tag color="blue">{loadedDate}</Tag>{' '}
-                    数据中搜索包含指定车站的列车
-                  </Paragraph>
-                  <Space>
-                    <Search
-                      placeholder="输入车站名称 (如: 北京, 上海)"
-                      allowClear
-                      enterButton="筛选"
-                      size="large"
-                      onSearch={handleSearchByStation}
-                      style={{ width: '300px' }}
-                    />
-                    {stationFilter && (
-                      <Button onClick={handleClearFilter}>清除筛选</Button>
-                    )}
-                  </Space>
-                  {stationFilter && (
-                    <div style={{ marginTop: '10px' }}>
-                      <Tag color="blue">当前筛选: {stationFilter}</Tag>
-                      <Tag color="green">
-                        找到 {displayTrains.length} 趟列车
-                      </Tag>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* No Data State for Tab 1 */}
-              {!hasData && !loading && (
-                <Card style={{ textAlign: 'center', padding: '40px' }}>
-                  <DatabaseOutlined
-                    style={{
-                      fontSize: '48px',
-                      color: '#ccc',
-                      marginBottom: '16px',
-                    }}
-                  />
-                  <Title level={4} style={{ color: '#666' }}>
-                    暂无数据
-                  </Title>
-                  <Paragraph style={{ color: '#999' }}>
-                    请先选择日期并下载数据，然后即可进行车站搜索
-                  </Paragraph>
-                </Card>
-              )}
-            </Space>
-          </TabPane>
-
-          {/* Tab 2: Independent Trend Analysis */}
-          <TabPane
-            tab={
-              <span>
-                <LineChartOutlined />
-                趋势分析
-                {historicalLoading && (
-                  <Spin size="small" style={{ marginLeft: '8px' }} />
-                )}
-              </span>
-            }
-            key="2"
-          >
-            <Space direction="vertical" size="large" style={{ width: '100%' }}>
-              {/* Historical Data Status */}
-              <Card
-                size="small"
-                style={{ background: '#f6ffed', border: '1px solid #b7eb8f' }}
-              >
-                <Space>
-                  <DatabaseOutlined style={{ color: '#52c41a' }} />
-                  <span>
-                    {historicalLoading ? (
-                      <span>
-                        正在加载历史数据... ({recentDates.length} 个日期)
-                      </span>
-                    ) : hasHistoricalData ? (
-                      <span>
-                        历史数据已加载完成 ({Object.keys(historicalData).length}
-                        /{recentDates.length} 个日期) - 可进行即时趋势分析
-                      </span>
-                    ) : (
-                      <span>历史数据加载中...</span>
-                    )}
-                  </span>
-                </Space>
-              </Card>
-
-              <div>
-                <Title level={4}>列车趋势分析 (基于预加载数据)</Title>
-                <Paragraph>
-                  输入列车号即可查看其在所有历史日期的 total_num 变化趋势 (如:
-                  1461, 1462)
-                  <br />
-                  <strong>数据范围:</strong> 2024年7月至2025年6月 (共
-                  {recentDates.length}个日期)
-                  <br />
-                  <strong>优势:</strong>{' '}
-                  所有历史数据已预加载，趋势分析瞬间完成！
-                </Paragraph>
-                <Search
-                  placeholder="输入列车号 (如: 1461)"
-                  allowClear
-                  enterButton="分析趋势"
-                  size="large"
-                  onSearch={handleAnalyzeTrainTrends}
-                  disabled={!hasHistoricalData}
-                />
-              </div>
-            </Space>
-          </TabPane>
-        </Tabs>
+        <Tabs activeKey={activeTab} onChange={setActiveTab} items={tabItems} />
       </Card>
 
       {/* Error Display */}
