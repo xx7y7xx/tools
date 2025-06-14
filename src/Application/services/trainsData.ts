@@ -12,6 +12,16 @@ export interface TrainInfo {
   train_no: string;
 }
 
+// Interface for full train information
+export interface FullTrainInfo {
+  operateGroup: string;
+  trainNumber: string;
+  fromStation: string;
+  toStation: string;
+  trainType: string;
+  train_no: string;
+}
+
 // Interface for the complete trains data response
 export interface TrainsDataResponse {
   [trainCode: string]: TrainInfo;
@@ -156,4 +166,28 @@ export const extractTrainTrendsFromHistoricalData = (
     .sort((a, b) => a.date.localeCompare(b.date));
 
   return trends;
+};
+
+export const fetchTrainsFullInfo = async (): Promise<
+  Record<string, FullTrainInfo>
+> => {
+  try {
+    const response: AxiosResponse = await axios.get(
+      `${TRAINS_DATA_BASE_URL}/20250401_full/trainsFullInfoMap.json`,
+      {
+        headers: {
+          Accept: 'application/json',
+        },
+      }
+    );
+
+    if (!response.data) {
+      throw new Error('Failed to fetch trains full info');
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching trains full info:', error);
+    throw error;
+  }
 };

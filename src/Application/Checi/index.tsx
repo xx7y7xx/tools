@@ -5,21 +5,38 @@ import {
   LineChartOutlined,
   BarChartOutlined,
   NumberOutlined,
+  LinkOutlined,
 } from '@ant-design/icons';
 import TrainNoAnalysis from './TrainNoAnalysis';
 import TrendAnalysis from './TrendAnalysis';
 import DateBrowsing from './DateBrowsing';
 import TotalNumAnalysis from './TotalNumAnalysis';
+import TrainNoRelationAnalysis from './TrainNoRelationAnalysis';
 
 const { Title, Paragraph } = Typography;
 
 const Checi: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('4');
+  const [activeTab, setActiveTab] = useState('5');
 
   // Tab items configuration
   const tabItems = [
+    {
+      key: '5',
+      label: (
+        <span>
+          <LinkOutlined />
+          train_no关系分析
+        </span>
+      ),
+      children: (
+        <TrainNoRelationAnalysis
+          onError={setError}
+          onLoadingChange={setLoading}
+        />
+      ),
+    },
     {
       key: '4',
       label: (
