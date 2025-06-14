@@ -41,13 +41,25 @@ jest.mock('../config', () => ({
 }));
 
 describe('TrendAnalysis', () => {
+  it('should load historical data successfully', async () => {
+    const onError = jest.fn();
+    const onLoadingChange = jest.fn();
+    render(
+      <TrendAnalysis onError={onError} onLoadingChange={onLoadingChange} />
+    );
+
+    await waitFor(() => {
+      expect(onLoadingChange).toHaveBeenCalledWith(false);
+    });
+    expect(onError).not.toHaveBeenCalledWith(expect.any(String));
+  });
+
   it('matches snapshot', async () => {
     const onError = jest.fn();
     const onLoadingChange = jest.fn();
     const { container } = render(
       <TrendAnalysis onError={onError} onLoadingChange={onLoadingChange} />
     );
-    // Wait for useEffect to finish
     await waitFor(() => expect(onLoadingChange).toHaveBeenCalled());
     expect(container).toMatchSnapshot();
   });
