@@ -31,17 +31,13 @@ describe('TrainNoAnalysis Component', () => {
   });
 
   it('renders initial state correctly', () => {
-    render(
+    const { container } = render(
       <TrainNoAnalysis
         onError={mockOnError}
         onLoadingChange={mockOnLoadingChange}
       />
     );
-
-    expect(screen.getByText('train_no变化分析')).toBeInTheDocument();
-    expect(
-      screen.getByText(/分析所有车次在不同日期间的train_no字段是否发生变化/)
-    ).toBeInTheDocument();
+    expect(container).toMatchSnapshot();
   });
 
   it('loads and analyzes data on mount', async () => {
@@ -58,14 +54,12 @@ describe('TrainNoAnalysis Component', () => {
 
     (fetchAllHistoricalData as jest.Mock).mockResolvedValue(mockData);
 
-    await act(async () => {
-      render(
-        <TrainNoAnalysis
-          onError={mockOnError}
-          onLoadingChange={mockOnLoadingChange}
-        />
-      );
-    });
+    render(
+      <TrainNoAnalysis
+        onError={mockOnError}
+        onLoadingChange={mockOnLoadingChange}
+      />
+    );
 
     // Wait for analysis to complete
     await waitFor(
@@ -76,8 +70,40 @@ describe('TrainNoAnalysis Component', () => {
       { timeout: 3000 }
     );
 
-    expect(fetchAllHistoricalData).toHaveBeenCalled();
     expect(mockOnLoadingChange).toHaveBeenCalledWith(false);
+  });
+
+  it('renders correctly with mock data', async () => {
+    const mockData = {
+      '2024-03-20': {
+        G1: { train_no: '240000G1010C' },
+        G2: { train_no: '240000G2010C' },
+      },
+      '2024-03-21': {
+        G1: { train_no: '240000G1010C' },
+        G2: { train_no: '240000G2020C' }, // Changed train_no
+      },
+    };
+
+    (fetchAllHistoricalData as jest.Mock).mockResolvedValue(mockData);
+
+    const { container } = render(
+      <TrainNoAnalysis
+        onError={mockOnError}
+        onLoadingChange={mockOnLoadingChange}
+      />
+    );
+
+    // Wait for analysis to complete
+    await waitFor(
+      () => {
+        expect(screen.getByText('1/2')).toBeInTheDocument();
+        expect(screen.getByText('个车次有变化 (50.0%)')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
+
+    expect(container).toMatchSnapshot();
   });
 
   it('handles API errors correctly', async () => {
