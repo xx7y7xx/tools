@@ -83,28 +83,69 @@ const MockInputSearch = React.forwardRef<any, any>(
 );
 antd.Input.Search = MockInputSearch;
 
-describe('DateBrowsing (snapshot)', () => {
-  it('matches snapshot', async () => {
-    // Mock data for trains
-    const mockTrainsData = {
-      G1: {
-        train_no: 'T100',
-        from_station: '北京',
-        to_station: '上海',
-        station_train_code: 'G1',
-        total_num: '1',
-      },
-      G2: {
-        train_no: 'T200',
-        from_station: '上海',
-        to_station: '广州',
-        station_train_code: 'G2',
-        total_num: '1',
-      },
-    };
+describe('DateBrowsing', () => {
+  const mockTrainsData = {
+    G1: {
+      train_no: 'T100',
+      from_station: '北京',
+      to_station: '上海',
+      station_train_code: 'G1',
+      total_num: '1',
+    },
+    G2: {
+      train_no: 'T200',
+      from_station: '上海',
+      to_station: '广州',
+      station_train_code: 'G2',
+      total_num: '1',
+    },
+  };
 
+  beforeEach(() => {
+    jest.clearAllMocks();
     (fetchTrainsData as jest.Mock).mockResolvedValue(mockTrainsData);
+  });
 
+  it('should handle happy path - fetch and display data', async () => {
+    const onError = jest.fn();
+    const onLoadingChange = jest.fn();
+    render(
+      <DateBrowsing onError={onError} onLoadingChange={onLoadingChange} />
+    );
+
+    // Initial state
+    expect(screen.getByText('暂无数据')).toBeInTheDocument();
+    expect(onLoadingChange).not.toHaveBeenCalled();
+    expect(onError).not.toHaveBeenCalled();
+
+    // Enter date and fetch data
+    const dateInput = screen.getByPlaceholderText('输入日期 (如: 20250609)');
+    const searchButton = screen.getByText('下载数据');
+    fireEvent.change(dateInput, { target: { value: '20241120' } });
+    fireEvent.click(searchButton);
+
+    // Check loading state
+    expect(onLoadingChange).toHaveBeenCalledWith(true);
+    expect(fetchTrainsData).toHaveBeenCalledWith('20241120');
+
+    // Wait for data to load
+    await waitFor(() => {
+      expect(
+        screen.getByText('已加载 20241120 的数据 (2 趟列车)')
+      ).toBeInTheDocument();
+    });
+
+    // Check final state
+    expect(onLoadingChange).toHaveBeenCalledWith(false);
+    expect(onError).toHaveBeenCalledWith(null); // Component calls onError(null) to clear errors
+    expect(screen.getByText('🚄 G1')).toBeInTheDocument();
+    expect(screen.getByText('🚄 G2')).toBeInTheDocument();
+    expect(screen.getByText('北京')).toBeInTheDocument();
+    expect(screen.getAllByText('上海').length).toBe(2);
+    expect(screen.getByText('广州')).toBeInTheDocument();
+  });
+
+  it('matches snapshot', async () => {
     const onError = jest.fn();
     const onLoadingChange = jest.fn();
     const { container } = render(

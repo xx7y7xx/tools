@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`DateBrowsing (snapshot) matches snapshot 1`] = `
+exports[`DateBrowsing matches snapshot 1`] = `
 <div>
   <div
     class="ant-space css-dev-only-do-not-override-1uq9j6g ant-space-vertical ant-space-gap-row-large ant-space-gap-col-large"
