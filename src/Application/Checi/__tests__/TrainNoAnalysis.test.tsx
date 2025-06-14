@@ -71,3 +71,54 @@ describe('TrainNoAnalysis (happy path)', () => {
     expect((await screen.findAllByText('0')).length).toBeGreaterThanOrEqual(2);
   });
 });
+
+describe('TrainNoAnalysis (snapshot)', () => {
+  it('matches snapshot', async () => {
+    // Mock data for two dates and two trains
+    (fetchAllHistoricalData as jest.Mock).mockResolvedValue({
+      '20241120': {
+        G1: {
+          train_no: 'T100',
+          from_station: '',
+          to_station: '',
+          station_train_code: '',
+          total_num: '1',
+        },
+        G2: {
+          train_no: 'T200',
+          from_station: '',
+          to_station: '',
+          station_train_code: '',
+          total_num: '1',
+        },
+      },
+      '20241121': {
+        G1: {
+          train_no: 'T100',
+          from_station: '',
+          to_station: '',
+          station_train_code: '',
+          total_num: '1',
+        },
+        G2: {
+          train_no: 'T200',
+          from_station: '',
+          to_station: '',
+          station_train_code: '',
+          total_num: '1',
+        },
+      },
+    });
+    const onError = jest.fn();
+    const onLoadingChange = jest.fn();
+    const { container } = render(
+      <TrainNoAnalysis onError={onError} onLoadingChange={onLoadingChange} />
+    );
+
+    // Wait for the component to finish loading
+    await screen.findByText('总车次数');
+
+    // Create snapshot
+    expect(container).toMatchSnapshot();
+  });
+});
