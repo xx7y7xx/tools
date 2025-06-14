@@ -71,7 +71,6 @@ const TrainNoAnalysis: React.FC<TrainNoAnalysisProps> = ({
   );
   const [stats, setStats] = useState<AnalysisStats | null>(null);
   const [progress, setProgress] = useState(0);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadAndAnalyzeData();
@@ -105,9 +104,7 @@ const TrainNoAnalysis: React.FC<TrainNoAnalysisProps> = ({
       );
     } catch (err) {
       console.error('分析车次号变化时出错:', err);
-      const errorMessage = err instanceof Error ? err.message : '未知错误';
-      onError(errorMessage);
-      setError(errorMessage);
+      onError(err instanceof Error ? err.message : '未知错误');
     } finally {
       setLoading(false);
       onLoadingChange(false);
@@ -250,14 +247,10 @@ const TrainNoAnalysis: React.FC<TrainNoAnalysisProps> = ({
       title: '所有train_no值',
       dataIndex: 'uniqueTrainNos',
       key: 'uniqueTrainNos',
-      render: (uniqueTrainNos: string[], record: TrainNoVariation) => (
+      render: (uniqueTrainNos: string[]) => (
         <div>
           {uniqueTrainNos.map((trainNo, index) => (
-            <Tag
-              key={trainNo + '-' + index}
-              color="blue"
-              style={{ marginBottom: 4 }}
-            >
+            <Tag key={index} color="blue" style={{ marginBottom: 4 }}>
               {trainNo}
             </Tag>
           ))}
@@ -283,43 +276,127 @@ const TrainNoAnalysis: React.FC<TrainNoAnalysisProps> = ({
         分析所有车次在不同日期间的train_no字段是否发生变化
       </p>
 
-      {error ? (
-        <Alert
-          message="分析失败"
-          description={error}
-          type="error"
-          showIcon
-          style={{ margin: 16 }}
-        />
-      ) : (
-        <Card title="车次号变化分析" loading={loading}>
-          {stats && (
-            <div style={{ marginBottom: 16 }}>
-              <Statistic
-                title="分析结果"
-                value={`${stats.trainsWithVariation}/${stats.totalTrainCodes}`}
-                suffix={`个车次有变化 (${stats.variationRate.toFixed(1)}%)`}
-              />
+      {loading && (
+        <Card style={{ marginBottom: 16 }}>
+          <div style={{ textAlign: 'center' }}>
+            <Spin size="large" />
+            <div style={{ marginTop: 16 }}>
+              <Progress percent={progress} />
+              <p>正在分析车次号变化...</p>
             </div>
-          )}
-
-          {loading && (
-            <Progress
-              percent={progress}
-              status="active"
-              style={{ marginBottom: 16 }}
-            />
-          )}
-
-          {!loading && analysisResults.length > 0 && (
-            <Table
-              dataSource={analysisResults}
-              columns={tableColumns}
-              pagination={{ pageSize: 10 }}
-              rowKey="trainCode"
-            />
-          )}
+          </div>
         </Card>
+      )}
+
+      {stats && (
+        <>
+          <Row gutter={16} style={{ marginBottom: 24 }}>
+            <Col span={6}>
+              <Card>
+                <Statistic
+                  title="总车次数"
+                  value={stats.totalTrainCodes}
+                  valueStyle={{ color: '#1890ff' }}
+                />
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card>
+                <Statistic
+                  title="有变化车次"
+                  value={stats.trainsWithVariation}
+                  valueStyle={{ color: '#f5222d' }}
+                />
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card>
+                <Statistic
+                  title="无变化车次"
+                  value={stats.trainsWithoutVariation}
+                  valueStyle={{ color: '#52c41a' }}
+                />
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card>
+                <Statistic
+                  title="变化率"
+                  value={stats.variationRate}
+                  precision={1}
+                  suffix="%"
+                  valueStyle={{ color: '#722ed1' }}
+                />
+              </Card>
+            </Col>
+          </Row>
+
+          <Row gutter={16} style={{ marginBottom: 24 }}>
+            <Col span={12}>
+              <Card>
+                <Statistic
+                  title="最大变化数"
+                  value={stats.maxVariations}
+                  valueStyle={{ color: '#fa8c16' }}
+                />
+              </Card>
+            </Col>
+            <Col span={12}>
+              <Card>
+                <Statistic
+                  title="平均变化数"
+                  value={stats.avgVariations}
+                  precision={2}
+                  valueStyle={{ color: '#13c2c2' }}
+                />
+              </Card>
+            </Col>
+          </Row>
+
+          {getChartData() && (
+            <Card title="变化分布图" style={{ marginBottom: 24 }}>
+              <Bar
+                data={getChartData()!}
+                options={{
+                  responsive: true,
+                  plugins: {
+                    legend: {
+                      position: 'top' as const,
+                    },
+                    title: {
+                      display: true,
+                      text: '车次train_no变化分布',
+                    },
+                  },
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      ticks: {
+                        maxTicksLimit: 10,
+                      },
+                    },
+                  },
+                }}
+              />
+            </Card>
+          )}
+
+          <Card title="详细分析结果">
+            <Table
+              columns={tableColumns}
+              dataSource={analysisResults}
+              rowKey="trainCode"
+              pagination={{
+                pageSize: 20,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                showTotal: (total, range) =>
+                  `第 ${range[0]}-${range[1]} 条，共 ${total} 条记录`,
+              }}
+              scroll={{ x: 800 }}
+            />
+          </Card>
+        </>
       )}
     </div>
   );
