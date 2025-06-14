@@ -37,6 +37,8 @@ interface TrainNoRelation {
   fieldValue: string;
   count: number;
   percentage: number;
+  uniqueTrainCodes: number;
+  totalNum: number;
 }
 
 interface AnalysisStats {
@@ -82,29 +84,48 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
         historicalData: HistoricalTrainsData,
         trainsFullInfo: Record<string, FullTrainInfo>
       ): TrainNoRelation[] => {
-        const relationMap: Record<string, number> = {};
+        const relationMap: Record<
+          string,
+          {
+            count: number;
+            trainCodes: Set<string>;
+            totalNum: number;
+          }
+        > = {};
         let totalCount = 0;
 
         // 遍历所有历史数据
         Object.entries(historicalData).forEach(([date, trains]) => {
           Object.entries(trains).forEach(([trainCode, trainInfo]) => {
-            const trainNo = trainInfo.train_no;
             const fieldValue =
               trainsFullInfo[trainCode]?.[selectedField] || '未知';
-            const key = `${trainNo}-${fieldValue}`;
-            relationMap[key] = (relationMap[key] || 0) + 1;
+
+            if (!relationMap[fieldValue]) {
+              relationMap[fieldValue] = {
+                count: 0,
+                trainCodes: new Set(),
+                totalNum: 0,
+              };
+            }
+
+            relationMap[fieldValue].count++;
+            relationMap[fieldValue].trainCodes.add(
+              trainInfo.station_train_code
+            );
+            relationMap[fieldValue].totalNum += parseInt(trainInfo.total_num);
             totalCount++;
           });
         });
 
         // 转换为数组并计算百分比
-        return Object.entries(relationMap).map(([key, count]) => {
-          const [trainNo, fieldValue] = key.split('-');
+        return Object.entries(relationMap).map(([fieldValue, data]) => {
           return {
-            trainNo,
+            trainNo: '', // 不再需要trainNo
             fieldValue,
-            count,
-            percentage: (count / totalCount) * 100,
+            count: data.count,
+            percentage: (data.count / totalCount) * 100,
+            uniqueTrainCodes: data.trainCodes.size,
+            totalNum: data.totalNum,
           };
         });
       };
@@ -167,13 +188,27 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
       .slice(0, 20);
 
     return {
-      labels: sortedResults.map((r) => r.fieldValue),
+      labels: sortedResults.map((r) => `[${r.fieldValue}]`),
       datasets: [
         {
-          label: '车次数量',
+          label: '出现次数',
           data: sortedResults.map((r) => r.count),
           backgroundColor: 'rgba(54, 162, 235, 0.5)',
           borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1,
+        },
+        {
+          label: '唯一车次数量',
+          data: sortedResults.map((r) => r.uniqueTrainCodes),
+          backgroundColor: 'rgba(255, 99, 132, 0.5)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 1,
+        },
+        {
+          label: '总列车数',
+          data: sortedResults.map((r) => r.totalNum),
+          backgroundColor: 'rgba(75, 192, 192, 0.5)',
+          borderColor: 'rgba(75, 192, 192, 1)',
           borderWidth: 1,
         },
       ],
@@ -181,13 +216,6 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
   };
 
   const columns = [
-    {
-      title: '车次号',
-      dataIndex: 'trainNo',
-      key: 'trainNo',
-      sorter: (a: TrainNoRelation, b: TrainNoRelation) =>
-        a.trainNo.localeCompare(b.trainNo),
-    },
     {
       title: '字段值',
       dataIndex: 'fieldValue',
@@ -208,6 +236,20 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
       render: (percentage: number) => `${percentage.toFixed(2)}%`,
       sorter: (a: TrainNoRelation, b: TrainNoRelation) =>
         a.percentage - b.percentage,
+    },
+    {
+      title: '唯一车次数量',
+      dataIndex: 'uniqueTrainCodes',
+      key: 'uniqueTrainCodes',
+      sorter: (a: TrainNoRelation, b: TrainNoRelation) =>
+        a.uniqueTrainCodes - b.uniqueTrainCodes,
+    },
+    {
+      title: '总列车数',
+      dataIndex: 'totalNum',
+      key: 'totalNum',
+      sorter: (a: TrainNoRelation, b: TrainNoRelation) =>
+        a.totalNum - b.totalNum,
     },
   ];
 
@@ -305,7 +347,7 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
         <Table
           dataSource={analysisResults}
           columns={columns}
-          rowKey={(record) => `${record.trainNo}-${record.fieldValue}`}
+          rowKey={(record) => `${record.fieldValue}`}
           pagination={{ pageSize: 10 }}
         />
       </Card>
