@@ -65,6 +65,7 @@ describe('TrainNoAnalysis Component', () => {
     await waitFor(
       () => {
         expect(screen.getByText('1/2')).toBeInTheDocument();
+        // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
         expect(screen.getByText('个车次有变化 (50.0%)')).toBeInTheDocument();
       },
       { timeout: 3000 }
@@ -98,6 +99,7 @@ describe('TrainNoAnalysis Component', () => {
     await waitFor(
       () => {
         expect(screen.getByText('1/2')).toBeInTheDocument();
+        // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
         expect(screen.getByText('个车次有变化 (50.0%)')).toBeInTheDocument();
       },
       { timeout: 3000 }
@@ -111,6 +113,7 @@ describe('TrainNoAnalysis Component', () => {
       new Error('Failed to fetch historical data')
     );
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       render(
         <TrainNoAnalysis
@@ -143,6 +146,7 @@ describe('TrainNoAnalysis Component', () => {
 
     (fetchAllHistoricalData as jest.Mock).mockResolvedValue(mockData);
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       render(
         <TrainNoAnalysis
@@ -156,9 +160,13 @@ describe('TrainNoAnalysis Component', () => {
     await waitFor(
       () => {
         expect(screen.getByText('1/2')).toBeInTheDocument();
+        // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
         expect(screen.getByText('个车次有变化 (50.0%)')).toBeInTheDocument();
+        // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
         expect(screen.getByText('G2')).toBeInTheDocument();
+        // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
         expect(screen.getByText('240000G2010C')).toBeInTheDocument();
+        // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
         expect(screen.getByText('240000G2020C')).toBeInTheDocument();
       },
       { timeout: 3000 }

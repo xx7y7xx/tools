@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Input, Typography, Spin, Alert, List } from 'antd';
-import { DatabaseOutlined, LineChartOutlined } from '@ant-design/icons';
+import { Card, Space, Input, Typography, List } from 'antd';
+import { DatabaseOutlined } from '@ant-design/icons';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -57,7 +57,7 @@ const TrendAnalysis: React.FC<TrendAnalysisProps> = ({
   // Load historical data when component mounts
   useEffect(() => {
     loadHistoricalData();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadHistoricalData = async () => {
     setLoading(true);
@@ -76,22 +76,6 @@ const TrendAnalysis: React.FC<TrendAnalysisProps> = ({
       setLoading(false);
       onLoadingChange(false);
     }
-  };
-
-  const handleSearch = () => {
-    if (!selectedTrain.trim()) {
-      onError('请输入列车号');
-      return;
-    }
-
-    if (!hasHistoricalData) {
-      onError('历史数据未加载完成，请稍后再试');
-      return;
-    }
-
-    // Analyze trends for the selected train
-    const trends = handleAnalyzeTrainTrends(selectedTrain);
-    setTrendData(trends);
   };
 
   // Analyze trends for a specific train (using preloaded historical data)

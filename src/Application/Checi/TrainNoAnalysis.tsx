@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Card,
-  Table,
-  Statistic,
-  Row,
-  Col,
-  Spin,
-  Alert,
-  Tag,
-  Progress,
-} from 'antd';
+import { Card, Table, Statistic, Row, Col, Spin, Tag, Progress } from 'antd';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -23,7 +13,6 @@ import {
 import {
   fetchAllHistoricalData,
   HistoricalTrainsData,
-  TrainInfo,
 } from '../../services/trainsData';
 import { recentDates } from './config';
 
@@ -63,9 +52,6 @@ const TrainNoAnalysis: React.FC<TrainNoAnalysisProps> = ({
   onLoadingChange,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [historicalData, setHistoricalData] = useState<HistoricalTrainsData>(
-    {}
-  );
   const [analysisResults, setAnalysisResults] = useState<TrainNoVariation[]>(
     []
   );
@@ -74,7 +60,7 @@ const TrainNoAnalysis: React.FC<TrainNoAnalysisProps> = ({
 
   useEffect(() => {
     loadAndAnalyzeData();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadAndAnalyzeData = async () => {
     setLoading(true);
@@ -87,7 +73,6 @@ const TrainNoAnalysis: React.FC<TrainNoAnalysisProps> = ({
 
       // 加载所有历史数据
       const data = await fetchAllHistoricalData(recentDates);
-      setHistoricalData(data);
       setProgress(50);
 
       // 分析车次号变化
