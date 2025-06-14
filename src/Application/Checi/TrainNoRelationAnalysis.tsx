@@ -58,28 +58,136 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
   onError,
   onLoadingChange,
 }) => {
-  const [loading, setLoading] = useState(false);
-  const [analysisResults, setAnalysisResults] = useState<TrainNoRelation[]>([]);
-  const [stats, setStats] = useState<AnalysisStats | null>(null);
-  const [progress, setProgress] = useState(0);
   const [selectedField, setSelectedField] = useState<FieldType>('operateGroup');
+  const [analysisResults, setAnalysisResults] = useState<TrainNoRelation[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [historicalData, setHistoricalData] = useState<HistoricalTrainsData>(
+    {}
+  );
+  const [stats, setStats] = useState<AnalysisStats>({
+    totalTrains: 0,
+    uniqueTrainNos: 0,
+    uniqueFieldValues: 0,
+    mostCommonFieldValue: '',
+    mostCommonTrainNo: '',
+  });
+
+  // Cache the full train info data
+  const [fullTrainInfo, setFullTrainInfo] = useState<
+    Record<string, FullTrainInfo>
+  >({});
+  const [isFullTrainInfoLoaded, setIsFullTrainInfoLoaded] = useState(false);
+
+  // Load full train info data only once
+  useEffect(() => {
+    const loadFullTrainInfo = async () => {
+      try {
+        const data = await fetchTrainsFullInfo();
+        setFullTrainInfo(data);
+        setIsFullTrainInfoLoaded(true);
+      } catch (err) {
+        onError('Failed to load full train info');
+        console.error('Error loading full train info:', err);
+      }
+    };
+
+    if (!isFullTrainInfoLoaded) {
+      loadFullTrainInfo();
+    }
+  }, [onError, isFullTrainInfoLoaded]);
 
   const loadAndAnalyzeData = useCallback(async () => {
-    try {
-      setLoading(true);
-      onLoadingChange(true);
-      setProgress(0);
-      onError(null);
+    setLoading(true);
+    onError(null);
+    setProgress(0);
 
-      console.log('开始加载历史数据用于train_no关系分析...');
-      const historicalData = await fetchAllHistoricalData(recentDates);
-      console.log('历史数据加载完成，开始加载完整列车信息...');
+    try {
+      console.log('开始加载历史数据...');
+      const data = await fetchAllHistoricalData(recentDates);
+      setHistoricalData(data);
+      console.log('历史数据加载完成，开始分析关系...');
       setProgress(50);
 
-      const trainsFullInfo = await fetchTrainsFullInfo();
-      console.log('完整列车信息加载完成，开始分析关系...');
-      setProgress(75);
+      if (isFullTrainInfoLoaded) {
+        const analyzeTrainNoRelations = (
+          historicalData: HistoricalTrainsData,
+          trainsFullInfo: Record<string, FullTrainInfo>
+        ): TrainNoRelation[] => {
+          const relationMap: Record<
+            string,
+            {
+              count: number;
+              trainCodes: Set<string>;
+              totalNum: number;
+            }
+          > = {};
+          let totalCount = 0;
 
+          // 遍历所有历史数据
+          Object.entries(historicalData).forEach(([date, trains]) => {
+            Object.entries(trains).forEach(([trainCode, trainInfo]) => {
+              const fieldValue =
+                trainsFullInfo[trainCode]?.[selectedField] || '未知';
+
+              if (!relationMap[fieldValue]) {
+                relationMap[fieldValue] = {
+                  count: 0,
+                  trainCodes: new Set(),
+                  totalNum: 0,
+                };
+              }
+
+              relationMap[fieldValue].count++;
+              relationMap[fieldValue].trainCodes.add(
+                trainInfo.station_train_code
+              );
+              relationMap[fieldValue].totalNum += parseInt(trainInfo.total_num);
+              totalCount++;
+            });
+          });
+
+          // 转换为数组并计算百分比
+          return Object.entries(relationMap).map(([fieldValue, data]) => {
+            return {
+              trainNo: '', // 不再需要trainNo
+              fieldValue,
+              count: data.count,
+              percentage: (data.count / totalCount) * 100,
+              uniqueTrainCodes: data.trainCodes.size,
+              totalNum: data.totalNum,
+            };
+          });
+        };
+
+        const results = analyzeTrainNoRelations(data, fullTrainInfo);
+        setAnalysisResults(results);
+        setStats(calculateStats(results));
+        setProgress(100);
+      }
+    } catch (err) {
+      onError('Failed to load or analyze data');
+      console.error('Error loading or analyzing data:', err);
+    } finally {
+      setLoading(false);
+      onLoadingChange(false);
+    }
+  }, [
+    onError,
+    onLoadingChange,
+    isFullTrainInfoLoaded,
+    fullTrainInfo,
+    selectedField,
+  ]);
+
+  // Update analysis when historical data or selected field changes
+  useEffect(() => {
+    if (!historicalData || !isFullTrainInfoLoaded) return;
+
+    setLoading(true);
+    onError(null);
+
+    try {
       const analyzeTrainNoRelations = (
         historicalData: HistoricalTrainsData,
         trainsFullInfo: Record<string, FullTrainInfo>
@@ -130,19 +238,22 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
         });
       };
 
-      const results = analyzeTrainNoRelations(historicalData, trainsFullInfo);
+      const results = analyzeTrainNoRelations(historicalData, fullTrainInfo);
       setAnalysisResults(results);
       setStats(calculateStats(results));
-      console.log('关系分析完成');
-      setProgress(100);
-    } catch (error) {
-      console.error('加载或分析数据时出错:', error);
-      onError(error instanceof Error ? error.message : '加载数据时出错');
+    } catch (err) {
+      onError('Failed to analyze train number relations');
+      console.error('Error analyzing train number relations:', err);
     } finally {
       setLoading(false);
-      onLoadingChange(false);
     }
-  }, [onError, onLoadingChange, selectedField]);
+  }, [
+    historicalData,
+    selectedField,
+    fullTrainInfo,
+    isFullTrainInfoLoaded,
+    onError,
+  ]);
 
   useEffect(() => {
     loadAndAnalyzeData();
