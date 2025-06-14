@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Table, Statistic, Row, Col, Spin, Progress, Select } from 'antd';
 import { Bar } from 'react-chartjs-2';
 import {
@@ -97,90 +97,31 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
     }
   }, [onError, isFullTrainInfoLoaded]);
 
-  const loadAndAnalyzeData = useCallback(async () => {
-    setLoading(true);
-    onError(null);
-    setProgress(0);
+  // Load historical data only once
+  useEffect(() => {
+    const loadHistoricalData = async () => {
+      setLoading(true);
+      onError(null);
+      setProgress(0);
 
-    try {
-      console.log('开始加载历史数据...');
-      const data = await fetchAllHistoricalData(recentDates);
-      setHistoricalData(data);
-      console.log('历史数据加载完成，开始分析关系...');
-      setProgress(50);
-
-      if (isFullTrainInfoLoaded) {
-        const analyzeTrainNoRelations = (
-          historicalData: HistoricalTrainsData,
-          trainsFullInfo: Record<string, FullTrainInfo>
-        ): TrainNoRelation[] => {
-          const relationMap: Record<
-            string,
-            {
-              count: number;
-              trainCodes: Set<string>;
-              totalNum: number;
-            }
-          > = {};
-          let totalCount = 0;
-
-          // 遍历所有历史数据
-          Object.entries(historicalData).forEach(([date, trains]) => {
-            Object.entries(trains).forEach(([trainCode, trainInfo]) => {
-              const fieldValue =
-                trainsFullInfo[trainCode]?.[selectedField] || '未知';
-
-              if (!relationMap[fieldValue]) {
-                relationMap[fieldValue] = {
-                  count: 0,
-                  trainCodes: new Set(),
-                  totalNum: 0,
-                };
-              }
-
-              relationMap[fieldValue].count++;
-              relationMap[fieldValue].trainCodes.add(
-                trainInfo.station_train_code
-              );
-              relationMap[fieldValue].totalNum += parseInt(trainInfo.total_num);
-              totalCount++;
-            });
-          });
-
-          // 转换为数组并计算百分比
-          return Object.entries(relationMap).map(([fieldValue, data]) => {
-            return {
-              trainNo: '', // 不再需要trainNo
-              fieldValue,
-              count: data.count,
-              percentage: (data.count / totalCount) * 100,
-              uniqueTrainCodes: data.trainCodes.size,
-              totalNum: data.totalNum,
-            };
-          });
-        };
-
-        const results = analyzeTrainNoRelations(data, fullTrainInfo);
-        setAnalysisResults(results);
-        setStats(calculateStats(results));
-        setProgress(100);
+      try {
+        console.log('开始加载历史数据...');
+        const data = await fetchAllHistoricalData(recentDates);
+        setHistoricalData(data);
+        setProgress(50);
+      } catch (err) {
+        onError('Failed to load historical data');
+        console.error('Error loading historical data:', err);
+      } finally {
+        setLoading(false);
+        onLoadingChange(false);
       }
-    } catch (err) {
-      onError('Failed to load or analyze data');
-      console.error('Error loading or analyzing data:', err);
-    } finally {
-      setLoading(false);
-      onLoadingChange(false);
-    }
-  }, [
-    onError,
-    onLoadingChange,
-    isFullTrainInfoLoaded,
-    fullTrainInfo,
-    selectedField,
-  ]);
+    };
 
-  // Update analysis when historical data or selected field changes
+    loadHistoricalData();
+  }, [onError, onLoadingChange]);
+
+  // Update analysis when historical data, full train info, or selected field changes
   useEffect(() => {
     if (!historicalData || !isFullTrainInfoLoaded) return;
 
@@ -254,10 +195,6 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
     isFullTrainInfoLoaded,
     onError,
   ]);
-
-  useEffect(() => {
-    loadAndAnalyzeData();
-  }, [loadAndAnalyzeData]);
 
   const calculateStats = (results: TrainNoRelation[]): AnalysisStats => {
     const uniqueTrainNos = new Set(results.map((r) => r.trainNo));
