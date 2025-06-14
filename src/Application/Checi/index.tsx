@@ -4,20 +4,34 @@ import {
   DatabaseOutlined,
   LineChartOutlined,
   BarChartOutlined,
+  NumberOutlined,
 } from '@ant-design/icons';
 import TrainNoAnalysis from './TrainNoAnalysis';
 import TrendAnalysis from './TrendAnalysis';
 import DateBrowsing from './DateBrowsing';
+import TotalNumAnalysis from './TotalNumAnalysis';
 
 const { Title, Paragraph } = Typography;
 
 const Checi: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('3');
+  const [activeTab, setActiveTab] = useState('4');
 
   // Tab items configuration
   const tabItems = [
+    {
+      key: '4',
+      label: (
+        <span>
+          <NumberOutlined />
+          total_num变化分析
+        </span>
+      ),
+      children: (
+        <TotalNumAnalysis onError={setError} onLoadingChange={setLoading} />
+      ),
+    },
     {
       key: '3',
       label: (
