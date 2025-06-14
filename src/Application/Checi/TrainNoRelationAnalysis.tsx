@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Table, Statistic, Row, Col, Spin, Progress, Select } from 'antd';
 import { Bar } from 'react-chartjs-2';
 import {
@@ -62,11 +62,7 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
   const [progress, setProgress] = useState(0);
   const [selectedField, setSelectedField] = useState<FieldType>('operateGroup');
 
-  useEffect(() => {
-    loadAndAnalyzeData();
-  }, [selectedField]);
-
-  const loadAndAnalyzeData = async () => {
+  const loadAndAnalyzeData = useCallback(async () => {
     try {
       setLoading(true);
       onLoadingChange(true);
@@ -82,6 +78,37 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
       console.log('完整列车信息加载完成，开始分析关系...');
       setProgress(75);
 
+      const analyzeTrainNoRelations = (
+        historicalData: HistoricalTrainsData,
+        trainsFullInfo: Record<string, FullTrainInfo>
+      ): TrainNoRelation[] => {
+        const relationMap: Record<string, number> = {};
+        let totalCount = 0;
+
+        // 遍历所有历史数据
+        Object.entries(historicalData).forEach(([date, trains]) => {
+          Object.entries(trains).forEach(([trainCode, trainInfo]) => {
+            const trainNo = trainInfo.train_no;
+            const fieldValue =
+              trainsFullInfo[trainCode]?.[selectedField] || '未知';
+            const key = `${trainNo}-${fieldValue}`;
+            relationMap[key] = (relationMap[key] || 0) + 1;
+            totalCount++;
+          });
+        });
+
+        // 转换为数组并计算百分比
+        return Object.entries(relationMap).map(([key, count]) => {
+          const [trainNo, fieldValue] = key.split('-');
+          return {
+            trainNo,
+            fieldValue,
+            count,
+            percentage: (count / totalCount) * 100,
+          };
+        });
+      };
+
       const results = analyzeTrainNoRelations(historicalData, trainsFullInfo);
       setAnalysisResults(results);
       setStats(calculateStats(results));
@@ -94,37 +121,11 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
       setLoading(false);
       onLoadingChange(false);
     }
-  };
+  }, [onError, onLoadingChange, selectedField]);
 
-  const analyzeTrainNoRelations = (
-    historicalData: HistoricalTrainsData,
-    trainsFullInfo: Record<string, FullTrainInfo>
-  ): TrainNoRelation[] => {
-    const relationMap: Record<string, number> = {};
-    let totalCount = 0;
-
-    // 遍历所有历史数据
-    Object.entries(historicalData).forEach(([date, trains]) => {
-      Object.entries(trains).forEach(([trainCode, trainInfo]) => {
-        const trainNo = trainInfo.train_no;
-        const fieldValue = trainsFullInfo[trainCode]?.[selectedField] || '未知';
-        const key = `${trainNo}-${fieldValue}`;
-        relationMap[key] = (relationMap[key] || 0) + 1;
-        totalCount++;
-      });
-    });
-
-    // 转换为数组并计算百分比
-    return Object.entries(relationMap).map(([key, count]) => {
-      const [trainNo, fieldValue] = key.split('-');
-      return {
-        trainNo,
-        fieldValue,
-        count,
-        percentage: (count / totalCount) * 100,
-      };
-    });
-  };
+  useEffect(() => {
+    loadAndAnalyzeData();
+  }, [loadAndAnalyzeData]);
 
   const calculateStats = (results: TrainNoRelation[]): AnalysisStats => {
     const uniqueTrainNos = new Set(results.map((r) => r.trainNo));
