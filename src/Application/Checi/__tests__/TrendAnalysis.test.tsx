@@ -6,8 +6,8 @@ jest.mock('axios', () => ({
   get: jest.fn(),
 }));
 
-jest.mock('../../../services/trainsData', () => ({
-  ...jest.requireActual('../../../services/trainsData'),
+jest.mock('../../services/trainsData', () => ({
+  ...jest.requireActual('../../services/trainsData'),
   fetchAllHistoricalData: jest.fn(() =>
     Promise.resolve({
       '20241120': {

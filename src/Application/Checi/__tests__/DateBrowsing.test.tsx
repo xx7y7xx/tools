@@ -2,8 +2,8 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import DateBrowsing from '../DateBrowsing';
-import { fetchTrainsData } from '../../../services/trainsData';
-import { TrainInfo } from '../../../services/trainsData';
+import { fetchTrainsData } from '../../services/trainsData';
+import { TrainInfo } from '../../services/trainsData';
 import * as antd from 'antd';
 
 // Mock Ant Design's responsive observer to prevent addListener error
@@ -45,7 +45,7 @@ jest.mock('antd', () => {
   };
 });
 
-jest.mock('../../../services/trainsData', () => ({
+jest.mock('../../services/trainsData', () => ({
   fetchTrainsData: jest.fn(),
 }));
 

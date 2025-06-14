@@ -9,7 +9,7 @@ import {
   fetchTrainsData,
   TrainInfo,
   TrainsDataResponse,
-} from '../../services/trainsData';
+} from '../services/trainsData';
 
 const { Search } = Input;
 const { Title, Paragraph } = Typography;

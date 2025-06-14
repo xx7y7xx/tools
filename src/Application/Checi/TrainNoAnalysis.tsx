@@ -13,7 +13,7 @@ import {
 import {
   fetchAllHistoricalData,
   HistoricalTrainsData,
-} from '../../services/trainsData';
+} from '../services/trainsData';
 import { recentDates } from './config';
 
 ChartJS.register(

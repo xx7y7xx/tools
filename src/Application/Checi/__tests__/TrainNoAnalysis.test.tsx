@@ -4,7 +4,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import TrainNoAnalysis from '../TrainNoAnalysis';
-import { fetchAllHistoricalData } from '../../../services/trainsData';
+import { fetchAllHistoricalData } from '../../services/trainsData';
 
 // Mock Ant Design's responsive observer to prevent addListener error
 jest.mock('antd/lib/_util/responsiveObserver', () => ({
@@ -15,7 +15,7 @@ jest.mock('antd/lib/_util/responsiveObserver', () => ({
   }),
 }));
 
-jest.mock('../../../services/trainsData', () => ({
+jest.mock('../../services/trainsData', () => ({
   fetchAllHistoricalData: jest.fn(),
 }));
 
