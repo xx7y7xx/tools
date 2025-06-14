@@ -533,40 +533,74 @@ exports[`TrainNoAnalysis Component renders initial state correctly 1`] = `
       分析所有车次在不同日期间的train_no字段是否发生变化
     </p>
     <div
-      class="ant-card ant-card-loading ant-card-bordered css-dev-only-do-not-override-1uq9j6g"
+      class="ant-card ant-card-bordered css-dev-only-do-not-override-1uq9j6g"
+      style="margin-bottom: 16px;"
     >
-      <div
-        class="ant-card-head"
-      >
-        <div
-          class="ant-card-head-wrapper"
-        >
-          <div
-            class="ant-card-head-title"
-          >
-            车次号变化分析
-          </div>
-        </div>
-      </div>
       <div
         class="ant-card-body"
       >
         <div
-          class="ant-skeleton ant-skeleton-active css-dev-only-do-not-override-1uq9j6g"
+          style="text-align: center;"
         >
           <div
-            class="ant-skeleton-content"
+            aria-busy="true"
+            aria-live="polite"
+            class="ant-spin ant-spin-lg ant-spin-spinning css-dev-only-do-not-override-1uq9j6g"
           >
-            <ul
-              class="ant-skeleton-paragraph"
+            <span
+              class="ant-spin-dot-holder"
             >
-              <li />
-              <li />
-              <li />
-              <li
-                style="width: 61%;"
-              />
-            </ul>
+              <span
+                class="ant-spin-dot ant-spin-dot-spin"
+              >
+                <i
+                  class="ant-spin-dot-item"
+                />
+                <i
+                  class="ant-spin-dot-item"
+                />
+                <i
+                  class="ant-spin-dot-item"
+                />
+                <i
+                  class="ant-spin-dot-item"
+                />
+              </span>
+            </span>
+          </div>
+          <div
+            style="margin-top: 16px;"
+          >
+            <div
+              aria-valuemax="100"
+              aria-valuemin="0"
+              aria-valuenow="0"
+              class="ant-progress ant-progress-status-normal ant-progress-line ant-progress-line-align-end ant-progress-line-position-outer ant-progress-show-info ant-progress-default css-dev-only-do-not-override-1uq9j6g"
+              role="progressbar"
+            >
+              <div
+                class="ant-progress-outer"
+                style="width: 100%;"
+              >
+                <div
+                  class="ant-progress-inner"
+                >
+                  <div
+                    class="ant-progress-bg ant-progress-bg-outer"
+                    style="width: 0%; height: 8px; --progress-percent: 0;"
+                  />
+                </div>
+                <span
+                  class="ant-progress-text ant-progress-text-end ant-progress-text-outer"
+                  title="0%"
+                >
+                  0%
+                </span>
+              </div>
+            </div>
+            <p>
+              正在分析车次号变化...
+            </p>
           </div>
         </div>
       </div>
