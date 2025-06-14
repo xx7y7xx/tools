@@ -34,11 +34,15 @@ const { Search } = Input;
 const { Title, Paragraph } = Typography;
 
 interface TrendAnalysisProps {
-  onError: (error: string) => void;
+  onError: (error: string | null) => void;
+  onLoadingChange: (loading: boolean) => void;
 }
 
-const TrendAnalysis: React.FC<TrendAnalysisProps> = ({ onError }) => {
-  const [historicalLoading, setHistoricalLoading] = useState(false);
+const TrendAnalysis: React.FC<TrendAnalysisProps> = ({
+  onError,
+  onLoadingChange,
+}) => {
+  const [loading, setLoading] = useState(false);
   const [historicalData, setHistoricalData] = useState<HistoricalTrainsData>(
     {}
   );
@@ -47,42 +51,59 @@ const TrendAnalysis: React.FC<TrendAnalysisProps> = ({ onError }) => {
   >([]);
   const [selectedTrain, setSelectedTrain] = useState<string>('');
 
-  const hasHistoricalData = Object.keys(historicalData).length > 0;
+  const hasHistoricalData =
+    historicalData && Object.keys(historicalData).length > 0;
 
   // Load historical data when component mounts
   useEffect(() => {
-    if (!hasHistoricalData && !historicalLoading) {
-      loadHistoricalData();
-    }
-  }, [hasHistoricalData, historicalLoading]);
+    loadHistoricalData();
+  }, []);
 
-  // Load all historical data for trend analysis
   const loadHistoricalData = async () => {
-    setHistoricalLoading(true);
+    setLoading(true);
+    onLoadingChange(true);
+    onError(null);
+
     try {
       console.log('Loading historical data for trend analysis...');
       const data = await fetchAllHistoricalData(recentDates);
-      setHistoricalData(data);
+      setHistoricalData(data || {});
       console.log('Historical data loaded successfully');
     } catch (err) {
-      onError(
-        err instanceof Error ? err.message : 'Failed to load historical data'
-      );
+      console.error('Failed to load historical data:', err);
+      onError(err instanceof Error ? err.message : '加载历史数据失败');
     } finally {
-      setHistoricalLoading(false);
+      setLoading(false);
+      onLoadingChange(false);
     }
+  };
+
+  const handleSearch = () => {
+    if (!selectedTrain.trim()) {
+      onError('请输入列车号');
+      return;
+    }
+
+    if (!hasHistoricalData) {
+      onError('历史数据未加载完成，请稍后再试');
+      return;
+    }
+
+    // Analyze trends for the selected train
+    const trends = handleAnalyzeTrainTrends(selectedTrain);
+    setTrendData(trends);
   };
 
   // Analyze trends for a specific train (using preloaded historical data)
   const handleAnalyzeTrainTrends = (trainCode: string) => {
     if (!trainCode.trim()) {
       onError('请输入列车号');
-      return;
+      return [];
     }
 
     if (!hasHistoricalData) {
       onError('历史数据尚未加载完成，请稍候再试');
-      return;
+      return [];
     }
 
     const trends = extractTrainTrendsFromHistoricalData(
@@ -91,6 +112,7 @@ const TrendAnalysis: React.FC<TrendAnalysisProps> = ({ onError }) => {
     );
     setTrendData(trends);
     setSelectedTrain(trainCode);
+    return trends;
   };
 
   // Prepare chart data
@@ -148,7 +170,7 @@ const TrendAnalysis: React.FC<TrendAnalysisProps> = ({ onError }) => {
         <Space>
           <DatabaseOutlined style={{ color: '#52c41a' }} />
           <span>
-            {historicalLoading ? (
+            {loading ? (
               <span>正在加载历史数据... ({recentDates.length} 个日期)</span>
             ) : hasHistoricalData ? (
               <span>

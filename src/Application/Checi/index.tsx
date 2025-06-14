@@ -94,7 +94,9 @@ const Checi: React.FC = () => {
           train_no变化分析
         </span>
       ),
-      children: <TrainNoAnalysis />,
+      children: (
+        <TrainNoAnalysis onError={setError} onLoadingChange={setLoading} />
+      ),
     },
     {
       key: '2',
@@ -104,7 +106,9 @@ const Checi: React.FC = () => {
           趋势分析
         </span>
       ),
-      children: <TrendAnalysis onError={setError} />,
+      children: (
+        <TrendAnalysis onError={setError} onLoadingChange={setLoading} />
+      ),
     },
     {
       key: '1',
