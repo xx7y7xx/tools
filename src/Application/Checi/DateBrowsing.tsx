@@ -1,17 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { List, Card, Input, Space, Typography, Button, Tag } from 'antd';
 import {
-  Card,
-  Space,
-  DatePicker,
-  Input,
-  Typography,
-  List,
-  Tag,
-  Alert,
-} from 'antd';
-import { SearchOutlined, CalendarOutlined } from '@ant-design/icons';
-import { fetchTrainsData, TrainInfo } from '../../services/trainsData';
-import dayjs from 'dayjs';
+  DatabaseOutlined,
+  DownloadOutlined,
+  FilterOutlined,
+} from '@ant-design/icons';
+import {
+  fetchTrainsData,
+  TrainInfo,
+  TrainsDataResponse,
+} from '../../services/trainsData';
 
 const { Search } = Input;
 const { Title, Paragraph } = Typography;
@@ -25,133 +23,209 @@ const DateBrowsing: React.FC<DateBrowsingProps> = ({
   onError,
   onLoadingChange,
 }) => {
-  const [loading, setLoading] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<string>('');
-  const [trains, setTrains] = useState<{ [key: string]: TrainInfo }>({});
-  const [searchTerm, setSearchTerm] = useState('');
+  const [trainsData, setTrainsData] = useState<TrainsDataResponse>({});
+  const [loadedDate, setLoadedDate] = useState<string>('');
+  const [stationFilter, setStationFilter] = useState<string>('');
 
-  const handleDateSelect = async (date: dayjs.Dayjs | null) => {
-    if (!date) {
-      setSelectedDate('');
-      setTrains({});
+  // Computed: filter trains based on station search
+  const displayTrains = useMemo(() => {
+    const allTrains = Object.values(trainsData);
+    if (!stationFilter) return allTrains;
+    return allTrains.filter(
+      (train) =>
+        train.from_station.includes(stationFilter) ||
+        train.to_station.includes(stationFilter)
+    );
+  }, [trainsData, stationFilter]);
+
+  const totalTrainsCount = Object.keys(trainsData).length;
+  const hasData = totalTrainsCount > 0;
+
+  // Fetch trains data by date
+  const handleFetchTrainsByDate = async (dateString: string) => {
+    if (!dateString.trim()) {
+      onError('请输入日期 (YYYYMMDD格式)');
       return;
     }
 
-    const dateString = date.format('YYYYMMDD');
-    setSelectedDate(dateString);
-    setLoading(true);
     onLoadingChange(true);
     onError(null);
-
     try {
-      const data = await fetchTrainsData(dateString);
-      setTrains(data || {});
+      const result = await fetchTrainsData(dateString);
+      setTrainsData(result);
+      setLoadedDate(dateString);
+      setStationFilter(''); // Clear any previous search filter
     } catch (err) {
-      console.error('Failed to fetch trains data:', err);
-      onError(err instanceof Error ? err.message : '获取列车数据失败');
-      setTrains({});
+      onError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
-      setLoading(false);
       onLoadingChange(false);
     }
   };
 
-  const handleSearch = (value: string) => {
-    setSearchTerm(value.trim());
+  // Search trains by station name (local filtering)
+  const handleSearchByStation = (stationName: string) => {
+    setStationFilter(stationName.trim());
   };
 
-  const filteredTrains = Object.entries(trains).filter(([trainCode, train]) => {
-    if (!searchTerm) return true;
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      trainCode.toLowerCase().includes(searchLower) ||
-      train.from_station.toLowerCase().includes(searchLower) ||
-      train.to_station.toLowerCase().includes(searchLower)
-    );
-  });
+  // Clear station filter
+  const handleClearFilter = () => {
+    setStationFilter('');
+  };
 
   return (
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      {/* Date Selection */}
       <div>
-        <Title level={4}>按日期浏览列车数据</Title>
+        <Title level={4}>
+          <DownloadOutlined /> 选择日期并加载数据
+        </Title>
         <Paragraph>
-          选择日期查看当天的所有列车数据，可以使用搜索框按车次号或站点筛选
+          输入日期一次性下载该日期的所有列车数据到本地 (格式: YYYYMMDD)
+          <br />
+          <strong>可用日期示例:</strong> 20250609, 20250608, 20250607, 20250302,
+          20241120
         </Paragraph>
         <Space>
-          <DatePicker
-            placeholder="选择日期"
-            onChange={handleDateSelect}
-            disabledDate={(date) => date && date > dayjs().endOf('day')}
-            style={{ width: 200 }}
-          />
           <Search
-            placeholder="搜索车次号或站点"
+            placeholder="输入日期 (如: 20250609)"
             allowClear
-            onSearch={handleSearch}
-            style={{ width: 300 }}
-            disabled={!selectedDate}
+            enterButton="下载数据"
+            size="large"
+            onSearch={handleFetchTrainsByDate}
+            style={{ width: '300px' }}
           />
+          {hasData && (
+            <Tag
+              color="success"
+              style={{ fontSize: '14px', padding: '4px 8px' }}
+            >
+              已加载 {loadedDate} 的数据 ({totalTrainsCount} 趟列车)
+            </Tag>
+          )}
         </Space>
       </div>
 
-      {loading ? (
-        <Card loading={true} />
-      ) : selectedDate ? (
-        filteredTrains.length > 0 ? (
-          <Card
-            title={
-              <Space>
-                <CalendarOutlined />
-                <span>{selectedDate} 列车数据</span>
-                <Tag color="blue">{filteredTrains.length} 个车次</Tag>
-              </Space>
-            }
-          >
-            <List
-              dataSource={filteredTrains}
-              renderItem={([trainCode, train]) => (
-                <List.Item
-                  key={trainCode}
-                  extra={
-                    <Space>
-                      <Tag color="green">{train.total_num}</Tag>
-                      <Tag color="blue">{train.train_no}</Tag>
-                    </Space>
-                  }
-                >
-                  <List.Item.Meta
-                    title={trainCode}
-                    description={
-                      <Space>
-                        <span>{train.from_station}</span>
-                        <span>→</span>
-                        <span>{train.to_station}</span>
-                      </Space>
-                    }
-                  />
-                </List.Item>
-              )}
+      {/* Station Filtering - Only show when data is loaded */}
+      {hasData && (
+        <div>
+          <Title level={4}>
+            <FilterOutlined /> 按车站筛选 (本地搜索，无需重新下载)
+          </Title>
+          <Paragraph>
+            从已下载的 <Tag color="blue">{loadedDate}</Tag>{' '}
+            数据中搜索包含指定车站的列车
+          </Paragraph>
+          <Space>
+            <Search
+              placeholder="输入车站名称 (如: 北京, 上海)"
+              allowClear
+              enterButton="筛选"
+              size="large"
+              onSearch={handleSearchByStation}
+              style={{ width: '300px' }}
             />
-          </Card>
-        ) : (
-          <Alert
-            message="未找到数据"
-            description={
-              searchTerm
-                ? '没有找到匹配的列车数据，请尝试其他搜索条件'
-                : '该日期没有列车数据'
-            }
-            type="info"
-            showIcon
+            {stationFilter && (
+              <Button onClick={handleClearFilter}>清除筛选</Button>
+            )}
+          </Space>
+          {stationFilter && (
+            <div style={{ marginTop: '10px' }}>
+              <Tag color="blue">当前筛选: {stationFilter}</Tag>
+              <Tag color="green">找到 {displayTrains.length} 趟列车</Tag>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* No Data State */}
+      {!hasData && (
+        <Card style={{ textAlign: 'center', padding: '40px' }}>
+          <DatabaseOutlined
+            style={{
+              fontSize: '48px',
+              color: '#ccc',
+              marginBottom: '16px',
+            }}
           />
-        )
-      ) : (
-        <Alert
-          message="请选择日期"
-          description="请先选择一个日期来查看列车数据"
-          type="info"
-          showIcon
-        />
+          <Title level={4} style={{ color: '#666' }}>
+            暂无数据
+          </Title>
+          <Paragraph style={{ color: '#999' }}>
+            请先选择日期并下载数据，然后即可进行车站搜索
+          </Paragraph>
+        </Card>
+      )}
+
+      {/* Trains Display */}
+      {displayTrains && displayTrains.length > 0 && (
+        <Card
+          title={
+            <span>
+              🚄 列车信息
+              {stationFilter ? (
+                <span>
+                  {' '}
+                  - 筛选结果: "{stationFilter}" (共 {displayTrains.length} 趟)
+                </span>
+              ) : (
+                <span> (共 {displayTrains.length} 趟列车)</span>
+              )}
+            </span>
+          }
+          style={{ marginTop: '20px' }}
+        >
+          <List
+            dataSource={displayTrains}
+            renderItem={(train: TrainInfo) => (
+              <List.Item>
+                <Card size="small" style={{ width: '100%' }} hoverable>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <div style={{ flex: 1 }}>
+                      <Title
+                        level={5}
+                        style={{ margin: 0, marginBottom: '8px' }}
+                      >
+                        🚄 {train.station_train_code}
+                      </Title>
+                      <Space direction="vertical" size="small">
+                        <div>
+                          <strong>起点站:</strong> {train.from_station}
+                        </div>
+                        <div>
+                          <strong>终点站:</strong> {train.to_station}
+                        </div>
+                        <div>
+                          <strong>车次编号:</strong> {train.train_no}
+                        </div>
+                      </Space>
+                    </div>
+                    <div style={{ textAlign: 'right', color: '#666' }}>
+                      <div>
+                        <strong>总数:</strong>
+                      </div>
+                      <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
+                        {train.total_num}
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </List.Item>
+            )}
+            pagination={{
+              pageSize: 12,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} 共 ${total} 趟列车`,
+            }}
+          />
+        </Card>
       )}
     </Space>
   );
