@@ -37,7 +37,14 @@
     "build": "react-scripts build && npm run sentry:sourcemaps",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "prepare": "husky",
+    "lint": "eslint --max-warnings=0 \"src/**/*.{js,jsx,ts,tsx}\"",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org xx7y7xx --project javascript-react ./build && sentry-cli sourcemaps upload --org xx7y7xx --project javascript-react ./build"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --max-warnings=0"
+    ]
   },
   "eslintConfig": {
     "extends": [
@@ -64,6 +71,8 @@
     "@babel/core": "^7.26.10",
     "@babel/preset-env": "^7.26.9",
     "@types/papaparse": "^5.3.15",
-    "http-proxy-middleware": "^3.0.5"
+    "http-proxy-middleware": "^3.0.5",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.2"
   }
 }
