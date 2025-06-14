@@ -1,0 +1,153 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TrendAnalysis matches snapshot 1`] = `
+<div>
+  <div
+    class="ant-space css-dev-only-do-not-override-1uq9j6g ant-space-vertical ant-space-gap-row-large ant-space-gap-col-large"
+    style="width: 100%;"
+  >
+    <div
+      class="ant-space-item"
+    >
+      <div
+        class="ant-card ant-card-bordered ant-card-small css-dev-only-do-not-override-1uq9j6g"
+        style="background: rgb(246, 255, 237); border: 1px solid #b7eb8f;"
+      >
+        <div
+          class="ant-card-body"
+        >
+          <div
+            class="ant-space css-dev-only-do-not-override-1uq9j6g ant-space-horizontal ant-space-align-center ant-space-gap-row-small ant-space-gap-col-small"
+          >
+            <div
+              class="ant-space-item"
+            >
+              <span
+                aria-label="database"
+                class="anticon anticon-database"
+                role="img"
+                style="color: rgb(82, 196, 26);"
+              >
+                <svg
+                  aria-hidden="true"
+                  data-icon="database"
+                  fill="currentColor"
+                  focusable="false"
+                  height="1em"
+                  viewBox="64 64 896 896"
+                  width="1em"
+                >
+                  <path
+                    d="M832 64H192c-17.7 0-32 14.3-32 32v832c0 17.7 14.3 32 32 32h640c17.7 0 32-14.3 32-32V96c0-17.7-14.3-32-32-32zm-600 72h560v208H232V136zm560 480H232V408h560v208zm0 272H232V680h560v208zM304 240a40 40 0 1080 0 40 40 0 10-80 0zm0 272a40 40 0 1080 0 40 40 0 10-80 0zm0 272a40 40 0 1080 0 40 40 0 10-80 0z"
+                  />
+                </svg>
+              </span>
+            </div>
+            <div
+              class="ant-space-item"
+            >
+              <span>
+                <span>
+                  正在加载历史数据... (
+                  1
+                   个日期)
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="ant-space-item"
+    >
+      <div>
+        <h4
+          class="ant-typography css-dev-only-do-not-override-1uq9j6g"
+        >
+          列车趋势分析 (基于预加载数据)
+        </h4>
+        <div
+          class="ant-typography css-dev-only-do-not-override-1uq9j6g"
+        >
+          输入列车号即可查看其在所有历史日期的 total_num 变化趋势 (如: 1461, 1462)
+          <br />
+          <strong>
+            数据范围:
+          </strong>
+           2024年7月至2025年6月 (共
+          1
+          个日期)
+          <br />
+          <strong>
+            优势:
+          </strong>
+           所有历史数据已预加载，趋势分析瞬间完成！
+        </div>
+        <span
+          class="ant-input-group-wrapper ant-input-group-wrapper-disabled ant-input-group-wrapper-lg ant-input-group-wrapper-outlined css-dev-only-do-not-override-1uq9j6g ant-input-search ant-input-search-large ant-input-search-with-button"
+        >
+          <span
+            class="ant-input-wrapper ant-input-group css-dev-only-do-not-override-1uq9j6g"
+          >
+            <span
+              class="ant-input-affix-wrapper ant-input-disabled ant-input-affix-wrapper-disabled ant-input-affix-wrapper-lg css-dev-only-do-not-override-1uq9j6g ant-input-outlined"
+            >
+              <input
+                class="ant-input ant-input-disabled ant-input-lg css-dev-only-do-not-override-1uq9j6g"
+                disabled=""
+                placeholder="输入列车号 (如: 1461)"
+                type="text"
+                value=""
+              />
+              <span
+                class="ant-input-suffix"
+              >
+                <span
+                  class="ant-input-clear-icon ant-input-clear-icon-hidden"
+                  role="button"
+                  tabindex="-1"
+                >
+                  <span
+                    aria-label="close-circle"
+                    class="anticon anticon-close-circle"
+                    role="img"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="close-circle"
+                      fill="currentColor"
+                      fill-rule="evenodd"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M512 64c247.4 0 448 200.6 448 448S759.4 960 512 960 64 759.4 64 512 264.6 64 512 64zm127.98 274.82h-.04l-.08.06L512 466.75 384.14 338.88c-.04-.05-.06-.06-.08-.06a.12.12 0 00-.07 0c-.03 0-.05.01-.09.05l-45.02 45.02a.2.2 0 00-.05.09.12.12 0 000 .07v.02a.27.27 0 00.06.06L466.75 512 338.88 639.86c-.05.04-.06.06-.06.08a.12.12 0 000 .07c0 .03.01.05.05.09l45.02 45.02a.2.2 0 00.09.05.12.12 0 00.07 0c.02 0 .04-.01.08-.05L512 557.25l127.86 127.87c.04.04.06.05.08.05a.12.12 0 00.07 0c.03 0 .05-.01.09-.05l45.02-45.02a.2.2 0 00.05-.09.12.12 0 000-.07v-.02a.27.27 0 00-.05-.06L557.25 512l127.87-127.86c.04-.04.05-.06.05-.08a.12.12 0 000-.07c0-.03-.01-.05-.05-.09l-45.02-45.02a.2.2 0 00-.09-.05.12.12 0 00-.07 0z"
+                      />
+                    </svg>
+                  </span>
+                </span>
+              </span>
+            </span>
+            <span
+              class="ant-input-group-addon"
+            >
+              <button
+                class="ant-btn css-dev-only-do-not-override-1uq9j6g ant-btn-primary ant-btn-lg ant-input-search-button"
+                disabled=""
+                type="button"
+              >
+                <span>
+                  分析趋势
+                </span>
+              </button>
+            </span>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+`;
