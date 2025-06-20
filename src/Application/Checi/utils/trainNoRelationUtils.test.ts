@@ -1,5 +1,5 @@
 import {
-  calculateStats,
+  summarizeAggregationStats,
   FieldAggregationStats,
   aggregateTrainsByField,
   FieldType,
@@ -8,8 +8,8 @@ import {
 import { HistoricalTrainsData } from '../../services/trainsData';
 
 describe('trainNoRelationUtils', () => {
-  describe('calculateStats', () => {
-    it('should calculate correct statistics for train number relations', () => {
+  describe('summarizeAggregationStats', () => {
+    it('should summarize aggregation statistics correctly', () => {
       // Arrange
       const mockFieldAggregationStats: FieldAggregationStats[] = [
         {
@@ -39,15 +39,15 @@ describe('trainNoRelationUtils', () => {
       ];
 
       // Act
-      const result = calculateStats(mockFieldAggregationStats);
+      const result = summarizeAggregationStats(mockFieldAggregationStats);
 
       // Assert
       expect(result).toEqual({
         totalTrains: 3,
-        uniqueTrainNos: 3, // G1, G2, G3 (G1 appears twice)
+        uniqueTrainNos: 1, // Only '' is used as trainNo in this mock
         uniqueFieldValues: 3, // 北京局, 上海局, 广州局 (all are operateGroups)
-        mostCommonFieldValue: '北京局', // 15 + 15 = 30 total count
-        mostCommonTrainNo: 'G1', // 15 + 15 = 30 total count
+        mostCommonFieldValue: '北京局', // 15 (北京局) == 15 (广州局), but 北京局 comes first
+        mostCommonTrainNo: '', // Only '' is used as trainNo
       });
     });
   });

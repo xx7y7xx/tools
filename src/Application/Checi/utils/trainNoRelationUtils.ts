@@ -119,17 +119,17 @@ export const aggregateTrainsByField = (
 };
 
 /**
- * Calculates statistics from the analysis results
- * @param results - Array of train number relations
- * @returns Analysis statistics
+ * Summarizes meta-statistics from an array of field aggregation stats
+ * @param results - Array of field aggregation stats (one per group)
+ * @returns Summary statistics across all groups
  */
-export const calculateStats = (
+export const summarizeAggregationStats = (
   results: FieldAggregationStats[]
 ): AnalysisStats => {
   const uniqueTrainNos = new Set(results.map((r) => r.trainNo));
   const uniqueFieldValues = new Set(results.map((r) => r.fieldValue));
 
-  // 找出最常见的字段值
+  // Find the most common field value
   const fieldValueCounts = results.reduce((acc, curr) => {
     acc[curr.fieldValue] = (acc[curr.fieldValue] || 0) + curr.count;
     return acc;
@@ -139,7 +139,7 @@ export const calculateStats = (
     a[1] > b[1] ? a : b
   )[0];
 
-  // 找出最常见的车次号
+  // Find the most common train number
   const trainNoCounts = results.reduce((acc, curr) => {
     acc[curr.trainNo] = (acc[curr.trainNo] || 0) + curr.count;
     return acc;
