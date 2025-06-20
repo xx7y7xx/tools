@@ -14,7 +14,6 @@ import {
   fetchAllHistoricalData,
   HistoricalTrainsData,
   fetchTrainsFullInfo,
-  FullTrainInfo,
 } from '../services/trainsData';
 import { recentDates } from './config';
 import {
@@ -24,6 +23,7 @@ import {
   FieldType,
   TrainNoRelation,
   AnalysisStats,
+  FullTrainInfoMap,
 } from './utils/trainNoRelationUtils';
 
 ChartJS.register(
@@ -60,9 +60,7 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
   });
 
   // Cache the full train info data
-  const [fullTrainInfo, setFullTrainInfo] = useState<
-    Record<string, FullTrainInfo>
-  >({});
+  const [fullTrainInfo, setFullTrainInfo] = useState<FullTrainInfoMap>({});
   const [isFullTrainInfoLoaded, setIsFullTrainInfoLoaded] = useState(false);
 
   // Load full train info data only once

@@ -3,8 +3,9 @@ import {
   TrainNoRelation,
   analyzeTrainNoRelations,
   FieldType,
+  FullTrainInfoMap,
 } from './trainNoRelationUtils';
-import { HistoricalTrainsData, FullTrainInfo } from '../../services/trainsData';
+import { HistoricalTrainsData } from '../../services/trainsData';
 
 describe('trainNoRelationUtils', () => {
   describe('calculateStats', () => {
@@ -65,6 +66,7 @@ describe('trainNoRelationUtils', () => {
       const mockHistoricalData: HistoricalTrainsData = {
         '2024-01-01': {
           G1: {
+            // checi (车次号) - Chinese train number
             station_train_code: 'G1',
             total_num: '100',
             from_station: '北京南',
@@ -72,6 +74,7 @@ describe('trainNoRelationUtils', () => {
             train_no: 'G1',
           },
           G2: {
+            // checi (车次号) - Chinese train number
             station_train_code: 'G2',
             total_num: '80',
             from_station: '上海虹桥',
@@ -81,6 +84,7 @@ describe('trainNoRelationUtils', () => {
         },
         '2024-01-02': {
           G1: {
+            // Same checi as first day
             station_train_code: 'G1',
             total_num: '120',
             from_station: '北京南',
@@ -88,6 +92,7 @@ describe('trainNoRelationUtils', () => {
             train_no: 'G1',
           },
           G3: {
+            // checi (车次号) - Chinese train number
             station_train_code: 'G3',
             total_num: '90',
             from_station: '广州南',
@@ -97,8 +102,9 @@ describe('trainNoRelationUtils', () => {
         },
       };
 
-      const mockFullTrainInfo: Record<string, FullTrainInfo> = {
+      const mockFullTrainInfo: FullTrainInfoMap = {
         G1: {
+          // checi as key
           operateGroup: '北京局',
           trainNumber: 'G1',
           fromStation: '北京南',
@@ -107,6 +113,7 @@ describe('trainNoRelationUtils', () => {
           train_no: 'G1',
         },
         G2: {
+          // checi as key
           operateGroup: '上海局',
           trainNumber: 'G2',
           fromStation: '上海虹桥',
@@ -115,6 +122,7 @@ describe('trainNoRelationUtils', () => {
           train_no: 'G2',
         },
         G3: {
+          // checi as key
           operateGroup: '广州局',
           trainNumber: 'G3',
           fromStation: '广州南',
@@ -141,7 +149,7 @@ describe('trainNoRelationUtils', () => {
       const shanghaiResult = result.find((r) => r.fieldValue === '上海局');
       const guangzhouResult = result.find((r) => r.fieldValue === '广州局');
 
-      // Verify 北京局 results (appears in 2 trains)
+      // Verify 北京局 results (appears in 2 trains - G1 on both days)
       expect(beijingResult).toBeDefined();
       expect(beijingResult!.count).toBe(2);
       expect(beijingResult!.percentage).toBe(50); // 2 out of 4 total = 50%

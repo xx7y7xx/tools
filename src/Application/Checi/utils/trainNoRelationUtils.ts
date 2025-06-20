@@ -5,6 +5,8 @@ export type FieldType = keyof Pick<
   'operateGroup' | 'trainNumber' | 'fromStation' | 'toStation' | 'trainType'
 >;
 
+export type FullTrainInfoMap = Record<string, FullTrainInfo>;
+
 export interface TrainNoRelation {
   trainNo: string;
   fieldValue: string;
@@ -31,7 +33,7 @@ export interface AnalysisStats {
  */
 export const analyzeTrainNoRelations = (
   historicalData: HistoricalTrainsData,
-  trainsFullInfo: Record<string, FullTrainInfo>,
+  trainsFullInfo: FullTrainInfoMap,
   selectedField: FieldType
 ): TrainNoRelation[] => {
   const relationMap: Record<
