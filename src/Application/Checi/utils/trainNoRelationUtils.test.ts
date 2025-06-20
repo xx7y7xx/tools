@@ -62,7 +62,7 @@ describe('trainNoRelationUtils', () => {
 
   describe('aggregateTrainsByField', () => {
     it('should aggregate train data by field correctly', () => {
-      // Arrange
+      // Arrange - Create mock historical data with trains across multiple dates
       const mockHistoricalData: HistoricalTrainsData = {
         '2024-01-01': {
           G1: {
@@ -102,6 +102,7 @@ describe('trainNoRelationUtils', () => {
         },
       };
 
+      // Arrange - Create mock full train info mapping checi to field values
       const mockFullTrainInfo: FullTrainInfoMap = {
         G1: {
           // checi as key
@@ -134,14 +135,14 @@ describe('trainNoRelationUtils', () => {
 
       const selectedField: FieldType = 'operateGroup';
 
-      // Act
+      // Act - Aggregate train data by operateGroup field
       const result = aggregateTrainsByField(
         mockHistoricalData,
         mockFullTrainInfo,
         selectedField
       );
 
-      // Assert
+      // Assert - Verify aggregation results
       expect(result).toHaveLength(3); // 3 unique operateGroups: 北京局, 上海局, 广州局
 
       // Expected results based on mock data:

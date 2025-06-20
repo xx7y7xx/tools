@@ -71,21 +71,24 @@ export const aggregateTrainsByField = (
   trainsFullInfo: FullTrainInfoMap,
   selectedField: FieldType
 ): TrainNoRelation[] => {
+  // Map to store aggregated data for each field value
   const relationMap: Record<
     string,
     {
-      count: number;
-      trainCodes: Set<string>;
-      totalNum: number;
+      count: number; // Number of train records for this field value
+      trainCodes: Set<string>; // Unique train codes for this field value
+      totalNum: number; // Sum of total_num values for this field value
     }
   > = {};
-  let totalCount = 0;
+  let totalCount = 0; // Total number of train records across all field values
 
-  // 遍历所有历史数据
+  // Iterate through all historical data to aggregate by field value
   Object.entries(historicalData).forEach(([date, trains]) => {
     Object.entries(trains).forEach(([trainCode, trainInfo]) => {
+      // Get the field value for this train, default to '未知' if not found
       const fieldValue = trainsFullInfo[trainCode]?.[selectedField] || '未知';
 
+      // Initialize aggregation data for this field value if it doesn't exist
       if (!relationMap[fieldValue]) {
         relationMap[fieldValue] = {
           count: 0,
@@ -94,22 +97,23 @@ export const aggregateTrainsByField = (
         };
       }
 
-      relationMap[fieldValue].count++;
-      relationMap[fieldValue].trainCodes.add(trainInfo.station_train_code);
-      relationMap[fieldValue].totalNum += parseInt(trainInfo.total_num);
-      totalCount++;
+      // Aggregate statistics for this field value
+      relationMap[fieldValue].count++; // Increment record count
+      relationMap[fieldValue].trainCodes.add(trainInfo.station_train_code); // Add unique train code
+      relationMap[fieldValue].totalNum += parseInt(trainInfo.total_num); // Sum total numbers
+      totalCount++; // Increment total count
     });
   });
 
-  // 转换为数组并计算百分比
+  // Convert aggregated data to result array with calculated percentages
   return Object.entries(relationMap).map(([fieldValue, data]) => {
     return {
-      trainNo: '', // 不再需要trainNo
+      trainNo: '', // Not used in current implementation
       fieldValue,
       count: data.count,
-      percentage: (data.count / totalCount) * 100,
-      uniqueTrainCodes: data.trainCodes.size,
-      totalNum: data.totalNum,
+      percentage: (data.count / totalCount) * 100, // Calculate percentage of total
+      uniqueTrainCodes: data.trainCodes.size, // Count of unique train codes
+      totalNum: data.totalNum, // Sum of total numbers
     };
   });
 };
