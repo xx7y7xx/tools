@@ -13,36 +13,28 @@ describe('trainNoRelationUtils', () => {
       // Arrange
       const mockFieldAggregationStats: FieldAggregationStats[] = [
         {
-          trainNo: 'G1',
-          fieldValue: '北京南',
-          count: 10,
-          percentage: 25.0,
-          uniqueTrainCodes: 5,
-          totalNum: 100,
+          trainNo: '',
+          fieldValue: '北京局', // operateGroup
+          count: 15,
+          percentage: 37.5,
+          uniqueTrainCodes: 3,
+          totalNum: 300,
         },
         {
-          trainNo: 'G2',
-          fieldValue: '上海虹桥',
-          count: 8,
-          percentage: 20.0,
+          trainNo: '',
+          fieldValue: '上海局', // operateGroup
+          count: 10,
+          percentage: 25.0,
+          uniqueTrainCodes: 2,
+          totalNum: 180,
+        },
+        {
+          trainNo: '',
+          fieldValue: '广州局', // operateGroup
+          count: 15,
+          percentage: 37.5,
           uniqueTrainCodes: 4,
-          totalNum: 80,
-        },
-        {
-          trainNo: 'G1', // Same trainNo as first item
-          fieldValue: '广州南',
-          count: 12,
-          percentage: 30.0,
-          uniqueTrainCodes: 6,
-          totalNum: 120,
-        },
-        {
-          trainNo: 'G3',
-          fieldValue: '北京南', // Same fieldValue as first item
-          count: 10,
-          percentage: 25.0,
-          uniqueTrainCodes: 5,
-          totalNum: 100,
+          totalNum: 320,
         },
       ];
 
@@ -51,11 +43,11 @@ describe('trainNoRelationUtils', () => {
 
       // Assert
       expect(result).toEqual({
-        totalTrains: 4,
+        totalTrains: 3,
         uniqueTrainNos: 3, // G1, G2, G3 (G1 appears twice)
-        uniqueFieldValues: 3, // 北京南, 上海虹桥, 广州南 (北京南 appears twice)
-        mostCommonFieldValue: '北京南', // 10 + 10 = 20 total count
-        mostCommonTrainNo: 'G1', // 10 + 12 = 22 total count
+        uniqueFieldValues: 3, // 北京局, 上海局, 广州局 (all are operateGroups)
+        mostCommonFieldValue: '北京局', // 15 + 15 = 30 total count
+        mostCommonTrainNo: 'G1', // 15 + 15 = 30 total count
       });
     });
   });
