@@ -144,31 +144,32 @@ describe('trainNoRelationUtils', () => {
       // Assert
       expect(result).toHaveLength(3); // 3 unique operateGroups: 北京局, 上海局, 广州局
 
-      // Find results by operateGroup
-      const beijingResult = result.find((r) => r.fieldValue === '北京局');
-      const shanghaiResult = result.find((r) => r.fieldValue === '上海局');
-      const guangzhouResult = result.find((r) => r.fieldValue === '广州局');
-
-      // Verify 北京局 results (appears in 2 trains - G1 on both days)
-      expect(beijingResult).toBeDefined();
-      expect(beijingResult!.count).toBe(2);
-      expect(beijingResult!.percentage).toBe(50); // 2 out of 4 total = 50%
-      expect(beijingResult!.uniqueTrainCodes).toBe(1); // Only G1 train code
-      expect(beijingResult!.totalNum).toBe(220); // 100 + 120
-
-      // Verify 上海局 results (appears in 1 train)
-      expect(shanghaiResult).toBeDefined();
-      expect(shanghaiResult!.count).toBe(1);
-      expect(shanghaiResult!.percentage).toBe(25); // 1 out of 4 total = 25%
-      expect(shanghaiResult!.uniqueTrainCodes).toBe(1); // Only G2 train code
-      expect(shanghaiResult!.totalNum).toBe(80);
-
-      // Verify 广州局 results (appears in 1 train)
-      expect(guangzhouResult).toBeDefined();
-      expect(guangzhouResult!.count).toBe(1);
-      expect(guangzhouResult!.percentage).toBe(25); // 1 out of 4 total = 25%
-      expect(guangzhouResult!.uniqueTrainCodes).toBe(1); // Only G3 train code
-      expect(guangzhouResult!.totalNum).toBe(90);
+      expect(result).toEqual([
+        {
+          trainNo: '',
+          fieldValue: '北京局',
+          count: 2,
+          percentage: 50,
+          uniqueTrainCodes: 1,
+          totalNum: 220,
+        },
+        {
+          trainNo: '',
+          fieldValue: '上海局',
+          count: 1,
+          percentage: 25,
+          uniqueTrainCodes: 1,
+          totalNum: 80,
+        },
+        {
+          trainNo: '',
+          fieldValue: '广州局',
+          count: 1,
+          percentage: 25,
+          uniqueTrainCodes: 1,
+          totalNum: 90,
+        },
+      ]);
     });
   });
 });
