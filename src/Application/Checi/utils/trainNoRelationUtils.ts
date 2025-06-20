@@ -8,11 +8,46 @@ export type FieldType = keyof Pick<
 export type FullTrainInfoMap = Record<string, FullTrainInfo>;
 
 export interface TrainNoRelation {
+  /**
+   * Train number (车次号) - currently not used in analysis
+   * Originally intended to store the train number, but set to empty string in current implementation
+   * Example: 'G1', 'G2', 'G3'
+   */
   trainNo: string;
+
+  /**
+   * The value of the selected field being analyzed
+   * Extracted from trainsFullInfo[trainCode]?.[selectedField] or defaults to '未知' (unknown)
+   * Examples: '北京局' (operateGroup), 'G1' (trainNumber), '北京南' (fromStation), '上海虹桥' (toStation), '高铁' (trainType)
+   */
   fieldValue: string;
+
+  /**
+   * Number of times this field value appears in the historical data
+   * Incremented each time a train with this field value is encountered across all dates
+   * Example: If '北京局' appears in 2 different train records, count = 2
+   */
   count: number;
+
+  /**
+   * Percentage of total occurrences this field value represents
+   * Calculated as: (count / totalCount) * 100
+   * Example: If total count is 4 and this field value appears 2 times, percentage = 50
+   */
   percentage: number;
+
+  /**
+   * Number of unique train codes (station_train_code) associated with this field value
+   * Calculated as the size of the Set containing all unique station_train_code values
+   * Example: If '北京局' operates trains G1 and G2, then uniqueTrainCodes = 2
+   */
   uniqueTrainCodes: number;
+
+  /**
+   * Sum of all total_num values for trains with this field value
+   * Accumulated by adding parseInt(trainInfo.total_num) for each occurrence
+   * Example: If '北京局' trains have total_num of '100' and '120', then totalNum = 220
+   */
   totalNum: number;
 }
 

@@ -146,28 +146,28 @@ describe('trainNoRelationUtils', () => {
 
       expect(result).toEqual([
         {
-          trainNo: '',
-          fieldValue: '北京局',
-          count: 2,
-          percentage: 50,
-          uniqueTrainCodes: 1,
-          totalNum: 220,
+          trainNo: '', // Empty string as per current implementation
+          fieldValue: '北京局', // Beijing Railway Bureau - appears in G1 train on both days
+          count: 2, // G1 appears on 2024-01-01 and 2024-01-02
+          percentage: 50, // 2 out of 4 total records = 50%
+          uniqueTrainCodes: 1, // Only G1 train code is operated by Beijing Bureau
+          totalNum: 220, // Sum of 100 (2024-01-01) + 120 (2024-01-02) from G1
         },
         {
-          trainNo: '',
-          fieldValue: '上海局',
-          count: 1,
-          percentage: 25,
-          uniqueTrainCodes: 1,
-          totalNum: 80,
+          trainNo: '', // Empty string as per current implementation
+          fieldValue: '上海局', // Shanghai Railway Bureau - appears in G2 train
+          count: 1, // G2 appears only on 2024-01-01
+          percentage: 25, // 1 out of 4 total records = 25%
+          uniqueTrainCodes: 1, // Only G2 train code is operated by Shanghai Bureau
+          totalNum: 80, // Sum of 80 from G2 on 2024-01-01
         },
         {
-          trainNo: '',
-          fieldValue: '广州局',
-          count: 1,
-          percentage: 25,
-          uniqueTrainCodes: 1,
-          totalNum: 90,
+          trainNo: '', // Empty string as per current implementation
+          fieldValue: '广州局', // Guangzhou Railway Bureau - appears in G3 train
+          count: 1, // G3 appears only on 2024-01-02
+          percentage: 25, // 1 out of 4 total records = 25%
+          uniqueTrainCodes: 1, // Only G3 train code is operated by Guangzhou Bureau
+          totalNum: 90, // Sum of 90 from G3 on 2024-01-02
         },
       ]);
     });
