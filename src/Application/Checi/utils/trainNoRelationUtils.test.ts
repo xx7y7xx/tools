@@ -64,14 +64,14 @@ describe('trainNoRelationUtils', () => {
       // Arrange
       const mockHistoricalData: HistoricalTrainsData = {
         '2024-01-01': {
-          '24001G0010C': {
+          G1: {
             station_train_code: 'G1',
             total_num: '100',
             from_station: '北京南',
             to_station: '上海虹桥',
             train_no: 'G1',
           },
-          '24001G0020C': {
+          G2: {
             station_train_code: 'G2',
             total_num: '80',
             from_station: '上海虹桥',
@@ -80,14 +80,14 @@ describe('trainNoRelationUtils', () => {
           },
         },
         '2024-01-02': {
-          '24002G0010C': {
+          G1: {
             station_train_code: 'G1',
             total_num: '120',
             from_station: '北京南',
             to_station: '深圳北',
             train_no: 'G1',
           },
-          '24002G0030C': {
+          G3: {
             station_train_code: 'G3',
             total_num: '90',
             from_station: '广州南',
@@ -98,7 +98,7 @@ describe('trainNoRelationUtils', () => {
       };
 
       const mockFullTrainInfo: Record<string, FullTrainInfo> = {
-        '24001G0010C': {
+        G1: {
           operateGroup: '北京局',
           trainNumber: 'G1',
           fromStation: '北京南',
@@ -106,7 +106,7 @@ describe('trainNoRelationUtils', () => {
           trainType: '高铁',
           train_no: 'G1',
         },
-        '24001G0020C': {
+        G2: {
           operateGroup: '上海局',
           trainNumber: 'G2',
           fromStation: '上海虹桥',
@@ -114,15 +114,7 @@ describe('trainNoRelationUtils', () => {
           trainType: '高铁',
           train_no: 'G2',
         },
-        '24002G0010C': {
-          operateGroup: '北京局', // Same operateGroup as first train
-          trainNumber: 'G1',
-          fromStation: '北京南', // Same fromStation as first train
-          toStation: '深圳北',
-          trainType: '高铁',
-          train_no: 'G1',
-        },
-        '24002G0030C': {
+        G3: {
           operateGroup: '广州局',
           trainNumber: 'G3',
           fromStation: '广州南',
