@@ -116,9 +116,9 @@ export const calculateStats = (results: TrainNoRelation[]): AnalysisStats => {
 };
 
 /**
- * Generates chart data for visualization
+ * Generates chart data for visualization (pure, no style)
  * @param analysisResults - Array of train number relations
- * @returns Chart data object for react-chartjs-2
+ * @returns Chart data object for react-chartjs-2 (labels and data arrays only)
  */
 export const generateChartData = (analysisResults: TrainNoRelation[]) => {
   // 按计数排序并只取前20个
@@ -128,28 +128,10 @@ export const generateChartData = (analysisResults: TrainNoRelation[]) => {
 
   return {
     labels: sortedResults.map((r) => `[${r.fieldValue}]`),
-    datasets: [
-      {
-        label: '出现次数',
-        data: sortedResults.map((r) => r.count),
-        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1,
-      },
-      {
-        label: '唯一车次数量',
-        data: sortedResults.map((r) => r.uniqueTrainCodes),
-        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-        borderColor: 'rgba(255, 99, 132, 1)',
-        borderWidth: 1,
-      },
-      {
-        label: '总列车数',
-        data: sortedResults.map((r) => r.totalNum),
-        backgroundColor: 'rgba(75, 192, 192, 0.5)',
-        borderColor: 'rgba(75, 192, 192, 1)',
-        borderWidth: 1,
-      },
-    ],
+    data: {
+      count: sortedResults.map((r) => r.count),
+      uniqueTrainCodes: sortedResults.map((r) => r.uniqueTrainCodes),
+      totalNum: sortedResults.map((r) => r.totalNum),
+    },
   };
 };

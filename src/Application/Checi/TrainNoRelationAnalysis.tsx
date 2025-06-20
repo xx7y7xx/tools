@@ -245,22 +245,52 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
 
       <Card title="字段值分布" style={{ marginBottom: 16 }}>
         <div style={{ height: 400 }}>
-          <Bar
-            data={generateChartData(analysisResults)}
-            options={{
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                legend: {
-                  position: 'top' as const,
-                },
-                title: {
-                  display: true,
-                  text: '字段值分布（前20个）',
-                },
-              },
-            }}
-          />
+          {(() => {
+            const chartData = generateChartData(analysisResults);
+            return (
+              <Bar
+                data={{
+                  labels: chartData.labels,
+                  datasets: [
+                    {
+                      label: '出现次数',
+                      data: chartData.data.count,
+                      backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                      borderColor: 'rgba(54, 162, 235, 1)',
+                      borderWidth: 1,
+                    },
+                    {
+                      label: '唯一车次数量',
+                      data: chartData.data.uniqueTrainCodes,
+                      backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                      borderColor: 'rgba(255, 99, 132, 1)',
+                      borderWidth: 1,
+                    },
+                    {
+                      label: '总列车数',
+                      data: chartData.data.totalNum,
+                      backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                      borderColor: 'rgba(75, 192, 192, 1)',
+                      borderWidth: 1,
+                    },
+                  ],
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: 'top' as const,
+                    },
+                    title: {
+                      display: true,
+                      text: '字段值分布（前20个）',
+                    },
+                  },
+                }}
+              />
+            );
+          })()}
         </div>
       </Card>
 
