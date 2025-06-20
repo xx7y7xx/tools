@@ -22,7 +22,7 @@ import {
   generateChartData,
   FieldType,
   FieldAggregationStats,
-  AnalysisStats,
+  AggregationSummaryStats,
   FullTrainInfoMap,
 } from './utils/trainNoRelationUtils';
 
@@ -53,12 +53,12 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
   const [historicalData, setHistoricalData] = useState<HistoricalTrainsData>(
     {}
   );
-  const [stats, setStats] = useState<AnalysisStats>({
-    totalTrains: 0,
-    uniqueTrainNos: 0,
-    uniqueFieldValues: 0,
-    mostCommonFieldValue: '',
-    mostCommonTrainNo: '',
+  const [stats, setStats] = useState<AggregationSummaryStats>({
+    totalGroups: 0,
+    uniqueTrainNumbers: 0,
+    uniqueGroups: 0,
+    mostCommonGroup: '',
+    mostCommonTrainNumber: '',
   });
 
   // Cache the full train info data
@@ -207,36 +207,36 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
           <Row gutter={16}>
             <Col span={4}>
               <Statistic
-                title="总车次数量"
-                value={stats.totalTrains}
+                title="Number of Groups"
+                value={stats.totalGroups}
                 valueStyle={{ color: '#3f8600' }}
               />
             </Col>
             <Col span={4}>
               <Statistic
-                title="唯一车次号数量"
-                value={stats.uniqueTrainNos}
+                title="Unique Train Numbers"
+                value={stats.uniqueTrainNumbers}
                 valueStyle={{ color: '#3f8600' }}
               />
             </Col>
             <Col span={4}>
               <Statistic
-                title="唯一字段值数量"
-                value={stats.uniqueFieldValues}
+                title="Unique Groups"
+                value={stats.uniqueGroups}
                 valueStyle={{ color: '#3f8600' }}
               />
             </Col>
             <Col span={6}>
               <Statistic
-                title="最常见的字段值"
-                value={stats.mostCommonFieldValue}
+                title="Most Common Group"
+                value={stats.mostCommonGroup}
                 valueStyle={{ color: '#3f8600' }}
               />
             </Col>
             <Col span={6}>
               <Statistic
-                title="最常见的车次号"
-                value={stats.mostCommonTrainNo}
+                title="Most Common Train Number"
+                value={stats.mostCommonTrainNumber}
                 valueStyle={{ color: '#3f8600' }}
               />
             </Col>

@@ -51,12 +51,36 @@ export interface FieldAggregationStats {
   totalNum: number;
 }
 
-export interface AnalysisStats {
-  totalTrains: number;
-  uniqueTrainNos: number;
-  uniqueFieldValues: number;
-  mostCommonFieldValue: string;
-  mostCommonTrainNo: string;
+export interface AggregationSummaryStats {
+  /**
+   * Total number of groups in the aggregation results
+   * Example: If aggregating by operateGroup and there are 3 bureaus, totalGroups = 3
+   */
+  totalGroups: number;
+
+  /**
+   * Number of unique train numbers across all groups
+   * Note: Since trainNo is usually empty in current implementation, this is typically 0 or 1
+   */
+  uniqueTrainNumbers: number;
+
+  /**
+   * Number of unique field values (groups) in the aggregation
+   * Example: If aggregating by operateGroup and there are 3 unique bureaus, uniqueGroups = 3
+   */
+  uniqueGroups: number;
+
+  /**
+   * The field value (group) with the highest total count across all groups
+   * Example: If 北京局 has the most train records, mostCommonGroup = '北京局'
+   */
+  mostCommonGroup: string;
+
+  /**
+   * The train number with the highest total count across all groups
+   * Note: Since trainNo is usually empty in current implementation, this is typically empty string
+   */
+  mostCommonTrainNumber: string;
 }
 
 /**
@@ -125,7 +149,7 @@ export const aggregateTrainsByField = (
  */
 export const summarizeAggregationStats = (
   results: FieldAggregationStats[]
-): AnalysisStats => {
+): AggregationSummaryStats => {
   const uniqueTrainNos = new Set(results.map((r) => r.trainNo));
   const uniqueFieldValues = new Set(results.map((r) => r.fieldValue));
 
@@ -150,11 +174,11 @@ export const summarizeAggregationStats = (
   )[0];
 
   return {
-    totalTrains: results.length,
-    uniqueTrainNos: uniqueTrainNos.size,
-    uniqueFieldValues: uniqueFieldValues.size,
-    mostCommonFieldValue,
-    mostCommonTrainNo,
+    totalGroups: results.length,
+    uniqueTrainNumbers: uniqueTrainNos.size,
+    uniqueGroups: uniqueFieldValues.size,
+    mostCommonGroup: mostCommonFieldValue,
+    mostCommonTrainNumber: mostCommonTrainNo,
   };
 };
 

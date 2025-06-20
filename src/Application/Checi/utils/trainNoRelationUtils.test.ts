@@ -43,11 +43,11 @@ describe('trainNoRelationUtils', () => {
 
       // Assert
       expect(result).toEqual({
-        totalTrains: 3,
-        uniqueTrainNos: 1, // Only '' is used as trainNo in this mock
-        uniqueFieldValues: 3, // 北京局, 上海局, 广州局 (all are operateGroups)
-        mostCommonFieldValue: '北京局', // 15 (北京局) == 15 (广州局), but 北京局 comes first
-        mostCommonTrainNo: '', // Only '' is used as trainNo
+        totalGroups: 3,
+        uniqueTrainNumbers: 1, // Only '' is used as trainNo in this mock
+        uniqueGroups: 3, // 北京局, 上海局, 广州局 (all are operateGroups)
+        mostCommonGroup: '广州局', // 15 (北京局) == 15 (广州局), but 广州局 comes last in the array
+        mostCommonTrainNumber: '', // Only '' is used as trainNo
       });
     });
   });
