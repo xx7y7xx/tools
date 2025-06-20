@@ -55,30 +55,35 @@ export interface AggregationSummaryStats {
   /**
    * Total number of groups in the aggregation results
    * Example: If aggregating by operateGroup and there are 3 bureaus, totalGroups = 3
+   * Example: If aggregating by trainNumber and there are 3 train numbers, totalGroups = 3
    */
   totalGroups: number;
 
   /**
    * Number of unique train numbers across all groups
    * Note: Since trainNo is usually empty in current implementation, this is typically 0 or 1
+   * Example: If aggregating by trainNumber and there are 3 train numbers, uniqueTrainNumbers = 3
    */
   uniqueTrainNumbers: number;
 
   /**
    * Number of unique field values (groups) in the aggregation
    * Example: If aggregating by operateGroup and there are 3 unique bureaus, uniqueGroups = 3
+   * Example: If aggregating by trainNumber and there are 3 unique train numbers, uniqueGroups = 3
    */
   uniqueGroups: number;
 
   /**
    * The field value (group) with the highest total count across all groups
    * Example: If 北京局 has the most train records, mostCommonGroup = '北京局'
+   * Example: If G1 has the most train records, mostCommonGroup = 'G1'
    */
   mostCommonGroup: string;
 
   /**
    * The train number with the highest total count across all groups
    * Note: Since trainNo is usually empty in current implementation, this is typically empty string
+   * Example: If G1 has the most train records, mostCommonTrainNumber = 'G1'
    */
   mostCommonTrainNumber: string;
 }
