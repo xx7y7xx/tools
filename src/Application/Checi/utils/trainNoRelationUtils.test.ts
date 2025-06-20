@@ -17,38 +17,54 @@ describe('aggregateTrainsByField', () => {
       a.fieldValue.localeCompare(b.fieldValue)
     );
 
-    expect(sortedResult).toHaveLength(5);
+    // Round percentages to 2 decimal places to avoid floating-point precision issues
+    const normalizedResult = sortedResult.map((item) => ({
+      ...item,
+      percentage: Math.round(item.percentage * 100) / 100,
+    }));
 
-    // Check each group individually to avoid floating-point precision issues
-    const shanghaiGroup = sortedResult.find((r) => r.fieldValue === '上海局');
-    expect(shanghaiGroup?.count).toBe(2);
-    expect(shanghaiGroup?.percentage).toBeCloseTo(16.67, 1);
-    expect(shanghaiGroup?.uniqueTrainCodes).toBe(2);
-    expect(shanghaiGroup?.totalNum).toBe(42); // 20 + 22
-
-    const hohhotGroup = sortedResult.find((r) => r.fieldValue === '呼和浩特局');
-    expect(hohhotGroup?.count).toBe(2);
-    expect(hohhotGroup?.percentage).toBeCloseTo(16.67, 1);
-    expect(hohhotGroup?.uniqueTrainCodes).toBe(2);
-    expect(hohhotGroup?.totalNum).toBe(25); // 14 + 11
-
-    const harbinGroup = sortedResult.find((r) => r.fieldValue === '哈尔滨局');
-    expect(harbinGroup?.count).toBe(4);
-    expect(harbinGroup?.percentage).toBeCloseTo(33.33, 1);
-    expect(harbinGroup?.uniqueTrainCodes).toBe(4);
-    expect(harbinGroup?.totalNum).toBe(33); // 4 + 2 + 14 + 13
-
-    const jinanGroup = sortedResult.find((r) => r.fieldValue === '济南局');
-    expect(jinanGroup?.count).toBe(2);
-    expect(jinanGroup?.percentage).toBeCloseTo(16.67, 1);
-    expect(jinanGroup?.uniqueTrainCodes).toBe(2);
-    expect(jinanGroup?.totalNum).toBe(14); // 6 + 8
-
-    const nanningGroup = sortedResult.find((r) => r.fieldValue === '南宁局');
-    expect(nanningGroup?.count).toBe(2);
-    expect(nanningGroup?.percentage).toBeCloseTo(16.67, 1);
-    expect(nanningGroup?.uniqueTrainCodes).toBe(2);
-    expect(nanningGroup?.totalNum).toBe(8); // 4 + 4
+    expect(normalizedResult).toEqual([
+      {
+        trainNo: '',
+        fieldValue: '上海局',
+        count: 2,
+        percentage: 16.67,
+        uniqueTrainCodes: 2,
+        totalNum: 42, // 20 + 22
+      },
+      {
+        trainNo: '',
+        fieldValue: '南宁局',
+        count: 2,
+        percentage: 16.67,
+        uniqueTrainCodes: 2,
+        totalNum: 8, // 4 + 4
+      },
+      {
+        trainNo: '',
+        fieldValue: '呼和浩特局',
+        count: 2,
+        percentage: 16.67,
+        uniqueTrainCodes: 2,
+        totalNum: 25, // 14 + 11
+      },
+      {
+        trainNo: '',
+        fieldValue: '哈尔滨局',
+        count: 4,
+        percentage: 33.33,
+        uniqueTrainCodes: 4,
+        totalNum: 33, // 4 + 2 + 14 + 13
+      },
+      {
+        trainNo: '',
+        fieldValue: '济南局',
+        count: 2,
+        percentage: 16.67,
+        uniqueTrainCodes: 2,
+        totalNum: 14, // 6 + 8
+      },
+    ]);
   });
 
   it('should aggregate trains by trainNumber correctly', () => {
@@ -63,32 +79,110 @@ describe('aggregateTrainsByField', () => {
       a.fieldValue.localeCompare(b.fieldValue)
     );
 
-    expect(sortedResult).toHaveLength(12);
+    // Round percentages to 2 decimal places to avoid floating-point precision issues
+    const normalizedResult = sortedResult.map((item) => ({
+      ...item,
+      percentage: Math.round(item.percentage * 100) / 100,
+    }));
 
-    // Check a few key train numbers to avoid floating-point precision issues
-    const train1461 = sortedResult.find((r) => r.fieldValue === '1461');
-    expect(train1461?.count).toBe(1);
-    expect(train1461?.percentage).toBeCloseTo(8.33, 1);
-    expect(train1461?.uniqueTrainCodes).toBe(1);
-    expect(train1461?.totalNum).toBe(20);
-
-    const train1462 = sortedResult.find((r) => r.fieldValue === '1462');
-    expect(train1462?.count).toBe(1);
-    expect(train1462?.percentage).toBeCloseTo(8.33, 1);
-    expect(train1462?.uniqueTrainCodes).toBe(1);
-    expect(train1462?.totalNum).toBe(22);
-
-    const train5036 = sortedResult.find((r) => r.fieldValue === '5036/5037');
-    expect(train5036?.count).toBe(1);
-    expect(train5036?.percentage).toBeCloseTo(8.33, 1);
-    expect(train5036?.uniqueTrainCodes).toBe(1);
-    expect(train5036?.totalNum).toBe(6);
-
-    const train5511 = sortedResult.find((r) => r.fieldValue === '5511');
-    expect(train5511?.count).toBe(1);
-    expect(train5511?.percentage).toBeCloseTo(8.33, 1);
-    expect(train5511?.uniqueTrainCodes).toBe(1);
-    expect(train5511?.totalNum).toBe(4);
+    expect(normalizedResult).toEqual([
+      {
+        trainNo: '',
+        fieldValue: '1461',
+        count: 1,
+        percentage: 8.33,
+        uniqueTrainCodes: 1,
+        totalNum: 20,
+      },
+      {
+        trainNo: '',
+        fieldValue: '1462',
+        count: 1,
+        percentage: 8.33,
+        uniqueTrainCodes: 1,
+        totalNum: 22,
+      },
+      {
+        trainNo: '',
+        fieldValue: '2635',
+        count: 1,
+        percentage: 8.33,
+        uniqueTrainCodes: 1,
+        totalNum: 14,
+      },
+      {
+        trainNo: '',
+        fieldValue: '2636',
+        count: 1,
+        percentage: 8.33,
+        uniqueTrainCodes: 1,
+        totalNum: 11,
+      },
+      {
+        trainNo: '',
+        fieldValue: '4016',
+        count: 1,
+        percentage: 8.33,
+        uniqueTrainCodes: 1,
+        totalNum: 4,
+      },
+      {
+        trainNo: '',
+        fieldValue: '4017',
+        count: 1,
+        percentage: 8.33,
+        uniqueTrainCodes: 1,
+        totalNum: 2,
+      },
+      {
+        trainNo: '',
+        fieldValue: '4051',
+        count: 1,
+        percentage: 8.33,
+        uniqueTrainCodes: 1,
+        totalNum: 14,
+      },
+      {
+        trainNo: '',
+        fieldValue: '4052',
+        count: 1,
+        percentage: 8.33,
+        uniqueTrainCodes: 1,
+        totalNum: 13,
+      },
+      {
+        trainNo: '',
+        fieldValue: '5036/5037',
+        count: 1,
+        percentage: 8.33,
+        uniqueTrainCodes: 1,
+        totalNum: 6,
+      },
+      {
+        trainNo: '',
+        fieldValue: '5038/5035',
+        count: 1,
+        percentage: 8.33,
+        uniqueTrainCodes: 1,
+        totalNum: 8,
+      },
+      {
+        trainNo: '',
+        fieldValue: '5511',
+        count: 1,
+        percentage: 8.33,
+        uniqueTrainCodes: 1,
+        totalNum: 4,
+      },
+      {
+        trainNo: '',
+        fieldValue: '5512',
+        count: 1,
+        percentage: 8.33,
+        uniqueTrainCodes: 1,
+        totalNum: 4,
+      },
+    ]);
   });
 
   it('should return empty array for empty input', () => {
