@@ -21,7 +21,7 @@ import {
   calculateStats,
   generateChartData,
   FieldType,
-  TrainNoRelation,
+  FieldAggregationStats,
   AnalysisStats,
   FullTrainInfoMap,
 } from './utils/trainNoRelationUtils';
@@ -45,7 +45,9 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
   onLoadingChange,
 }) => {
   const [selectedField, setSelectedField] = useState<FieldType>('operateGroup');
-  const [analysisResults, setAnalysisResults] = useState<TrainNoRelation[]>([]);
+  const [analysisResults, setAnalysisResults] = useState<
+    FieldAggregationStats[]
+  >([]);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [historicalData, setHistoricalData] = useState<HistoricalTrainsData>(
@@ -139,35 +141,36 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
       title: '字段值',
       dataIndex: 'fieldValue',
       key: 'fieldValue',
-      sorter: (a: TrainNoRelation, b: TrainNoRelation) =>
+      sorter: (a: FieldAggregationStats, b: FieldAggregationStats) =>
         a.fieldValue.localeCompare(b.fieldValue),
     },
     {
       title: '出现次数',
       dataIndex: 'count',
       key: 'count',
-      sorter: (a: TrainNoRelation, b: TrainNoRelation) => a.count - b.count,
+      sorter: (a: FieldAggregationStats, b: FieldAggregationStats) =>
+        a.count - b.count,
     },
     {
       title: '占比',
       dataIndex: 'percentage',
       key: 'percentage',
       render: (percentage: number) => `${percentage.toFixed(2)}%`,
-      sorter: (a: TrainNoRelation, b: TrainNoRelation) =>
+      sorter: (a: FieldAggregationStats, b: FieldAggregationStats) =>
         a.percentage - b.percentage,
     },
     {
       title: '唯一车次数量',
       dataIndex: 'uniqueTrainCodes',
       key: 'uniqueTrainCodes',
-      sorter: (a: TrainNoRelation, b: TrainNoRelation) =>
+      sorter: (a: FieldAggregationStats, b: FieldAggregationStats) =>
         a.uniqueTrainCodes - b.uniqueTrainCodes,
     },
     {
       title: '总列车数',
       dataIndex: 'totalNum',
       key: 'totalNum',
-      sorter: (a: TrainNoRelation, b: TrainNoRelation) =>
+      sorter: (a: FieldAggregationStats, b: FieldAggregationStats) =>
         a.totalNum - b.totalNum,
     },
   ];

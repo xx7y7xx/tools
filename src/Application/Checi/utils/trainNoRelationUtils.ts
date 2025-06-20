@@ -7,7 +7,7 @@ export type FieldType = keyof Pick<
 
 export type FullTrainInfoMap = Record<string, FullTrainInfo>;
 
-export interface TrainNoRelation {
+export interface FieldAggregationStats {
   /**
    * Train number (车次号) - currently not used in analysis
    * Originally intended to store the train number, but set to empty string in current implementation
@@ -70,7 +70,7 @@ export const aggregateTrainsByField = (
   historicalData: HistoricalTrainsData,
   trainsFullInfo: FullTrainInfoMap,
   selectedField: FieldType
-): TrainNoRelation[] => {
+): FieldAggregationStats[] => {
   // Map to store aggregated data for each field value
   const relationMap: Record<
     string,
@@ -123,7 +123,9 @@ export const aggregateTrainsByField = (
  * @param results - Array of train number relations
  * @returns Analysis statistics
  */
-export const calculateStats = (results: TrainNoRelation[]): AnalysisStats => {
+export const calculateStats = (
+  results: FieldAggregationStats[]
+): AnalysisStats => {
   const uniqueTrainNos = new Set(results.map((r) => r.trainNo));
   const uniqueFieldValues = new Set(results.map((r) => r.fieldValue));
 
@@ -161,7 +163,7 @@ export const calculateStats = (results: TrainNoRelation[]): AnalysisStats => {
  * @param analysisResults - Array of train number relations
  * @returns Chart data object for react-chartjs-2 (labels and data arrays only)
  */
-export const generateChartData = (analysisResults: TrainNoRelation[]) => {
+export const generateChartData = (analysisResults: FieldAggregationStats[]) => {
   // 按计数排序并只取前20个
   const sortedResults = [...analysisResults]
     .sort((a, b) => b.count - a.count)

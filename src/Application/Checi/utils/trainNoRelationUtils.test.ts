@@ -1,6 +1,6 @@
 import {
   calculateStats,
-  TrainNoRelation,
+  FieldAggregationStats,
   aggregateTrainsByField,
   FieldType,
   FullTrainInfoMap,
@@ -11,7 +11,7 @@ describe('trainNoRelationUtils', () => {
   describe('calculateStats', () => {
     it('should calculate correct statistics for train number relations', () => {
       // Arrange
-      const mockTrainNoRelations: TrainNoRelation[] = [
+      const mockFieldAggregationStats: FieldAggregationStats[] = [
         {
           trainNo: 'G1',
           fieldValue: '北京南',
@@ -47,7 +47,7 @@ describe('trainNoRelationUtils', () => {
       ];
 
       // Act
-      const result = calculateStats(mockTrainNoRelations);
+      const result = calculateStats(mockFieldAggregationStats);
 
       // Assert
       expect(result).toEqual({
