@@ -17,6 +17,14 @@ import {
   FullTrainInfo,
 } from '../services/trainsData';
 import { recentDates } from './config';
+import {
+  analyzeTrainNoRelations,
+  calculateStats,
+  generateChartData,
+  FieldType,
+  TrainNoRelation,
+  AnalysisStats,
+} from './utils/trainNoRelationUtils';
 
 ChartJS.register(
   CategoryScale,
@@ -26,28 +34,6 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-
-type FieldType = keyof Pick<
-  FullTrainInfo,
-  'operateGroup' | 'trainNumber' | 'fromStation' | 'toStation' | 'trainType'
->;
-
-interface TrainNoRelation {
-  trainNo: string;
-  fieldValue: string;
-  count: number;
-  percentage: number;
-  uniqueTrainCodes: number;
-  totalNum: number;
-}
-
-interface AnalysisStats {
-  totalTrains: number;
-  uniqueTrainNos: number;
-  uniqueFieldValues: number;
-  mostCommonFieldValue: string;
-  mostCommonTrainNo: string;
-}
 
 interface TrainNoRelationAnalysisProps {
   onError: (error: string | null) => void;
@@ -129,57 +115,11 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
     onError(null);
 
     try {
-      const analyzeTrainNoRelations = (
-        historicalData: HistoricalTrainsData,
-        trainsFullInfo: Record<string, FullTrainInfo>
-      ): TrainNoRelation[] => {
-        const relationMap: Record<
-          string,
-          {
-            count: number;
-            trainCodes: Set<string>;
-            totalNum: number;
-          }
-        > = {};
-        let totalCount = 0;
-
-        // 遍历所有历史数据
-        Object.entries(historicalData).forEach(([date, trains]) => {
-          Object.entries(trains).forEach(([trainCode, trainInfo]) => {
-            const fieldValue =
-              trainsFullInfo[trainCode]?.[selectedField] || '未知';
-
-            if (!relationMap[fieldValue]) {
-              relationMap[fieldValue] = {
-                count: 0,
-                trainCodes: new Set(),
-                totalNum: 0,
-              };
-            }
-
-            relationMap[fieldValue].count++;
-            relationMap[fieldValue].trainCodes.add(
-              trainInfo.station_train_code
-            );
-            relationMap[fieldValue].totalNum += parseInt(trainInfo.total_num);
-            totalCount++;
-          });
-        });
-
-        // 转换为数组并计算百分比
-        return Object.entries(relationMap).map(([fieldValue, data]) => {
-          return {
-            trainNo: '', // 不再需要trainNo
-            fieldValue,
-            count: data.count,
-            percentage: (data.count / totalCount) * 100,
-            uniqueTrainCodes: data.trainCodes.size,
-            totalNum: data.totalNum,
-          };
-        });
-      };
-
-      const results = analyzeTrainNoRelations(historicalData, fullTrainInfo);
+      const results = analyzeTrainNoRelations(
+        historicalData,
+        fullTrainInfo,
+        selectedField
+      );
       setAnalysisResults(results);
       setStats(calculateStats(results));
     } catch (err) {
@@ -195,73 +135,6 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
     isFullTrainInfoLoaded,
     onError,
   ]);
-
-  const calculateStats = (results: TrainNoRelation[]): AnalysisStats => {
-    const uniqueTrainNos = new Set(results.map((r) => r.trainNo));
-    const uniqueFieldValues = new Set(results.map((r) => r.fieldValue));
-
-    // 找出最常见的字段值
-    const fieldValueCounts = results.reduce((acc, curr) => {
-      acc[curr.fieldValue] = (acc[curr.fieldValue] || 0) + curr.count;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const mostCommonFieldValue = Object.entries(fieldValueCounts).reduce(
-      (a, b) => (a[1] > b[1] ? a : b)
-    )[0];
-
-    // 找出最常见的车次号
-    const trainNoCounts = results.reduce((acc, curr) => {
-      acc[curr.trainNo] = (acc[curr.trainNo] || 0) + curr.count;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const mostCommonTrainNo = Object.entries(trainNoCounts).reduce((a, b) =>
-      a[1] > b[1] ? a : b
-    )[0];
-
-    return {
-      totalTrains: results.length,
-      uniqueTrainNos: uniqueTrainNos.size,
-      uniqueFieldValues: uniqueFieldValues.size,
-      mostCommonFieldValue,
-      mostCommonTrainNo,
-    };
-  };
-
-  const generateChartData = () => {
-    // 按计数排序并只取前20个
-    const sortedResults = [...analysisResults]
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 20);
-
-    return {
-      labels: sortedResults.map((r) => `[${r.fieldValue}]`),
-      datasets: [
-        {
-          label: '出现次数',
-          data: sortedResults.map((r) => r.count),
-          backgroundColor: 'rgba(54, 162, 235, 0.5)',
-          borderColor: 'rgba(54, 162, 235, 1)',
-          borderWidth: 1,
-        },
-        {
-          label: '唯一车次数量',
-          data: sortedResults.map((r) => r.uniqueTrainCodes),
-          backgroundColor: 'rgba(255, 99, 132, 0.5)',
-          borderColor: 'rgba(255, 99, 132, 1)',
-          borderWidth: 1,
-        },
-        {
-          label: '总列车数',
-          data: sortedResults.map((r) => r.totalNum),
-          backgroundColor: 'rgba(75, 192, 192, 0.5)',
-          borderColor: 'rgba(75, 192, 192, 1)',
-          borderWidth: 1,
-        },
-      ],
-    };
-  };
 
   const columns = [
     {
@@ -373,7 +246,7 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
       <Card title="字段值分布" style={{ marginBottom: 16 }}>
         <div style={{ height: 400 }}>
           <Bar
-            data={generateChartData()}
+            data={generateChartData(analysisResults)}
             options={{
               responsive: true,
               maintainAspectRatio: false,
