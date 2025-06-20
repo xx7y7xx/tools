@@ -60,13 +60,13 @@ export interface AnalysisStats {
 }
 
 /**
- * Analyzes the relationship between train numbers and selected field values
+ * Aggregates train data by a selected field and calculates statistics for each group
  * @param historicalData - Historical trains data
  * @param trainsFullInfo - Full train information data
- * @param selectedField - The field to analyze (operateGroup, trainNumber, etc.)
- * @returns Array of train number relations with statistics
+ * @param selectedField - The field to group by (operateGroup, trainNumber, etc.)
+ * @returns Array of aggregated train statistics grouped by field value
  */
-export const analyzeTrainNoRelations = (
+export const aggregateTrainsByField = (
   historicalData: HistoricalTrainsData,
   trainsFullInfo: FullTrainInfoMap,
   selectedField: FieldType

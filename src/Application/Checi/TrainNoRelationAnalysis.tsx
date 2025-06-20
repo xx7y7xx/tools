@@ -17,7 +17,7 @@ import {
 } from '../services/trainsData';
 import { recentDates } from './config';
 import {
-  analyzeTrainNoRelations,
+  aggregateTrainsByField,
   calculateStats,
   generateChartData,
   FieldType,
@@ -113,7 +113,7 @@ const TrainNoRelationAnalysis: React.FC<TrainNoRelationAnalysisProps> = ({
     onError(null);
 
     try {
-      const results = analyzeTrainNoRelations(
+      const results = aggregateTrainsByField(
         historicalData,
         fullTrainInfo,
         selectedField

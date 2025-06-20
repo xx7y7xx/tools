@@ -1,7 +1,7 @@
 import {
   calculateStats,
   TrainNoRelation,
-  analyzeTrainNoRelations,
+  aggregateTrainsByField,
   FieldType,
   FullTrainInfoMap,
 } from './trainNoRelationUtils';
@@ -60,8 +60,8 @@ describe('trainNoRelationUtils', () => {
     });
   });
 
-  describe('analyzeTrainNoRelations', () => {
-    it('should analyze train number relations correctly', () => {
+  describe('aggregateTrainsByField', () => {
+    it('should aggregate train data by field correctly', () => {
       // Arrange
       const mockHistoricalData: HistoricalTrainsData = {
         '2024-01-01': {
@@ -135,7 +135,7 @@ describe('trainNoRelationUtils', () => {
       const selectedField: FieldType = 'operateGroup';
 
       // Act
-      const result = analyzeTrainNoRelations(
+      const result = aggregateTrainsByField(
         mockHistoricalData,
         mockFullTrainInfo,
         selectedField
