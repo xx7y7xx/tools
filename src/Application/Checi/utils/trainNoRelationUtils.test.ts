@@ -219,8 +219,8 @@ describe('aggregateTrainsByField', () => {
       'operateGroup'
     );
 
-    // Should include the undefined operateGroup as '未知'
-    const unknownGroup = result.find((r) => r.fieldValue === '未知');
+    // Should include the undefined operateGroup as 'Unknown'
+    const unknownGroup = result.find((r) => r.fieldValue === 'Unknown');
     expect(unknownGroup).toBeDefined();
     expect(unknownGroup?.count).toBe(1);
   });

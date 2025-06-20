@@ -17,7 +17,7 @@ export interface FieldAggregationStats {
 
   /**
    * The value of the selected field being analyzed
-   * Extracted from trainsFullInfo[trainCode]?.[selectedField] or defaults to '未知' (unknown)
+   * Extracted from trainsFullInfo[trainCode]?.[selectedField] or defaults to 'Unknown' if not found
    * Examples: '北京局' (operateGroup), 'G1' (trainNumber), '北京南' (fromStation), '上海虹桥' (toStation), '高铁' (trainType)
    */
   fieldValue: string;
@@ -114,8 +114,9 @@ export const aggregateTrainsByField = (
   // Iterate through all historical data to aggregate by field value
   Object.entries(historicalData).forEach(([date, trains]) => {
     Object.entries(trains).forEach(([trainCode, trainInfo]) => {
-      // Get the field value for this train, default to '未知' if not found
-      const fieldValue = trainsFullInfo[trainCode]?.[selectedField] || '未知';
+      // Get the field value for this train, default to 'Unknown' if not found
+      const fieldValue =
+        trainsFullInfo[trainCode]?.[selectedField] || 'Unknown';
 
       // Initialize aggregation data for this field value if it doesn't exist
       if (!relationMap[fieldValue]) {
