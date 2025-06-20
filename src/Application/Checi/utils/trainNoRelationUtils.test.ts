@@ -144,6 +144,13 @@ describe('trainNoRelationUtils', () => {
       // Assert
       expect(result).toHaveLength(3); // 3 unique operateGroups: 北京局, 上海局, 广州局
 
+      // Expected results based on mock data:
+      // - Total of 4 train records across 2 days (2024-01-01: G1, G2; 2024-01-02: G1, G3)
+      // - G1 (operated by 北京局) appears on both days, so count=2, percentage=50%
+      // - G2 (operated by 上海局) appears only on 2024-01-01, so count=1, percentage=25%
+      // - G3 (operated by 广州局) appears only on 2024-01-02, so count=1, percentage=25%
+      // - Each bureau operates only one unique train code, so uniqueTrainCodes=1 for all
+      // - totalNum is the sum of total_num values for each bureau's trains
       expect(result).toEqual([
         {
           trainNo: '', // Empty string as per current implementation
