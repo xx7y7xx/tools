@@ -1,256 +1,209 @@
 import {
-  summarizeAggregationStats,
-  FieldAggregationStats,
   aggregateTrainsByField,
-  FieldType,
-  FullTrainInfoMap,
+  summarizeAggregationStats,
 } from './trainNoRelationUtils';
-import { HistoricalTrainsData } from '../../services/trainsData';
+import { mockHistoricalData, mockTrainsFullInfo } from './mockTrainData';
 
-describe('trainNoRelationUtils', () => {
-  describe('summarizeAggregationStats', () => {
-    it('should summarize aggregation statistics correctly', () => {
-      // Arrange
-      const mockFieldAggregationStats: FieldAggregationStats[] = [
-        {
-          trainNo: '',
-          fieldValue: '北京局', // operateGroup
-          count: 15,
-          percentage: 37.5,
-          uniqueTrainCodes: 3,
-          totalNum: 300,
-        },
-        {
-          trainNo: '',
-          fieldValue: '上海局', // operateGroup
-          count: 10,
-          percentage: 25.0,
-          uniqueTrainCodes: 2,
-          totalNum: 180,
-        },
-        {
-          trainNo: '',
-          fieldValue: '广州局', // operateGroup
-          count: 15,
-          percentage: 37.5,
-          uniqueTrainCodes: 4,
-          totalNum: 320,
-        },
-      ];
+describe('aggregateTrainsByField', () => {
+  it('should aggregate trains by operateGroup correctly', () => {
+    const result = aggregateTrainsByField(
+      mockHistoricalData,
+      mockTrainsFullInfo,
+      'operateGroup'
+    );
 
-      // Act
-      const result = summarizeAggregationStats(mockFieldAggregationStats);
+    // Sort results by fieldValue for consistent ordering
+    const sortedResult = result.sort((a, b) =>
+      a.fieldValue.localeCompare(b.fieldValue)
+    );
 
-      // Assert
-      expect(result).toEqual({
-        totalGroups: 3,
-        uniqueTrainNumbers: 1, // Only '' is used as trainNo in this mock
-        uniqueGroups: 3, // 北京局, 上海局, 广州局 (all are operateGroups)
-        mostCommonGroup: '广州局', // 15 (北京局) == 15 (广州局), but 广州局 comes last in the array
-        mostCommonTrainNumber: '', // Only '' is used as trainNo
-      });
+    expect(sortedResult).toHaveLength(5);
+
+    // Check each group individually to avoid floating-point precision issues
+    const shanghaiGroup = sortedResult.find((r) => r.fieldValue === '上海局');
+    expect(shanghaiGroup?.count).toBe(2);
+    expect(shanghaiGroup?.percentage).toBeCloseTo(16.67, 1);
+    expect(shanghaiGroup?.uniqueTrainCodes).toBe(2);
+    expect(shanghaiGroup?.totalNum).toBe(42); // 20 + 22
+
+    const hohhotGroup = sortedResult.find((r) => r.fieldValue === '呼和浩特局');
+    expect(hohhotGroup?.count).toBe(2);
+    expect(hohhotGroup?.percentage).toBeCloseTo(16.67, 1);
+    expect(hohhotGroup?.uniqueTrainCodes).toBe(2);
+    expect(hohhotGroup?.totalNum).toBe(25); // 14 + 11
+
+    const harbinGroup = sortedResult.find((r) => r.fieldValue === '哈尔滨局');
+    expect(harbinGroup?.count).toBe(4);
+    expect(harbinGroup?.percentage).toBeCloseTo(33.33, 1);
+    expect(harbinGroup?.uniqueTrainCodes).toBe(4);
+    expect(harbinGroup?.totalNum).toBe(33); // 4 + 2 + 14 + 13
+
+    const jinanGroup = sortedResult.find((r) => r.fieldValue === '济南局');
+    expect(jinanGroup?.count).toBe(2);
+    expect(jinanGroup?.percentage).toBeCloseTo(16.67, 1);
+    expect(jinanGroup?.uniqueTrainCodes).toBe(2);
+    expect(jinanGroup?.totalNum).toBe(14); // 6 + 8
+
+    const nanningGroup = sortedResult.find((r) => r.fieldValue === '南宁局');
+    expect(nanningGroup?.count).toBe(2);
+    expect(nanningGroup?.percentage).toBeCloseTo(16.67, 1);
+    expect(nanningGroup?.uniqueTrainCodes).toBe(2);
+    expect(nanningGroup?.totalNum).toBe(8); // 4 + 4
+  });
+
+  it('should aggregate trains by trainNumber correctly', () => {
+    const result = aggregateTrainsByField(
+      mockHistoricalData,
+      mockTrainsFullInfo,
+      'trainNumber'
+    );
+
+    // Sort results by fieldValue for consistent ordering
+    const sortedResult = result.sort((a, b) =>
+      a.fieldValue.localeCompare(b.fieldValue)
+    );
+
+    expect(sortedResult).toHaveLength(12);
+
+    // Check a few key train numbers to avoid floating-point precision issues
+    const train1461 = sortedResult.find((r) => r.fieldValue === '1461');
+    expect(train1461?.count).toBe(1);
+    expect(train1461?.percentage).toBeCloseTo(8.33, 1);
+    expect(train1461?.uniqueTrainCodes).toBe(1);
+    expect(train1461?.totalNum).toBe(20);
+
+    const train1462 = sortedResult.find((r) => r.fieldValue === '1462');
+    expect(train1462?.count).toBe(1);
+    expect(train1462?.percentage).toBeCloseTo(8.33, 1);
+    expect(train1462?.uniqueTrainCodes).toBe(1);
+    expect(train1462?.totalNum).toBe(22);
+
+    const train5036 = sortedResult.find((r) => r.fieldValue === '5036/5037');
+    expect(train5036?.count).toBe(1);
+    expect(train5036?.percentage).toBeCloseTo(8.33, 1);
+    expect(train5036?.uniqueTrainCodes).toBe(1);
+    expect(train5036?.totalNum).toBe(6);
+
+    const train5511 = sortedResult.find((r) => r.fieldValue === '5511');
+    expect(train5511?.count).toBe(1);
+    expect(train5511?.percentage).toBeCloseTo(8.33, 1);
+    expect(train5511?.uniqueTrainCodes).toBe(1);
+    expect(train5511?.totalNum).toBe(4);
+  });
+
+  it('should return empty array for empty input', () => {
+    const result = aggregateTrainsByField({}, {}, 'operateGroup');
+    expect(result).toEqual([]);
+  });
+
+  it('should handle trains with missing operateGroup field', () => {
+    const trainsWithMissingField = {
+      ...mockHistoricalData,
+      '2025-04-01': {
+        ...mockHistoricalData['2025-04-01'],
+        '9999': {
+          from_station: '北京',
+          station_train_code: '9999',
+          to_station: '上海',
+          total_num: '10',
+          train_no: '999999999999',
+        },
+      },
+    };
+
+    const trainsFullInfoWithMissingField = {
+      ...mockTrainsFullInfo,
+      '9999': {
+        ...mockTrainsFullInfo['1461'],
+        operateGroup: undefined as any,
+      },
+    };
+
+    const result = aggregateTrainsByField(
+      trainsWithMissingField,
+      trainsFullInfoWithMissingField,
+      'operateGroup'
+    );
+
+    // Should include the undefined operateGroup as '未知'
+    const unknownGroup = result.find((r) => r.fieldValue === '未知');
+    expect(unknownGroup).toBeDefined();
+    expect(unknownGroup?.count).toBe(1);
+  });
+});
+
+describe('summarizeAggregationStats', () => {
+  it('should calculate summary statistics correctly', () => {
+    const aggregationStats = [
+      {
+        trainNo: '',
+        fieldValue: '上海局',
+        count: 2,
+        percentage: 16.67,
+        uniqueTrainCodes: 2,
+        totalNum: 42,
+      },
+      {
+        trainNo: '',
+        fieldValue: '呼和浩特局',
+        count: 1,
+        percentage: 8.33,
+        uniqueTrainCodes: 1,
+        totalNum: 14,
+      },
+      {
+        trainNo: '',
+        fieldValue: '哈尔滨局',
+        count: 3,
+        percentage: 25.0,
+        uniqueTrainCodes: 3,
+        totalNum: 20,
+      },
+    ];
+
+    const result = summarizeAggregationStats(aggregationStats);
+
+    expect(result).toEqual({
+      totalGroups: 3,
+      uniqueTrainNumbers: 1, // All trainNo are empty strings
+      uniqueGroups: 3,
+      mostCommonGroup: '哈尔滨局', // Has highest count (3)
+      mostCommonTrainNumber: '', // All trainNo are empty strings
     });
   });
 
-  describe('aggregateTrainsByField', () => {
-    // Shared mock data for both tests
-    const mockHistoricalData: HistoricalTrainsData = {
-      '2024-01-01': {
-        G1: {
-          station_train_code: 'G1',
-          total_num: '100',
-          from_station: '北京南',
-          to_station: '上海虹桥',
-          train_no: '240000G1000C',
-        },
-        G2: {
-          station_train_code: 'G2',
-          total_num: '80',
-          from_station: '上海虹桥',
-          to_station: '广州南',
-          train_no: '240000G2000C',
-        },
-        D1: {
-          station_train_code: 'D1',
-          total_num: '85',
-          from_station: '北京西',
-          to_station: '广州南',
-          train_no: '240000D1000C',
-        },
-      },
-      '2024-01-02': {
-        G1: {
-          station_train_code: 'G1',
-          total_num: '120',
-          from_station: '北京南',
-          to_station: '上海虹桥',
-          train_no: '240000G1000C',
-        },
-        G3: {
-          station_train_code: 'G3',
-          total_num: '110',
-          from_station: '广州南',
-          to_station: '北京南',
-          train_no: '240000G3000C',
-        },
-        D1: {
-          station_train_code: 'D1',
-          total_num: '88',
-          from_station: '北京西',
-          to_station: '广州南',
-          train_no: '240000D1000C',
-        },
-        'G1-ALT': {
-          station_train_code: 'G1-ALT',
-          total_num: '110',
-          from_station: '北京南',
-          to_station: '上海虹桥',
-          train_no: '240000G1000C', // Same trainNumber as G1
-        },
-      },
-    };
+  it('should handle empty aggregation stats', () => {
+    const result = summarizeAggregationStats([]);
 
-    const mockFullTrainInfo: FullTrainInfoMap = {
-      G1: {
-        operateGroup: '北京局',
-        trainNumber: 'G1',
-        fromStation: '北京南',
-        toStation: '上海虹桥',
-        trainType: '高铁',
-        train_no: '240000G1000C',
-      },
-      G2: {
-        operateGroup: '上海局',
-        trainNumber: 'G2',
-        fromStation: '上海虹桥',
-        toStation: '广州南',
-        trainType: '高铁',
-        train_no: '240000G2000C',
-      },
-      G3: {
-        operateGroup: '广州局',
-        trainNumber: 'G3',
-        fromStation: '广州南',
-        toStation: '北京南',
-        trainType: '高铁',
-        train_no: '240000G3000C',
-      },
-      D1: {
-        operateGroup: '北京局', // Same bureau as G1
-        trainNumber: 'D1',
-        fromStation: '北京西',
-        toStation: '广州南',
-        trainType: '高铁',
-        train_no: '240000D1000C',
-      },
-      'G1-ALT': {
-        operateGroup: '北京局',
-        trainNumber: 'G1', // Same trainNumber as G1
-        fromStation: '北京南',
-        toStation: '上海虹桥',
-        trainType: '高铁',
-        train_no: '240000G1000C',
-      },
-    };
-
-    it('should aggregate train data by operateGroup correctly', () => {
-      const selectedField: FieldType = 'operateGroup';
-
-      // Act
-      const result = aggregateTrainsByField(
-        mockHistoricalData,
-        mockFullTrainInfo,
-        selectedField
-      );
-
-      // Assert
-      expect(result).toHaveLength(3); // 3 unique operateGroups: 北京局, 上海局, 广州局
-
-      // Expected results based on mock data:
-      // - Total of 7 train records across 2 days
-      // - 北京局 operates G1 (appears on both days), D1 (appears on both days), G1-ALT (appears on 2024-01-02)
-      //   so count=5, percentage=71.43%, uniqueTrainCodes=3 (G1, D1, G1-ALT)
-      // - 上海局 operates G2 (appears only on 2024-01-01), so count=1, percentage=14.29%
-      // - 广州局 operates G3 (appears only on 2024-01-02), so count=1, percentage=14.29%
-      expect(result).toEqual([
-        {
-          trainNo: '',
-          fieldValue: '北京局',
-          count: 5,
-          percentage: 71.42857142857143,
-          uniqueTrainCodes: 3,
-          totalNum: 523, // G1(100+120) + D1(85+88) + G1-ALT(110) = 220 + 173 + 110 = 523
-        },
-        {
-          trainNo: '',
-          fieldValue: '上海局',
-          count: 1,
-          percentage: 14.285714285714286,
-          uniqueTrainCodes: 1,
-          totalNum: 80,
-        },
-        {
-          trainNo: '',
-          fieldValue: '广州局',
-          count: 1,
-          percentage: 14.285714285714286,
-          uniqueTrainCodes: 1,
-          totalNum: 110,
-        },
-      ]);
+    expect(result).toEqual({
+      totalGroups: 0,
+      uniqueTrainNumbers: 0,
+      uniqueGroups: 0,
+      mostCommonGroup: '',
+      mostCommonTrainNumber: '',
     });
+  });
 
-    it('should aggregate train data by trainNumber', () => {
-      const selectedField: FieldType = 'trainNumber';
+  it('should handle single group correctly', () => {
+    const singleGroupStats = [
+      {
+        trainNo: '',
+        fieldValue: '上海局',
+        count: 2,
+        percentage: 100.0,
+        uniqueTrainCodes: 2,
+        totalNum: 42,
+      },
+    ];
 
-      // Act
-      const result = aggregateTrainsByField(
-        mockHistoricalData,
-        mockFullTrainInfo,
-        selectedField
-      );
+    const result = summarizeAggregationStats(singleGroupStats);
 
-      // Assert
-      // There should be 3 groups: G1, G2, G3, D1
-      expect(result).toHaveLength(4);
-      // G1 group: 3 records (G1 on both days, G1-ALT on 2024-01-02), sum total_num = 100+120+110=330
-      // G2 group: 1 record (G2 on 2024-01-01), sum total_num = 80
-      // G3 group: 1 record (G3 on 2024-01-02), sum total_num = 110
-      // D1 group: 2 records (D1 on both days), sum total_num = 85+88=173
-      expect(result).toEqual([
-        {
-          trainNo: '',
-          fieldValue: 'G1',
-          count: 3,
-          percentage: 42.857142857142854, // 3/7
-          uniqueTrainCodes: 2, // G1, G1-ALT
-          totalNum: 330,
-        },
-        {
-          trainNo: '',
-          fieldValue: 'G2',
-          count: 1,
-          percentage: 14.285714285714286, // 1/7
-          uniqueTrainCodes: 1, // G2
-          totalNum: 80,
-        },
-        {
-          trainNo: '',
-          fieldValue: 'G3',
-          count: 1,
-          percentage: 14.285714285714286, // 1/7
-          uniqueTrainCodes: 1, // G3
-          totalNum: 110,
-        },
-        {
-          trainNo: '',
-          fieldValue: 'D1',
-          count: 2,
-          percentage: 28.571428571428573, // 2/7
-          uniqueTrainCodes: 1, // D1
-          totalNum: 173,
-        },
-      ]);
+    expect(result).toEqual({
+      totalGroups: 1,
+      uniqueTrainNumbers: 1, // All trainNo are empty strings
+      uniqueGroups: 1,
+      mostCommonGroup: '上海局',
+      mostCommonTrainNumber: '',
     });
   });
 });

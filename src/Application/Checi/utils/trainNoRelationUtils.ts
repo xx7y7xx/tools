@@ -155,6 +155,17 @@ export const aggregateTrainsByField = (
 export const summarizeAggregationStats = (
   results: FieldAggregationStats[]
 ): AggregationSummaryStats => {
+  // Handle empty results
+  if (results.length === 0) {
+    return {
+      totalGroups: 0,
+      uniqueTrainNumbers: 0,
+      uniqueGroups: 0,
+      mostCommonGroup: '',
+      mostCommonTrainNumber: '',
+    };
+  }
+
   const uniqueTrainNos = new Set(results.map((r) => r.trainNo));
   const uniqueFieldValues = new Set(results.map((r) => r.fieldValue));
 
