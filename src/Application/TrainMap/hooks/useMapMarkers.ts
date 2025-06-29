@@ -53,9 +53,9 @@ export const useMapMarkers = ({
             const marker = L.marker([latitude, longitude], {
               icon: L.divIcon({
                 className: 'train-marker',
-                html: '🚂',
-                iconSize: [24, 24],
-                iconAnchor: [12, 12],
+                html: '<span style="font-size: 32px; display: block; text-align: center;">🚆</span>',
+                iconSize: [48, 48],
+                iconAnchor: [24, 24],
               }),
             });
 
