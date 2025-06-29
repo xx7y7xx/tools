@@ -1,9 +1,47 @@
-import { TrainPosition, PocsagData } from './types';
+import { TrainPosition, PocsagData, Pocsag1234002Data } from './types';
 
 export class TrainDataService {
   private trainPositions: Map<string, TrainPosition> = new Map();
   private railwayLines: Map<string, any> = new Map();
   private updateCallbacks: ((train: TrainPosition) => void)[] = [];
+
+  // Convert POCSAG 1234002 data to train position
+  convertPocsag1234002ToTrainPosition(
+    pocsagData: Pocsag1234002Data
+  ): TrainPosition {
+    // Generate a unique train ID based on timestamp and coordinates
+    const trainId = `train-${Date.now()}-${pocsagData.gcj02_latitude.toFixed(
+      6
+    )}-${pocsagData.gcj02_longitude.toFixed(6)}`;
+
+    const trainPosition: TrainPosition = {
+      id: trainId,
+      trainNumber: 'Unknown', // POCSAG 1234002 doesn't contain train number
+      latitude: pocsagData.gcj02_latitude, // Use GCJ02 coordinates for China
+      longitude: pocsagData.gcj02_longitude,
+      speed: 0, // POCSAG 1234002 doesn't contain speed info
+      mileage: 0, // POCSAG 1234002 doesn't contain mileage info
+      timestamp: pocsagData.DateTime,
+      direction: 0, // Unknown direction
+      status: 'active',
+      // Add additional POCSAG data
+      pocsagData: {
+        wgs84_latitude: pocsagData.wgs84_latitude,
+        wgs84_longitude: pocsagData.wgs84_longitude,
+        gcj02_latitude: pocsagData.gcj02_latitude,
+        gcj02_longitude: pocsagData.gcj02_longitude,
+        rawMessage: pocsagData.pocsag1234002Msg,
+      },
+    };
+
+    return trainPosition;
+  }
+
+  // Update train position from POCSAG 1234002 data
+  updateTrainPositionFromPocsag1234002(pocsagData: Pocsag1234002Data): void {
+    const trainPosition = this.convertPocsag1234002ToTrainPosition(pocsagData);
+    this.updateTrainPosition(trainPosition);
+  }
 
   // Convert POCSAG data to train position
   convertPocsagToTrainPosition(pocsagData: PocsagData): TrainPosition | null {

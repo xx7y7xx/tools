@@ -8,6 +8,13 @@ export interface TrainPosition {
   timestamp: string;
   direction?: number;
   status?: 'active' | 'stopped' | 'maintenance';
+  pocsagData?: {
+    wgs84_latitude?: number;
+    wgs84_longitude?: number;
+    gcj02_latitude?: number;
+    gcj02_longitude?: number;
+    rawMessage?: string;
+  };
 }
 
 export interface RailwayLine {
@@ -59,4 +66,14 @@ export interface ClientInfo {
   connectedAt: Date;
   lastPing: Date;
   subscriptions: string[];
+}
+
+export interface Pocsag1234002Data {
+  DateTime: string;
+  pocsag1234002Msg: string;
+  wgs84Str: string;
+  wgs84_latitude: number;
+  wgs84_longitude: number;
+  gcj02_latitude: number;
+  gcj02_longitude: number;
 }
