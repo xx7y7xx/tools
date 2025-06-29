@@ -3,7 +3,6 @@ import {
   WebSocketMessage,
   TrainPositionMessage,
   TrainPositionsMessage,
-  RailwayLinesMessage,
   TrainPosition,
 } from './types';
 import { trainDataService } from './trainDataService';
@@ -25,7 +24,6 @@ export class WebSocketServer {
         id: clientId,
         connectedAt: new Date(),
         lastPing: new Date(),
-        subscriptions: [],
       };
 
       this.clients.set(ws, clientInfo);
@@ -99,15 +97,6 @@ export class WebSocketServer {
       timestamp: new Date().toISOString(),
     };
     ws.send(JSON.stringify(trainPositionsMessage));
-
-    // Send railway lines (if available)
-    // This would be populated from your railway data
-    const railwayLinesMessage: RailwayLinesMessage = {
-      type: 'railway_lines',
-      data: [],
-      timestamp: new Date().toISOString(),
-    };
-    ws.send(JSON.stringify(railwayLinesMessage));
   }
 
   private handleMessage(ws: WebSocket, message: any): void {
@@ -118,21 +107,6 @@ export class WebSocketServer {
       case 'ping':
         clientInfo.lastPing = new Date();
         this.sendPong(ws);
-        break;
-
-      case 'subscribe':
-        if (message.channel) {
-          clientInfo.subscriptions.push(message.channel);
-        }
-        break;
-
-      case 'unsubscribe':
-        if (message.channel) {
-          const index = clientInfo.subscriptions.indexOf(message.channel);
-          if (index > -1) {
-            clientInfo.subscriptions.splice(index, 1);
-          }
-        }
         break;
 
       default:

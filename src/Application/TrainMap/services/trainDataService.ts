@@ -112,30 +112,6 @@ export class TrainDataService {
     this.notifyConnectionStatus(false);
   }
 
-  // Subscribe to specific train updates
-  subscribeToTrain(trainId: string) {
-    if (this.ws && this.isConnected) {
-      this.ws.send(
-        JSON.stringify({
-          type: 'subscribe_train',
-          trainId,
-        })
-      );
-    }
-  }
-
-  // Unsubscribe from specific train updates
-  unsubscribeFromTrain(trainId: string) {
-    if (this.ws && this.isConnected) {
-      this.ws.send(
-        JSON.stringify({
-          type: 'unsubscribe_train',
-          trainId,
-        })
-      );
-    }
-  }
-
   // Request all train positions
   requestAllTrains() {
     if (this.ws && this.isConnected) {
