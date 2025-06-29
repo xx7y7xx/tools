@@ -64,10 +64,10 @@ const TrainMap: React.FC<TrainMapProps> = ({
         'Trains:',
         trains.map((t: TrainPosition) => ({
           id: t.id,
-          coords: [t.pocsagData?.gcj02_latitude, t.pocsagData?.gcj02_longitude],
+          coords: [t.pocsagData?.wgs84_latitude, t.pocsagData?.wgs84_longitude],
           inBounds: bounds.contains([
-            t.pocsagData?.gcj02_latitude || 0,
-            t.pocsagData?.gcj02_longitude || 0,
+            t.pocsagData?.wgs84_latitude || 0,
+            t.pocsagData?.wgs84_longitude || 0,
           ]),
         }))
       );
