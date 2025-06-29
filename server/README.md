@@ -1,187 +1,163 @@
-# Train WebSocket Server
+# Train Position WebSocket Server
 
-A real-time WebSocket server for streaming train position data to connected clients.
+A WebSocket server that provides real-time train position updates from POCSAG 1234002 data.
 
 ## Features
 
-- 🚂 Real-time train position updates
-- 📡 WebSocket communication with automatic reconnection
-- 🔄 Mock data simulation for testing
-- 📊 Server statistics and monitoring
-- 🛡️ Graceful shutdown handling
-- 🔌 Client connection management
-- 📍 Train subscription system
+- **Real-time WebSocket connections** for train position updates
+- **UDP Bridge** to receive POCSAG 1234002 messages from SDR-Angel
+- **Mock Data Mode** for development and testing
+- **Automatic reconnection** and connection health monitoring
+- **Graceful shutdown** handling
 
-## Quick Start
-
-### 1. Install Dependencies
+## Installation
 
 ```bash
-cd server
 npm install
-```
-
-### 2. Configure Environment
-
-Copy the example environment file and modify as needed:
-
-```bash
-cp env.example .env
-```
-
-### 3. Build and Start
-
-```bash
-# Build TypeScript
 npm run build
+```
 
-# Start the server
+## Configuration
+
+Copy `.env.example` to `.env` and configure the following variables:
+
+```bash
+# WebSocket Server Configuration
+WS_PORT=8080
+NODE_ENV=development
+
+# UDP Bridge Configuration
+UDP_PORT=9999
+
+# Mock Data Configuration (for development)
+# Set to 'true' to use mock data instead of real UDP data
+USE_MOCK_DATA=false
+# Interval in milliseconds for mock data generation (default: 5000ms)
+MOCK_DATA_INTERVAL=5000
+```
+
+## Usage
+
+### Development with Mock Data
+
+When developing and you don't have real POCSAG data from SDR-Angel, you can enable mock data:
+
+```bash
+# Enable mock data
+USE_MOCK_DATA=true npm start
+
+# Or with custom interval (every 3 seconds)
+USE_MOCK_DATA=true MOCK_DATA_INTERVAL=3000 npm start
+```
+
+### Production with Real POCSAG Data
+
+For production use with real SDR-Angel data:
+
+```bash
+# Use real UDP data (default)
 npm start
 
-# Or run in development mode with auto-reload
-npm run dev
+# Or explicitly disable mock data
+USE_MOCK_DATA=false npm start
 ```
 
-## API Reference
+### Switching Between Modes
 
-### WebSocket Connection
+You can easily switch between mock and real data by changing the environment variable:
 
-Connect to the WebSocket server at: `ws://localhost:8080/trains`
+```bash
+# Switch to mock data
+export USE_MOCK_DATA=true
+npm start
 
-### Message Types
-
-#### Client to Server
-
-- `ping` - Keep connection alive
-- `subscribe_train` - Subscribe to specific train updates
-- `unsubscribe_train` - Unsubscribe from specific train updates
-- `get_all_trains` - Request all current train positions
-
-#### Server to Client
-
-- `pong` - Response to ping
-- `train_position` - Single train position update
-- `train_positions` - All train positions
-- `error` - Error message
-
-### Example Usage
-
-```javascript
-const ws = new WebSocket('ws://localhost:8080/trains');
-
-ws.onopen = () => {
-  console.log('Connected to train server');
-
-  // Subscribe to specific train
-  ws.send(
-    JSON.stringify({
-      type: 'subscribe_train',
-      trainId: 'train-G372',
-    })
-  );
-
-  // Get all trains
-  ws.send(
-    JSON.stringify({
-      type: 'get_all_trains',
-    })
-  );
-};
-
-ws.onmessage = (event) => {
-  const message = JSON.parse(event.data);
-
-  switch (message.type) {
-    case 'train_position':
-      console.log('Train update:', message.data);
-      break;
-    case 'train_positions':
-      console.log('All trains:', message.data);
-      break;
-    case 'pong':
-      console.log('Server ping response');
-      break;
-  }
-};
+# Switch back to real data
+export USE_MOCK_DATA=false
+npm start
 ```
 
-## Integration with POCSAG Data
+## Data Flow
 
-The server can integrate with your existing POCSAG data processing system:
+### Real Data Mode
+
+```
+SDR-Angel → UDP Bridge (port 9999) → WebSocket Server (port 8080) → Frontend
+```
+
+### Mock Data Mode
+
+```
+Mock Data Service → WebSocket Server (port 8080) → Frontend
+```
+
+## API
+
+### WebSocket Messages
+
+The server sends the following message types:
+
+- `train_position`: Individual train position update
+- `train_positions`: All current train positions
+- `railway_lines`: Railway line data (if available)
+- `pong`: Response to ping messages
+
+### Train Position Data Structure
 
 ```typescript
-import { TrainWebSocketServer } from './websocketServer';
-
-const server = new TrainWebSocketServer(8080);
-
-// Process POCSAG data
-server.processPocsagData({
-  trainNumber: 'G372',
-  speed: 120,
-  mileage: 15.3,
-  timestamp: new Date().toISOString(),
-  address: '123456',
-});
+interface TrainPosition {
+  id: string;
+  trainNumber: string;
+  timestamp: string;
+  direction?: number;
+  status?: 'active' | 'stopped' | 'maintenance';
+  pocsagData?: {
+    wgs84_latitude?: number;
+    wgs84_longitude?: number;
+    gcj02_latitude?: number;
+    gcj02_longitude?: number;
+    rawMessage?: string;
+  };
+}
 ```
 
 ## Development
 
-### Project Structure
+### Building
 
-```
-server/
-├── src/
-│   ├── index.ts              # Main entry point
-│   ├── websocketServer.ts    # WebSocket server implementation
-│   ├── trainDataService.ts   # Train data management
-│   └── types.ts              # TypeScript interfaces
-├── package.json
-├── tsconfig.json
-└── README.md
+```bash
+npm run build
 ```
 
-### Available Scripts
+### Running in Development
 
-- `npm run build` - Build TypeScript to JavaScript
-- `npm start` - Start the production server
-- `npm run dev` - Start development server with auto-reload
-- `npm run watch` - Watch mode with nodemon
+```bash
+# With mock data (recommended for development)
+USE_MOCK_DATA=true npm start
 
-### Environment Variables
+# With real UDP data
+npm start
+```
 
-- `WEBSOCKET_PORT` - Port for WebSocket server (default: 8080)
-- `NODE_ENV` - Environment (development/production)
-- `POCSAG_UDP_PORT` - POCSAG UDP server port (optional)
-- `POCSAG_HOST` - POCSAG server host (optional)
+### Testing
 
-## Monitoring
+The mock data service generates realistic POCSAG 1234002 data around Beijing coordinates, making it perfect for testing the frontend without needing real SDR equipment.
 
-The server provides real-time statistics:
+## Troubleshooting
 
-- Connected clients count
-- Active trains count
-- Server uptime
-- Connection logs
+### No Data Received
 
-## Error Handling
+- Check if `USE_MOCK_DATA` is set correctly
+- Verify UDP port configuration
+- Ensure SDR-Angel is sending data to the correct port
 
-The server includes comprehensive error handling:
+### Mock Data Not Working
 
-- Graceful shutdown on SIGINT/SIGTERM
-- Uncaught exception handling
-- WebSocket connection error recovery
-- Invalid message format handling
+- Verify `USE_MOCK_DATA=true` is set
+- Check console logs for mock data generation messages
+- Adjust `MOCK_DATA_INTERVAL` if needed
 
-## Performance
+### WebSocket Connection Issues
 
-- Efficient WebSocket message broadcasting
-- Client subscription filtering
-- Automatic ping/pong for connection health
-- Memory-efficient train data storage
-
-## Security
-
-- Input validation for all messages
-- Connection rate limiting (can be added)
-- Error message sanitization
-- Secure WebSocket upgrade handling
+- Verify WebSocket port is not blocked
+- Check firewall settings
+- Ensure frontend is connecting to the correct WebSocket URL

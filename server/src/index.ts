@@ -4,29 +4,37 @@ import { WebSocketServer } from './websocket_server';
 import { UDPBridge } from './udpBridge';
 import { Pocsag1234002Data } from './types';
 import { trainDataService } from './trainDataService';
+import { mockDataService } from './mockDataService';
 
 // Load environment variables
 dotenv.config();
-//
+
 const WS_PORT = parseInt(process.env.WS_PORT || '8080');
 const UDP_PORT = parseInt(process.env.UDP_PORT || '9999');
+const USE_MOCK_DATA = process.env.USE_MOCK_DATA === 'true';
+const MOCK_DATA_INTERVAL = parseInt(process.env.MOCK_DATA_INTERVAL || '5000');
 
 console.log('Starting Train Position WebSocket Server...');
 console.log(`WebSocket Port: ${WS_PORT}`);
 console.log(`UDP Bridge Port: ${UDP_PORT}`);
+console.log(`Mock Data Mode: ${USE_MOCK_DATA ? 'ENABLED' : 'DISABLED'}`);
+if (USE_MOCK_DATA) {
+  console.log(`Mock Data Interval: ${MOCK_DATA_INTERVAL}ms`);
+}
 
 // Create WebSocket server
 const wsServer = new WebSocketServer(WS_PORT);
 
-// Create UDP bridge
-const udpBridge = new UDPBridge(UDP_PORT);
+// Create UDP bridge (only if not using mock data)
+let udpBridge: UDPBridge | null = null;
 
-// Connect UDP bridge to WebSocket server
-udpBridge.on('pocsag1234002', (pocsagData: Pocsag1234002Data) => {
+// Function to handle POCSAG 1234002 data (from either real or mock source)
+const handlePocsag1234002Data = (pocsagData: Pocsag1234002Data) => {
   console.log('[Main] Received POCSAG 1234002 data:', {
     latitude: pocsagData.gcj02_latitude,
     longitude: pocsagData.gcj02_longitude,
     timestamp: pocsagData.DateTime,
+    source: USE_MOCK_DATA ? 'MOCK' : 'UDP',
   });
 
   // Convert POCSAG data to train position and broadcast to WebSocket clients
@@ -36,48 +44,60 @@ udpBridge.on('pocsag1234002', (pocsagData: Pocsag1234002Data) => {
 
   // Broadcast to all WebSocket clients
   wsServer.broadcastTrainPosition(trainPosition);
-});
+};
 
-// Start both servers
-udpBridge.start();
+if (USE_MOCK_DATA) {
+  // Use mock data service
+  console.log('[Main] Using mock data service');
+  mockDataService.on('pocsag1234002', handlePocsag1234002Data);
+  mockDataService.startMockDataGeneration(MOCK_DATA_INTERVAL);
+} else {
+  // Use real UDP bridge
+  console.log('[Main] Using real UDP bridge');
+  udpBridge = new UDPBridge(UDP_PORT);
+  udpBridge.on('pocsag1234002', handlePocsag1234002Data);
+  udpBridge.start();
+}
+
+// Start WebSocket server
 wsServer.start();
 
 // Handle graceful shutdown
-process.on('SIGINT', () => {
+const shutdown = () => {
   console.log('\nShutting down servers...');
-  udpBridge.stop();
-  wsServer.stop();
-  process.exit(0);
-});
 
-process.on('SIGTERM', () => {
-  console.log('\nShutting down servers...');
-  udpBridge.stop();
+  if (USE_MOCK_DATA) {
+    mockDataService.stopMockDataGeneration();
+    mockDataService.removeAllListeners();
+  } else if (udpBridge) {
+    udpBridge.stop();
+  }
+
   wsServer.stop();
   process.exit(0);
-});
+};
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
 
 process.on('uncaughtException', (error) => {
   console.error('❌ Uncaught Exception:', error);
-  udpBridge.stop();
-  wsServer.stop();
-  process.exit(1);
+  shutdown();
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
-  udpBridge.stop();
-  wsServer.stop();
-  process.exit(1);
+  shutdown();
 });
 
 // Log server stats every 30 seconds
 setInterval(() => {
   const stats = wsServer.getStats();
+  const dataSource = USE_MOCK_DATA ? 'MOCK' : 'UDP';
   console.log(
     `📊 Server Stats - Clients: ${
       stats.connectedClients
-    }, Trains: ${trainDataService.getTrainCount()}`
+    }, Trains: ${trainDataService.getTrainCount()}, Data Source: ${dataSource}`
   );
 }, 30000);
 
