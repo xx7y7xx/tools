@@ -17,13 +17,10 @@ export class TrainDataService {
     const trainPosition: TrainPosition = {
       id: trainId,
       trainNumber: 'Unknown', // POCSAG 1234002 doesn't contain train number
-      latitude: pocsagData.gcj02_latitude, // Use GCJ02 coordinates for China
-      longitude: pocsagData.gcj02_longitude,
-      // speed and mileage are optional - POCSAG 1234002 doesn't contain this info
       timestamp: pocsagData.DateTime,
       direction: 0, // Unknown direction
       status: 'active',
-      // Add additional POCSAG data
+      // Store all coordinate data in pocsagData
       pocsagData: {
         wgs84_latitude: pocsagData.wgs84_latitude,
         wgs84_longitude: pocsagData.wgs84_longitude,
@@ -48,18 +45,21 @@ export class TrainDataService {
       return null;
     }
 
-    // Generate coordinates based on provided data or use defaults
+    // Use provided coordinates or defaults
     const baseLat = 39.9042; // Beijing latitude
     const baseLng = 116.4074; // Beijing longitude
 
     const trainPosition: TrainPosition = {
       id: `train-${pocsagData.trainNumber}`,
       trainNumber: pocsagData.trainNumber,
-      latitude: pocsagData.latitude || baseLat,
-      longitude: pocsagData.longitude || baseLng,
       timestamp: pocsagData.timestamp,
       direction: Math.random() * 360, // Random direction for demo
       status: 'active',
+      // Store coordinates in pocsagData
+      pocsagData: {
+        gcj02_latitude: pocsagData.latitude || baseLat,
+        gcj02_longitude: pocsagData.longitude || baseLng,
+      },
     };
 
     return trainPosition;
@@ -107,29 +107,35 @@ export class TrainDataService {
       {
         id: 'train-G372',
         trainNumber: 'G372',
-        latitude: 39.9042 + (Math.random() - 0.5) * 0.01,
-        longitude: 116.4074 + (Math.random() - 0.5) * 0.01,
         timestamp: new Date().toISOString(),
         direction: Math.random() * 360,
         status: 'active',
+        pocsagData: {
+          gcj02_latitude: 39.9042 + (Math.random() - 0.5) * 0.01,
+          gcj02_longitude: 116.4074 + (Math.random() - 0.5) * 0.01,
+        },
       },
       {
         id: 'train-D123',
         trainNumber: 'D123',
-        latitude: 39.9142 + (Math.random() - 0.5) * 0.01,
-        longitude: 116.4174 + (Math.random() - 0.5) * 0.01,
         timestamp: new Date().toISOString(),
         direction: Math.random() * 360,
         status: 'active',
+        pocsagData: {
+          gcj02_latitude: 39.9142 + (Math.random() - 0.5) * 0.01,
+          gcj02_longitude: 116.4174 + (Math.random() - 0.5) * 0.01,
+        },
       },
       {
         id: 'train-K456',
         trainNumber: 'K456',
-        latitude: 39.8942 + (Math.random() - 0.5) * 0.01,
-        longitude: 116.3974 + (Math.random() - 0.5) * 0.01,
         timestamp: new Date().toISOString(),
         direction: Math.random() * 360,
         status: 'active',
+        pocsagData: {
+          gcj02_latitude: 39.8942 + (Math.random() - 0.5) * 0.01,
+          gcj02_longitude: 116.3974 + (Math.random() - 0.5) * 0.01,
+        },
       },
     ];
 

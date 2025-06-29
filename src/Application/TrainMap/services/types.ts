@@ -1,8 +1,6 @@
 export interface TrainPosition {
   id: string;
   trainNumber: string;
-  latitude: number;
-  longitude: number;
   timestamp: string;
   direction?: number;
   status?: 'active' | 'stopped' | 'maintenance';

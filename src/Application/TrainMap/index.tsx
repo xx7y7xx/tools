@@ -299,31 +299,21 @@ const TrainMap: React.FC<TrainMapProps> = ({
           if (!mapInstance.current) return;
 
           try {
-            const marker = L.marker([train.latitude, train.longitude], {
+            // Use coordinates from pocsagData
+            const latitude = train.pocsagData?.gcj02_latitude;
+            const longitude = train.pocsagData?.gcj02_longitude;
+
+            if (!latitude || !longitude) {
+              console.warn('Train missing coordinates:', train.id);
+              return;
+            }
+
+            const marker = L.marker([latitude, longitude], {
               icon: L.divIcon({
                 className: 'train-marker',
-                html: `
-                  <div style="
-                    background: ${
-                      train.status === 'active' ? '#52c41a' : '#faad14'
-                    };
-                    border: 2px solid white;
-                    border-radius: 50%;
-                    width: 20px;
-                    height: 20px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: white;
-                    font-weight: bold;
-                    font-size: 12px;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-                  ">
-                    🚂
-                  </div>
-                `,
-                iconSize: [20, 20],
-                iconAnchor: [10, 10],
+                html: '🚂',
+                iconSize: [24, 24],
+                iconAnchor: [12, 12],
               }),
             });
 
@@ -397,8 +387,11 @@ const TrainMap: React.FC<TrainMapProps> = ({
         'Trains:',
         trains.map((t) => ({
           id: t.id,
-          coords: [t.latitude, t.longitude],
-          inBounds: bounds.contains([t.latitude, t.longitude]),
+          coords: [t.pocsagData?.gcj02_latitude, t.pocsagData?.gcj02_longitude],
+          inBounds: bounds.contains([
+            t.pocsagData?.gcj02_latitude || 0,
+            t.pocsagData?.gcj02_longitude || 0,
+          ]),
         }))
       );
     }
