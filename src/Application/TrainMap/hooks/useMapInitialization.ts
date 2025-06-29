@@ -50,8 +50,8 @@ export const useMapInitialization = ({
             maxZoom: 19,
             minZoom: 1,
             subdomains: 'abc',
-            tileSize: 256,
-            zoomOffset: 0,
+            tileSize: 512,
+            zoomOffset: -1,
             detectRetina: true,
           }
         ).addTo(mapInstance.current);
@@ -64,8 +64,8 @@ export const useMapInitialization = ({
             maxZoom: 19,
             minZoom: 1,
             subdomains: 'abcd',
-            tileSize: 256,
-            zoomOffset: 0,
+            tileSize: 512,
+            zoomOffset: -1,
             detectRetina: true,
           }
         );
