@@ -8,6 +8,7 @@ import PocsagViewer from './PocsagViewer';
 import SearchTrain from './RailwayTool';
 import Setting from './Settings';
 import Checi from './Checi';
+import TrainMap from './TrainMap';
 
 // Styles for application
 import './index.css';
@@ -62,6 +63,8 @@ export default function Application() {
         return <Setting />;
       case 'checi':
         return <Checi />;
+      case 'trainMap':
+        return <TrainMap />;
       default:
         return (
           <div>
@@ -76,6 +79,9 @@ export default function Application() {
             </div>
             <div>
               <a href="/tools?tool=checi">Checi</a>
+            </div>
+            <div>
+              <a href="/tools?tool=trainMap">Train Map</a>
             </div>
           </div>
         );
