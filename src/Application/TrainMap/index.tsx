@@ -14,27 +14,16 @@ import { useMapInitialization } from './hooks/useMapInitialization';
 import { useWebSocketConnection } from './hooks/useWebSocketConnection';
 import { useTrainData } from './hooks/useTrainData';
 import { useMapMarkers } from './hooks/useMapMarkers';
-import { useRailwayLines } from './hooks/useRailwayLines';
-
-interface RailwayLine {
-  id: string;
-  name: string;
-  coordinates: [number, number][];
-  color: string;
-}
 
 interface TrainMapProps {
-  railwayLines?: RailwayLine[];
   initialCenter?: [number, number];
   initialZoom?: number;
 }
 
 const TrainMap: React.FC<TrainMapProps> = ({
-  railwayLines = [],
   initialCenter = [39.9042, 116.4074], // Beijing
   initialZoom = 10,
 }) => {
-  const [showRailwayLines, setShowRailwayLines] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [selectedTrain, setSelectedTrain] = useState<TrainPosition | null>(
     null
@@ -59,13 +48,6 @@ const TrainMap: React.FC<TrainMapProps> = ({
     isMapInitialized,
     trains,
     onTrainSelect: setSelectedTrain,
-  });
-
-  useRailwayLines({
-    mapInstance,
-    isMapInitialized,
-    showRailwayLines,
-    railwayLines,
   });
 
   // Debug function to check coordinates
@@ -104,9 +86,7 @@ const TrainMap: React.FC<TrainMapProps> = ({
         isConnected={isConnected}
         trainsCount={trains.length}
         isLoading={isLoading}
-        showRailwayLines={showRailwayLines}
         autoRefresh={autoRefresh}
-        onShowRailwayLinesChange={setShowRailwayLines}
         onAutoRefreshChange={setAutoRefresh}
         onRefresh={handleRefresh}
         onConnect={handleConnect}

@@ -13,21 +13,8 @@ export interface TrainPosition {
   };
 }
 
-export interface RailwayLine {
-  id: string;
-  name: string;
-  coordinates: [number, number][];
-  color: string;
-}
-
 export interface WebSocketMessage {
-  type:
-    | 'train_position'
-    | 'train_positions'
-    | 'railway_lines'
-    | 'error'
-    | 'ping'
-    | 'pong';
+  type: 'train_position' | 'train_positions' | 'error' | 'ping' | 'pong';
   data?: any;
   timestamp: string;
 }
@@ -40,9 +27,4 @@ export interface TrainPositionMessage extends WebSocketMessage {
 export interface TrainPositionsMessage extends WebSocketMessage {
   type: 'train_positions';
   data: TrainPosition[];
-}
-
-export interface RailwayLinesMessage extends WebSocketMessage {
-  type: 'railway_lines';
-  data: RailwayLine[];
 }

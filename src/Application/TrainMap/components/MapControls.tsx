@@ -8,9 +8,7 @@ interface MapControlsProps {
   isConnected: boolean;
   trainsCount: number;
   isLoading: boolean;
-  showRailwayLines: boolean;
   autoRefresh: boolean;
-  onShowRailwayLinesChange: (checked: boolean) => void;
   onAutoRefreshChange: (checked: boolean) => void;
   onRefresh: () => void;
   onConnect: () => void;
@@ -22,9 +20,7 @@ const MapControls: React.FC<MapControlsProps> = ({
   isConnected,
   trainsCount,
   isLoading,
-  showRailwayLines,
   autoRefresh,
-  onShowRailwayLinesChange,
   onAutoRefreshChange,
   onRefresh,
   onConnect,
@@ -50,12 +46,6 @@ const MapControls: React.FC<MapControlsProps> = ({
         <Col flex="auto" />
         <Col>
           <Space>
-            <Switch
-              checked={showRailwayLines}
-              onChange={onShowRailwayLinesChange}
-              checkedChildren="Railway Lines"
-              unCheckedChildren="Hide Lines"
-            />
             <Switch
               checked={autoRefresh}
               onChange={onAutoRefreshChange}
