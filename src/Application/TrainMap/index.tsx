@@ -15,6 +15,9 @@ import { CarOutlined, ReloadOutlined, WifiOutlined } from '@ant-design/icons';
 import { trainDataService } from './services/trainDataService';
 import { TrainPosition } from './services/types';
 
+// Import Leaflet CSS
+import 'leaflet/dist/leaflet.css';
+
 const { Title, Text } = Typography;
 
 interface RailwayLine {
@@ -125,19 +128,86 @@ const TrainMap: React.FC<TrainMapProps> = ({
         // Clear any existing content
         mapRef.current.innerHTML = '';
 
+        console.log(
+          'Initializing map with center:',
+          initialCenterRef.current,
+          'zoom:',
+          initialZoomRef.current
+        );
+
         // Create map instance using ref values
         mapInstance.current = L.map(mapRef.current).setView(
           initialCenterRef.current,
           initialZoomRef.current
         );
 
-        // Add OpenStreetMap tiles
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors',
-        }).addTo(mapInstance.current);
+        // Add OpenStreetMap tiles with proper configuration
+        const tileLayer = L.tileLayer(
+          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19,
+            minZoom: 1,
+            subdomains: 'abc',
+            tileSize: 256,
+            zoomOffset: 0,
+            detectRetina: true,
+          }
+        ).addTo(mapInstance.current);
+
+        // Add fallback tile source in case OpenStreetMap fails
+        const fallbackTileLayer = L.tileLayer(
+          'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+          {
+            attribution: '© CARTO',
+            maxZoom: 19,
+            minZoom: 1,
+            subdomains: 'abcd',
+            tileSize: 256,
+            zoomOffset: 0,
+            detectRetina: true,
+          }
+        );
+
+        // Handle tile loading errors
+        tileLayer.on('tileerror', (e: any) => {
+          console.warn('OpenStreetMap tile error, switching to fallback:', e);
+          mapInstance.current.removeLayer(tileLayer);
+          fallbackTileLayer.addTo(mapInstance.current);
+        });
+
+        // Add a scale control
+        L.control.scale().addTo(mapInstance.current);
+
+        // Add zoom control
+        L.control
+          .zoom({
+            position: 'topright',
+          })
+          .addTo(mapInstance.current);
+
+        // Add event listeners for debugging
+        mapInstance.current.on('load', () => {
+          console.log('Map tiles loaded successfully');
+        });
+
+        mapInstance.current.on('tileloadstart', (e: any) => {
+          console.log('Tile loading started:', e.coords);
+        });
+
+        mapInstance.current.on('tileload', (e: any) => {
+          console.log('Tile loaded:', e.coords);
+        });
+
+        mapInstance.current.on('tileerror', (e: any) => {
+          console.error('Tile loading error:', e.coords, e);
+        });
 
         isMapInitialized.current = true;
         console.log('Map initialized successfully');
+        console.log('Initial center:', initialCenterRef.current);
+        console.log('Initial zoom:', initialZoomRef.current);
+        console.log('Map bounds:', mapInstance.current.getBounds());
       } catch (error) {
         console.error('Error initializing map:', error);
       }
@@ -315,6 +385,27 @@ const TrainMap: React.FC<TrainMapProps> = ({
     trainDataService.disconnect();
   }, []);
 
+  // Debug function to check coordinates
+  const debugCoordinates = useCallback(() => {
+    if (mapInstance.current) {
+      const center = mapInstance.current.getCenter();
+      const zoom = mapInstance.current.getZoom();
+      const bounds = mapInstance.current.getBounds();
+      console.log('Current map state:');
+      console.log('Center:', center);
+      console.log('Zoom:', zoom);
+      console.log('Bounds:', bounds);
+      console.log(
+        'Trains:',
+        trains.map((t) => ({
+          id: t.id,
+          coords: [t.latitude, t.longitude],
+          inBounds: bounds.contains([t.latitude, t.longitude]),
+        }))
+      );
+    }
+  }, [trains]);
+
   return (
     <div
       style={{
@@ -363,6 +454,9 @@ const TrainMap: React.FC<TrainMapProps> = ({
                 loading={isLoading}
               >
                 Refresh
+              </Button>
+              <Button onClick={debugCoordinates} size="small">
+                Debug
               </Button>
               {isConnected ? (
                 <Button onClick={handleDisconnect} danger>
