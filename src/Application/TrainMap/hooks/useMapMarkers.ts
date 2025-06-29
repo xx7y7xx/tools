@@ -41,9 +41,9 @@ export const useMapMarkers = ({
           if (!mapInstance.current) return;
 
           try {
-            // Use coordinates from pocsagData - changed to WGS84
-            const latitude = train.pocsagData?.wgs84_latitude;
-            const longitude = train.pocsagData?.wgs84_longitude;
+            // Use coordinates from pocsag1234002Data - changed to WGS84
+            const latitude = train.pocsag1234002Data?.wgs84_latitude;
+            const longitude = train.pocsag1234002Data?.wgs84_longitude;
 
             if (!latitude || !longitude) {
               console.warn('Train missing coordinates:', train.id);

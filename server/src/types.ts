@@ -4,7 +4,7 @@ export interface TrainPosition {
   timestamp: string;
   direction?: number;
   status?: 'active' | 'stopped' | 'maintenance';
-  pocsagData?: {
+  pocsag1234002Data?: {
     wgs84_latitude?: number;
     wgs84_longitude?: number;
     gcj02_latitude?: number;

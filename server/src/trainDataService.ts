@@ -20,8 +20,8 @@ export class TrainDataService {
       timestamp: pocsagData.DateTime,
       direction: 0, // Unknown direction
       status: 'active',
-      // Store all coordinate data in pocsagData
-      pocsagData: {
+      // Store all coordinate data in pocsag1234002Data
+      pocsag1234002Data: {
         wgs84_latitude: pocsagData.wgs84_latitude,
         wgs84_longitude: pocsagData.wgs84_longitude,
         gcj02_latitude: pocsagData.gcj02_latitude,
@@ -55,8 +55,8 @@ export class TrainDataService {
       timestamp: pocsagData.timestamp,
       direction: Math.random() * 360, // Random direction for demo
       status: 'active',
-      // Store coordinates in pocsagData
-      pocsagData: {
+      // Store coordinates in pocsag1234002Data
+      pocsag1234002Data: {
         gcj02_latitude: pocsagData.latitude || baseLat,
         gcj02_longitude: pocsagData.longitude || baseLng,
       },
@@ -110,7 +110,7 @@ export class TrainDataService {
         timestamp: new Date().toISOString(),
         direction: Math.random() * 360,
         status: 'active',
-        pocsagData: {
+        pocsag1234002Data: {
           gcj02_latitude: 39.9042 + (Math.random() - 0.5) * 0.01,
           gcj02_longitude: 116.4074 + (Math.random() - 0.5) * 0.01,
         },
@@ -121,7 +121,7 @@ export class TrainDataService {
         timestamp: new Date().toISOString(),
         direction: Math.random() * 360,
         status: 'active',
-        pocsagData: {
+        pocsag1234002Data: {
           gcj02_latitude: 39.9142 + (Math.random() - 0.5) * 0.01,
           gcj02_longitude: 116.4174 + (Math.random() - 0.5) * 0.01,
         },
@@ -132,7 +132,7 @@ export class TrainDataService {
         timestamp: new Date().toISOString(),
         direction: Math.random() * 360,
         status: 'active',
-        pocsagData: {
+        pocsag1234002Data: {
           gcj02_latitude: 39.8942 + (Math.random() - 0.5) * 0.01,
           gcj02_longitude: 116.3974 + (Math.random() - 0.5) * 0.01,
         },
