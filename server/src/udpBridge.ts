@@ -25,12 +25,16 @@ export class UDPBridge extends EventEmitter {
     this.server.on('message', (msg, remoteInfo) => {
       try {
         // Import the decode function from your existing UDP server
-        const { decodeAddress } = require('../../../sdr_pocsag/train_utils/train_utils');
+        const {
+          decodeAddress,
+        } = require('../../../sdr_pocsag/train_utils/train_utils');
         const address = decodeAddress(msg);
-        
+
         if (address === '1234002') {
-          console.log(`[UDP Bridge] Received POCSAG 1234002 message from ${remoteInfo.address}:${remoteInfo.port}`);
-          
+          console.log(
+            `[UDP Bridge] Received POCSAG 1234002 message from ${remoteInfo.address}:${remoteInfo.port}`
+          );
+
           // Parse the POCSAG 1234002 data
           const pocsagData = this.parsePocsag1234002(msg);
           if (pocsagData) {
@@ -51,8 +55,14 @@ export class UDPBridge extends EventEmitter {
   private parsePocsag1234002(msg: Buffer): Pocsag1234002Data | null {
     try {
       // Import the parsing functions from your existing UDP server
-      const { decode, splitBufferBy, decodeDateTime } = require('../../../sdr_pocsag/train_utils/train_utils');
-      const { parsePocsag1234002 } = require('../../../sdr_pocsag/multimon_parser/train_parser');
+      const {
+        decode,
+        splitBufferBy,
+        decodeDateTime,
+      } = require('../../../sdr_pocsag/train_utils/train_utils');
+      const {
+        parsePocsag1234002,
+      } = require('../../../sdr_pocsag/multimon_parser/train_parser');
 
       // Decode the message
       const msgParts = splitBufferBy(msg, 0x00);
@@ -61,9 +71,12 @@ export class UDPBridge extends EventEmitter {
 
       // Parse the POCSAG 1234002 message
       const parsedPocsag1234002 = parsePocsag1234002(pocsag1234002Msg);
-      
+
       if (parsedPocsag1234002.err || !parsedPocsag1234002.data) {
-        console.error('[UDP Bridge] Failed to parse POCSAG 1234002:', parsedPocsag1234002.err);
+        console.error(
+          '[UDP Bridge] Failed to parse POCSAG 1234002:',
+          parsedPocsag1234002.err
+        );
         return null;
       }
 
