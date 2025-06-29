@@ -3,11 +3,16 @@ export interface TrainPosition {
   trainNumber: string;
   latitude: number;
   longitude: number;
-  speed: number;
-  mileage: number;
   timestamp: string;
   direction?: number;
   status?: 'active' | 'stopped' | 'maintenance';
+  pocsagData?: {
+    wgs84_latitude?: number;
+    wgs84_longitude?: number;
+    gcj02_latitude?: number;
+    gcj02_longitude?: number;
+    rawMessage?: string;
+  };
 }
 
 export interface RailwayLine {

@@ -3,8 +3,6 @@ export interface TrainPosition {
   trainNumber: string;
   latitude: number;
   longitude: number;
-  speed: number;
-  mileage: number;
   timestamp: string;
   direction?: number;
   status?: 'active' | 'stopped' | 'maintenance';
@@ -53,8 +51,6 @@ export interface RailwayLinesMessage extends WebSocketMessage {
 
 export interface PocsagData {
   trainNumber: string;
-  speed: number;
-  mileage: number;
   latitude?: number;
   longitude?: number;
   timestamp: string;

@@ -331,8 +331,6 @@ const TrainMap: React.FC<TrainMapProps> = ({
             const popupContent = `
               <div style="min-width: 200px;">
                 <h4>🚂 ${train.trainNumber}</h4>
-                <p><strong>Speed:</strong> ${train.speed} km/h</p>
-                <p><strong>Mileage:</strong> ${train.mileage} km</p>
                 <p><strong>Status:</strong> ${train.status}</p>
                 <p><strong>Last Update:</strong> ${new Date(
                   train.timestamp
@@ -525,18 +523,6 @@ const TrainMap: React.FC<TrainMapProps> = ({
           }
         >
           <Space direction="vertical" style={{ width: '100%' }}>
-            <Row>
-              <Col span={12}>
-                <Text type="secondary">Speed</Text>
-                <br />
-                <Text strong>{selectedTrain.speed} km/h</Text>
-              </Col>
-              <Col span={12}>
-                <Text type="secondary">Mileage</Text>
-                <br />
-                <Text strong>{selectedTrain.mileage} km</Text>
-              </Col>
-            </Row>
             <Row>
               <Col span={12}>
                 <Text type="secondary">Status</Text>

@@ -19,8 +19,7 @@ export class TrainDataService {
       trainNumber: 'Unknown', // POCSAG 1234002 doesn't contain train number
       latitude: pocsagData.gcj02_latitude, // Use GCJ02 coordinates for China
       longitude: pocsagData.gcj02_longitude,
-      speed: 0, // POCSAG 1234002 doesn't contain speed info
-      mileage: 0, // POCSAG 1234002 doesn't contain mileage info
+      // speed and mileage are optional - POCSAG 1234002 doesn't contain this info
       timestamp: pocsagData.DateTime,
       direction: 0, // Unknown direction
       status: 'active',
@@ -45,31 +44,22 @@ export class TrainDataService {
 
   // Convert POCSAG data to train position
   convertPocsagToTrainPosition(pocsagData: PocsagData): TrainPosition | null {
-    if (!pocsagData.trainNumber || !pocsagData.speed || !pocsagData.mileage) {
+    if (!pocsagData.trainNumber) {
       return null;
     }
 
-    // Generate coordinates based on mileage (this is a simplified approach)
-    // In a real implementation, you would use railway line data to calculate exact coordinates
+    // Generate coordinates based on provided data or use defaults
     const baseLat = 39.9042; // Beijing latitude
     const baseLng = 116.4074; // Beijing longitude
-
-    // Simple coordinate calculation based on mileage
-    const latOffset =
-      pocsagData.mileage * 0.001 * Math.sin(pocsagData.mileage * 0.1);
-    const lngOffset =
-      pocsagData.mileage * 0.001 * Math.cos(pocsagData.mileage * 0.1);
 
     const trainPosition: TrainPosition = {
       id: `train-${pocsagData.trainNumber}`,
       trainNumber: pocsagData.trainNumber,
-      latitude: baseLat + latOffset,
-      longitude: baseLng + lngOffset,
-      speed: pocsagData.speed,
-      mileage: pocsagData.mileage,
+      latitude: pocsagData.latitude || baseLat,
+      longitude: pocsagData.longitude || baseLng,
       timestamp: pocsagData.timestamp,
       direction: Math.random() * 360, // Random direction for demo
-      status: pocsagData.speed > 0 ? 'active' : 'stopped',
+      status: 'active',
     };
 
     return trainPosition;
@@ -119,8 +109,6 @@ export class TrainDataService {
         trainNumber: 'G372',
         latitude: 39.9042 + (Math.random() - 0.5) * 0.01,
         longitude: 116.4074 + (Math.random() - 0.5) * 0.01,
-        speed: 70 + Math.random() * 30,
-        mileage: 12.3 + Math.random() * 0.1,
         timestamp: new Date().toISOString(),
         direction: Math.random() * 360,
         status: 'active',
@@ -130,8 +118,6 @@ export class TrainDataService {
         trainNumber: 'D123',
         latitude: 39.9142 + (Math.random() - 0.5) * 0.01,
         longitude: 116.4174 + (Math.random() - 0.5) * 0.01,
-        speed: 60 + Math.random() * 20,
-        mileage: 8.7 + Math.random() * 0.1,
         timestamp: new Date().toISOString(),
         direction: Math.random() * 360,
         status: 'active',
@@ -141,8 +127,6 @@ export class TrainDataService {
         trainNumber: 'K456',
         latitude: 39.8942 + (Math.random() - 0.5) * 0.01,
         longitude: 116.3974 + (Math.random() - 0.5) * 0.01,
-        speed: 45 + Math.random() * 15,
-        mileage: 15.2 + Math.random() * 0.1,
         timestamp: new Date().toISOString(),
         direction: Math.random() * 360,
         status: 'active',
