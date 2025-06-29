@@ -1,12 +1,13 @@
-import { WebSocketServer } from './websocket-server';
-import { trainDataService } from './trainDataService';
+import dotenv from 'dotenv';
+
+import { WebSocketServer } from './websocket_server';
 import { UDPBridge } from './udpBridge';
 import { Pocsag1234002Data } from './types';
-import dotenv from 'dotenv';
+import { trainDataService } from './trainDataService';
 
 // Load environment variables
 dotenv.config();
-
+//
 const WS_PORT = parseInt(process.env.WS_PORT || '8080');
 const UDP_PORT = parseInt(process.env.UDP_PORT || '9999');
 
