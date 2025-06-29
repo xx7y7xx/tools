@@ -45,7 +45,10 @@ const TrainDetailCard: React.FC<TrainDetailCardProps> = ({
           </Col>
         </Row>
         <Text type="secondary" style={{ fontSize: '12px' }}>
-          Last update: {new Date(train.timestamp).toLocaleString()}
+          Last update:{' '}
+          {new Date(
+            train.pocsag1234002Data.pocsagMsgTimestamp
+          ).toLocaleString()}
         </Text>
       </Space>
     </Card>
