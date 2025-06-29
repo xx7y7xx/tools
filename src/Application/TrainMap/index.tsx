@@ -95,7 +95,6 @@ const TrainMap: React.FC<TrainMapProps> = ({
   return (
     <div
       style={{
-        padding: '20px',
         height: '100vh',
         display: 'flex',
         flexDirection: 'column',
@@ -145,8 +144,6 @@ const TrainMap: React.FC<TrainMapProps> = ({
           style={{
             height: '100%',
             width: '100%',
-            borderRadius: '8px',
-            overflow: 'hidden',
           }}
         />
       </div>
