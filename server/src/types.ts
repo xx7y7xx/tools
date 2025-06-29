@@ -29,14 +29,6 @@ export interface TrainPositionsMessage extends WebSocketMessage {
   data: TrainPosition[];
 }
 
-export interface PocsagData {
-  trainNumber: string;
-  latitude?: number;
-  longitude?: number;
-  timestamp: string;
-  address: string;
-}
-
 export interface ClientInfo {
   id: string;
   connectedAt: Date;

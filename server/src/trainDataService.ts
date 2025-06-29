@@ -1,4 +1,4 @@
-import { TrainPosition, PocsagData, Pocsag1234002Data } from './types';
+import { TrainPosition, Pocsag1234002Data } from './types';
 
 export class TrainDataService {
   private trainPositions: Map<string, TrainPosition> = new Map();
@@ -37,32 +37,6 @@ export class TrainDataService {
   updateTrainPositionFromPocsag1234002(pocsagData: Pocsag1234002Data): void {
     const trainPosition = this.convertPocsag1234002ToTrainPosition(pocsagData);
     this.updateTrainPosition(trainPosition);
-  }
-
-  // Convert POCSAG data to train position
-  convertPocsagToTrainPosition(pocsagData: PocsagData): TrainPosition | null {
-    if (!pocsagData.trainNumber) {
-      return null;
-    }
-
-    // Use provided coordinates or defaults
-    const baseLat = 39.9042; // Beijing latitude
-    const baseLng = 116.4074; // Beijing longitude
-
-    const trainPosition: TrainPosition = {
-      id: `train-${pocsagData.trainNumber}`,
-      trainNumber: pocsagData.trainNumber,
-      timestamp: pocsagData.timestamp,
-      direction: Math.random() * 360, // Random direction for demo
-      status: 'active',
-      // Store coordinates in pocsag1234002Data
-      pocsag1234002Data: {
-        gcj02_latitude: pocsagData.latitude || baseLat,
-        gcj02_longitude: pocsagData.longitude || baseLng,
-      },
-    };
-
-    return trainPosition;
   }
 
   // Update train position
