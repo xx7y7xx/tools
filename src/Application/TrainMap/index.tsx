@@ -9,26 +9,13 @@ import {
   Row,
   Col,
   Spin,
+  Alert,
 } from 'antd';
-import {
-  CarOutlined,
-  EnvironmentOutlined,
-  ThunderboltOutlined,
-  ReloadOutlined,
-} from '@ant-design/icons';
+import { CarOutlined, ReloadOutlined, WifiOutlined } from '@ant-design/icons';
+import { trainDataService } from './services/trainDataService';
+import { TrainPosition } from './services/types';
 
 const { Title, Text } = Typography;
-
-interface TrainPosition {
-  id: string;
-  trainNumber: string;
-  latitude: number;
-  longitude: number;
-  speed: number;
-  mileage: number;
-  timestamp: string;
-  direction?: number;
-}
 
 interface RailwayLine {
   id: string;
@@ -50,136 +37,312 @@ const TrainMap: React.FC<TrainMapProps> = ({
 }) => {
   const [trains, setTrains] = useState<TrainPosition[]>([]);
   const [isConnected, setIsConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [showRailwayLines, setShowRailwayLines] = useState(true);
-  const [autoFollow, setAutoFollow] = useState(true);
-  const [selectedTrain, setSelectedTrain] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [selectedTrain, setSelectedTrain] = useState<TrainPosition | null>(
+    null
+  );
   const mapRef = useRef<HTMLDivElement>(null);
-  const socketRef = useRef<WebSocket | null>(null);
-
-  // Update train position with smooth animation
-  const updateTrainPosition = useCallback((trainData: TrainPosition) => {
-    setTrains((prevTrains) => {
-      const existingIndex = prevTrains.findIndex((t) => t.id === trainData.id);
-
-      if (existingIndex >= 0) {
-        // Update existing train
-        const updatedTrains = [...prevTrains];
-        updatedTrains[existingIndex] = trainData;
-        return updatedTrains;
-      } else {
-        // Add new train
-        return [...prevTrains, trainData];
-      }
-    });
-  }, []);
-
-  // WebSocket connection for real-time data
-  const connectWebSocket = useCallback(() => {
-    const wsUrl =
-      process.env.REACT_APP_WEBSOCKET_URL || 'ws://localhost:8080/trains';
-
-    try {
-      socketRef.current = new WebSocket(wsUrl);
-
-      socketRef.current.onopen = () => {
-        console.log('WebSocket connected');
-        setIsConnected(true);
-      };
-
-      socketRef.current.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.type === 'train_position') {
-            updateTrainPosition(data.train);
-          }
-        } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
-        }
-      };
-
-      socketRef.current.onclose = () => {
-        console.log('WebSocket disconnected');
-        setIsConnected(false);
-        // Reconnect after 5 seconds
-        setTimeout(connectWebSocket, 5000);
-      };
-
-      socketRef.current.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        setIsConnected(false);
-      };
-    } catch (error) {
-      console.error('Failed to connect WebSocket:', error);
-      setIsConnected(false);
-    }
-  }, [updateTrainPosition]);
+  const mapInstance = useRef<any>(null);
+  const markersRef = useRef<Map<string, any>>(new Map());
+  const isMapInitialized = useRef(false);
+  const initialCenterRef = useRef(initialCenter);
+  const initialZoomRef = useRef(initialZoom);
 
   // Initialize WebSocket connection
   useEffect(() => {
-    connectWebSocket();
-
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.close();
+    const connectToServer = async () => {
+      try {
+        setIsLoading(true);
+        await trainDataService.connect();
+        trainDataService.startAutoPing();
+      } catch (error) {
+        console.error('Failed to connect to WebSocket server:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
-  }, [connectWebSocket]);
 
-  // Mock data for demonstration (remove in production)
-  useEffect(() => {
-    const mockTrains: TrainPosition[] = [
-      {
-        id: 'train-1',
-        trainNumber: 'G372',
-        latitude: 39.9042,
-        longitude: 116.4074,
-        speed: 85,
-        mileage: 12.3,
-        timestamp: new Date().toISOString(),
-        direction: 45,
-      },
-      {
-        id: 'train-2',
-        trainNumber: 'D123',
-        latitude: 39.9142,
-        longitude: 116.4174,
-        speed: 65,
-        mileage: 8.7,
-        timestamp: new Date().toISOString(),
-        direction: 135,
-      },
-    ];
+    connectToServer();
 
-    setTrains(mockTrains);
+    // Cleanup on unmount
+    return () => {
+      trainDataService.disconnect();
+    };
   }, []);
 
-  const handleRefresh = () => {
-    setLoading(true);
-    // Simulate refresh
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-  };
+  // Listen for connection status changes
+  useEffect(() => {
+    const unsubscribe = trainDataService.onConnectionChange((connected) => {
+      setIsConnected(connected);
+    });
 
-  const handleClearTrains = () => {
-    setTrains([]);
-    setSelectedTrain(null);
-  };
+    return unsubscribe;
+  }, []);
+
+  // Listen for train updates
+  useEffect(() => {
+    const unsubscribe = trainDataService.onTrainUpdate((train) => {
+      setTrains((prevTrains) => {
+        const existingIndex = prevTrains.findIndex((t) => t.id === train.id);
+        if (existingIndex >= 0) {
+          const updatedTrains = [...prevTrains];
+          updatedTrains[existingIndex] = train;
+          return updatedTrains;
+        } else {
+          return [...prevTrains, train];
+        }
+      });
+    });
+
+    return unsubscribe;
+  }, []);
+
+  // Listen for all trains updates
+  useEffect(() => {
+    const unsubscribe = trainDataService.onAllTrainsUpdate((trains) => {
+      setTrains(trains);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  // Initialize map - only once
+  useEffect(() => {
+    if (!mapRef.current || isMapInitialized.current) return;
+
+    // Capture refs at the beginning of the effect
+    const currentMarkers = markersRef.current;
+
+    const initMap = async () => {
+      try {
+        const L = await import('leaflet');
+
+        // Ensure the container exists and is empty
+        if (!mapRef.current) return;
+
+        // Clear any existing content
+        mapRef.current.innerHTML = '';
+
+        // Create map instance using ref values
+        mapInstance.current = L.map(mapRef.current).setView(
+          initialCenterRef.current,
+          initialZoomRef.current
+        );
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors',
+        }).addTo(mapInstance.current);
+
+        isMapInitialized.current = true;
+        console.log('Map initialized successfully');
+      } catch (error) {
+        console.error('Error initializing map:', error);
+      }
+    };
+
+    initMap();
+
+    // Cleanup function
+    return () => {
+      if (mapInstance.current && isMapInitialized.current) {
+        try {
+          // Clear all markers first
+          currentMarkers.forEach((marker) => {
+            if (mapInstance.current && marker) {
+              mapInstance.current.removeLayer(marker);
+            }
+          });
+          currentMarkers.clear();
+
+          // Remove the map
+          mapInstance.current.remove();
+          mapInstance.current = null;
+          isMapInitialized.current = false;
+          console.log('Map cleaned up successfully');
+        } catch (error) {
+          console.error('Error cleaning up map:', error);
+        }
+      }
+    };
+  }, []); // Empty dependency array - only run once
+
+  // Add railway lines separately to avoid re-initializing map
+  useEffect(() => {
+    if (!mapInstance.current || !isMapInitialized.current) return;
+
+    const addRailwayLines = async () => {
+      try {
+        const L = await import('leaflet');
+
+        // Clear existing railway lines (if any)
+        if (mapInstance.current._railwayLines) {
+          mapInstance.current._railwayLines.forEach((line: any) => {
+            mapInstance.current.removeLayer(line);
+          });
+        }
+        mapInstance.current._railwayLines = [];
+
+        // Add railway lines if available
+        if (showRailwayLines && railwayLines.length > 0) {
+          railwayLines.forEach((line: RailwayLine) => {
+            const polyline = L.polyline(line.coordinates, {
+              color: line.color,
+              weight: 3,
+              opacity: 0.7,
+            }).addTo(mapInstance.current);
+            mapInstance.current._railwayLines.push(polyline);
+          });
+        }
+      } catch (error) {
+        console.error('Error adding railway lines:', error);
+      }
+    };
+
+    addRailwayLines();
+  }, [showRailwayLines, railwayLines]);
+
+  // Update train markers
+  useEffect(() => {
+    if (!mapInstance.current || !isMapInitialized.current) return;
+
+    const updateMarkers = async () => {
+      try {
+        const L = await import('leaflet');
+
+        // Clear existing markers
+        markersRef.current.forEach((marker) => {
+          if (mapInstance.current && marker) {
+            try {
+              mapInstance.current.removeLayer(marker);
+            } catch (error) {
+              console.warn('Error removing marker:', error);
+            }
+          }
+        });
+        markersRef.current.clear();
+
+        // Add new markers
+        trains.forEach((train) => {
+          if (!mapInstance.current) return;
+
+          try {
+            const marker = L.marker([train.latitude, train.longitude], {
+              icon: L.divIcon({
+                className: 'train-marker',
+                html: `
+                  <div style="
+                    background: ${
+                      train.status === 'active' ? '#52c41a' : '#faad14'
+                    };
+                    border: 2px solid white;
+                    border-radius: 50%;
+                    width: 20px;
+                    height: 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-weight: bold;
+                    font-size: 12px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                  ">
+                    🚂
+                  </div>
+                `,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10],
+              }),
+            });
+
+            // Add popup with train info
+            const popupContent = `
+              <div style="min-width: 200px;">
+                <h4>🚂 ${train.trainNumber}</h4>
+                <p><strong>Speed:</strong> ${train.speed} km/h</p>
+                <p><strong>Mileage:</strong> ${train.mileage} km</p>
+                <p><strong>Status:</strong> ${train.status}</p>
+                <p><strong>Last Update:</strong> ${new Date(
+                  train.timestamp
+                ).toLocaleTimeString()}</p>
+              </div>
+            `;
+            marker.bindPopup(popupContent);
+
+            // Add click handler
+            marker.on('click', () => {
+              setSelectedTrain(train);
+            });
+
+            // Add to map
+            marker.addTo(mapInstance.current);
+            markersRef.current.set(train.id, marker);
+          } catch (error) {
+            console.error(
+              'Error adding marker for train',
+              train.id,
+              ':',
+              error
+            );
+          }
+        });
+      } catch (error) {
+        console.error('Error updating markers:', error);
+      }
+    };
+
+    updateMarkers();
+  }, [trains]);
+
+  const handleRefresh = useCallback(() => {
+    trainDataService.requestAllTrains();
+  }, []);
+
+  const handleConnect = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      await trainDataService.connect();
+    } catch (error) {
+      console.error('Failed to reconnect:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const handleDisconnect = useCallback(() => {
+    trainDataService.disconnect();
+  }, []);
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Control Panel */}
-      <Card size="small" style={{ margin: 8 }}>
+    <div
+      style={{
+        padding: '20px',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <Card>
         <Row gutter={16} align="middle">
           <Col>
+            <Title level={3} style={{ margin: 0 }}>
+              <CarOutlined /> Train Map
+            </Title>
+          </Col>
+          <Col>
             <Space>
-              <Tag color={isConnected ? 'green' : 'red'}>
+              <Tag
+                color={isConnected ? 'green' : 'red'}
+                icon={<WifiOutlined />}
+              >
                 {isConnected ? 'Connected' : 'Disconnected'}
               </Tag>
-              <Text>Trains: {trains.length}</Text>
+              <Text type="secondary">{trains.length} trains active</Text>
             </Space>
           </Col>
+          <Col flex="auto" />
           <Col>
             <Space>
               <Switch
@@ -189,102 +352,119 @@ const TrainMap: React.FC<TrainMapProps> = ({
                 unCheckedChildren="Hide Lines"
               />
               <Switch
-                checked={autoFollow}
-                onChange={setAutoFollow}
-                checkedChildren="Auto Follow"
+                checked={autoRefresh}
+                onChange={setAutoRefresh}
+                checkedChildren="Auto Refresh"
                 unCheckedChildren="Manual"
               />
-            </Space>
-          </Col>
-          <Col>
-            <Space>
               <Button
-                type="primary"
                 icon={<ReloadOutlined />}
-                loading={loading}
                 onClick={handleRefresh}
+                loading={isLoading}
               >
                 Refresh
               </Button>
-              <Button icon={<CarOutlined />} onClick={handleClearTrains}>
-                Clear Trains
-              </Button>
+              {isConnected ? (
+                <Button onClick={handleDisconnect} danger>
+                  Disconnect
+                </Button>
+              ) : (
+                <Button onClick={handleConnect} type="primary">
+                  Connect
+                </Button>
+              )}
             </Space>
           </Col>
         </Row>
       </Card>
 
-      {/* Map Container */}
+      {!isConnected && (
+        <Alert
+          message="WebSocket Connection Required"
+          description="Please start the WebSocket server and click Connect to view real-time train data."
+          type="warning"
+          showIcon
+          style={{ marginBottom: '16px' }}
+        />
+      )}
+
       <div style={{ flex: 1, position: 'relative' }}>
+        {isLoading && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 1000,
+            }}
+          >
+            <Spin size="large" />
+          </div>
+        )}
+
         <div
           ref={mapRef}
           style={{
             height: '100%',
             width: '100%',
-            background: '#f0f2f5',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexDirection: 'column',
+            borderRadius: '8px',
+            overflow: 'hidden',
           }}
-        >
-          <Spin size="large" />
-          <Title level={4} style={{ marginTop: 16 }}>
-            Train Map Loading...
-          </Title>
-          <Text type="secondary">
-            Map component will be implemented with Leaflet
-          </Text>
-        </div>
-
-        {/* Train List Overlay */}
-        {trains.length > 0 && (
-          <Card
-            size="small"
-            style={{
-              position: 'absolute',
-              top: 10,
-              left: 10,
-              width: 300,
-              maxHeight: 400,
-              overflow: 'auto',
-            }}
-            title="Active Trains"
-          >
-            {trains.map((train) => (
-              <div
-                key={train.id}
-                style={{
-                  padding: 8,
-                  border:
-                    selectedTrain === train.id
-                      ? '2px solid #1890ff'
-                      : '1px solid #d9d9d9',
-                  borderRadius: 4,
-                  marginBottom: 8,
-                  cursor: 'pointer',
-                  backgroundColor:
-                    selectedTrain === train.id ? '#f0f8ff' : 'white',
-                }}
-                onClick={() => setSelectedTrain(train.id)}
-              >
-                <div style={{ fontWeight: 'bold', color: '#1890ff' }}>
-                  <CarOutlined /> {train.trainNumber}
-                </div>
-                <div style={{ fontSize: 12, color: '#666' }}>
-                  <ThunderboltOutlined /> {train.speed} km/h
-                </div>
-                <div style={{ fontSize: 12, color: '#666' }}>
-                  <EnvironmentOutlined /> {train.mileage} km
-                </div>
-                <div style={{ fontSize: 10, color: '#999' }}>
-                  {new Date(train.timestamp).toLocaleTimeString()}
-                </div>
-              </div>
-            ))}
-          </Card>
-        )}
+        />
       </div>
+
+      {selectedTrain && (
+        <Card
+          style={{
+            position: 'absolute',
+            bottom: '20px',
+            right: '20px',
+            width: '300px',
+            zIndex: 1000,
+          }}
+          title={`Train ${selectedTrain.trainNumber}`}
+          extra={
+            <Button size="small" onClick={() => setSelectedTrain(null)}>
+              ×
+            </Button>
+          }
+        >
+          <Space direction="vertical" style={{ width: '100%' }}>
+            <Row>
+              <Col span={12}>
+                <Text type="secondary">Speed</Text>
+                <br />
+                <Text strong>{selectedTrain.speed} km/h</Text>
+              </Col>
+              <Col span={12}>
+                <Text type="secondary">Mileage</Text>
+                <br />
+                <Text strong>{selectedTrain.mileage} km</Text>
+              </Col>
+            </Row>
+            <Row>
+              <Col span={12}>
+                <Text type="secondary">Status</Text>
+                <br />
+                <Tag
+                  color={selectedTrain.status === 'active' ? 'green' : 'orange'}
+                >
+                  {selectedTrain.status}
+                </Tag>
+              </Col>
+              <Col span={12}>
+                <Text type="secondary">Direction</Text>
+                <br />
+                <Text strong>{selectedTrain.direction?.toFixed(1)}°</Text>
+              </Col>
+            </Row>
+            <Text type="secondary" style={{ fontSize: '12px' }}>
+              Last update: {new Date(selectedTrain.timestamp).toLocaleString()}
+            </Text>
+          </Space>
+        </Card>
+      )}
     </div>
   );
 };
