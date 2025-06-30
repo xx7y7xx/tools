@@ -1,6 +1,5 @@
 export interface TrainPosition {
   id: string;
-  trainNumber: string;
   pocsag1234002Data: {
     pocsagMsgTimestamp: string;
     wgs84_latitude?: number;
