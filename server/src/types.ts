@@ -1,11 +1,19 @@
 export interface TrainPosition {
   id: string;
+  trainNumber?: number;
   pocsag1234002Data: {
     pocsagMsgTimestamp: string;
     wgs84_latitude?: number;
     wgs84_longitude?: number;
     gcj02_latitude?: number;
     gcj02_longitude?: number;
+    rawMessage?: string;
+  };
+  pocsag1234000Data?: {
+    pocsagMsgTimestamp: string;
+    trainNumber: number;
+    speed: number;
+    mileage: number;
     rawMessage?: string;
   };
 }
@@ -31,6 +39,14 @@ export interface ClientInfo {
   connectedAt: Date;
   lastPing: Date;
   subscriptions: string[];
+}
+
+export interface Pocsag1234000Data {
+  DateTime: string;
+  pocsag1234000Msg: string;
+  trainNumber: number;
+  speed: number;
+  mileage: number;
 }
 
 export interface Pocsag1234002Data {

@@ -60,7 +60,19 @@ export const useMapMarkers = ({
             // Add popup with train info
             const popupContent = `
               <div style="min-width: 200px;">
-                <h4>🚆 Train ${train.id}</h4>
+                <h4>🚆 ${
+                  train.trainNumber
+                    ? `Train ${train.trainNumber}`
+                    : `Train ${train.id}`
+                }</h4>
+                ${
+                  train.pocsag1234000Data
+                    ? `
+                <p><strong>Speed:</strong> ${train.pocsag1234000Data.speed} km/h</p>
+                <p><strong>Mileage:</strong> ${train.pocsag1234000Data.mileage} km</p>
+                `
+                    : ''
+                }
                 <p><strong>Last Update:</strong> ${new Date(
                   train.pocsag1234002Data.pocsagMsgTimestamp
                 ).toLocaleTimeString()}</p>

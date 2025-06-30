@@ -1,6 +1,6 @@
 import dgram from 'dgram';
 import { EventEmitter } from 'events';
-import { Pocsag1234002Data } from './types';
+import { Pocsag1234002Data, Pocsag1234000Data } from './types';
 
 export class UDPBridge extends EventEmitter {
   private server: dgram.Socket;
@@ -30,7 +30,18 @@ export class UDPBridge extends EventEmitter {
         } = require('../../../sdr_pocsag/train_utils/train_utils');
         const address = decodeAddress(msg);
 
-        if (address === '1234002') {
+        if (address === '1234000') {
+          console.log(
+            `[UDP Bridge] Received POCSAG 1234000 message from ${remoteInfo.address}:${remoteInfo.port}`
+          );
+
+          // Parse the POCSAG 1234000 data
+          const pocsagData = this.parsePocsag1234000(msg);
+          if (pocsagData) {
+            // Emit the parsed data for correlation
+            this.emit('pocsag1234000', pocsagData);
+          }
+        } else if (address === '1234002') {
           console.log(
             `[UDP Bridge] Received POCSAG 1234002 message from ${remoteInfo.address}:${remoteInfo.port}`
           );
@@ -50,6 +61,47 @@ export class UDPBridge extends EventEmitter {
     this.server.on('error', (error) => {
       console.error('[UDP Bridge] UDP server error:', error);
     });
+  }
+
+  private parsePocsag1234000(msg: Buffer): Pocsag1234000Data | null {
+    try {
+      // Import the parsing functions from your existing UDP server
+      const {
+        decode,
+        splitBufferBy,
+        decodeDateTime,
+      } = require('../../../sdr_pocsag/train_utils/train_utils');
+      const {
+        convertTrainNumSpeedMileage,
+      } = require('../../../sdr_pocsag/multimon_parser/train_parser');
+
+      // Decode the message
+      const msgParts = splitBufferBy(msg, 0x00);
+      const pocsag1234000Msg = decode(msgParts[5], 0, msgParts[5].length);
+      const dateTime = decodeDateTime(msg);
+
+      // Parse the POCSAG 1234000 message
+      const result = convertTrainNumSpeedMileage(pocsag1234000Msg);
+
+      if (result.err || !result.data) {
+        console.error(
+          '🚨 [UDP Bridge] Failed to parse POCSAG 1234000:',
+          result.err
+        );
+        return null;
+      }
+
+      return {
+        DateTime: dateTime,
+        pocsag1234000Msg,
+        trainNumber: result.data.trainNumber,
+        speed: result.data.speed,
+        mileage: result.data.mileage,
+      };
+    } catch (error) {
+      console.error('[UDP Bridge] Error parsing POCSAG 1234000:', error);
+      return null;
+    }
   }
 
   private parsePocsag1234002(msg: Buffer): Pocsag1234002Data | null {
@@ -74,7 +126,7 @@ export class UDPBridge extends EventEmitter {
 
       if (parsedPocsag1234002.err || !parsedPocsag1234002.data) {
         console.error(
-          '[UDP Bridge] Failed to parse POCSAG 1234002:',
+          '🚨 [UDP Bridge] Failed to parse POCSAG 1234002:',
           parsedPocsag1234002.err
         );
         return null;
