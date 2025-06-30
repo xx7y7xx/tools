@@ -108,7 +108,6 @@ interface TrainPosition {
   id: string;
   trainNumber: string;
   timestamp: string;
-  status?: 'active' | 'stopped' | 'maintenance';
   pocsagData?: {
     wgs84_latitude?: number;
     wgs84_longitude?: number;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Button, Space, Tag, Typography, Row, Col } from 'antd';
+import { Card, Button, Space, Typography } from 'antd';
 import { TrainPosition } from '../services/types';
 
 const { Text } = Typography;
@@ -30,15 +30,6 @@ const TrainDetailCard: React.FC<TrainDetailCardProps> = ({
       }
     >
       <Space direction="vertical" style={{ width: '100%' }}>
-        <Row>
-          <Col span={24}>
-            <Text type="secondary">Status</Text>
-            <br />
-            <Tag color={train.status === 'active' ? 'green' : 'orange'}>
-              {train.status}
-            </Tag>
-          </Col>
-        </Row>
         <Text type="secondary" style={{ fontSize: '12px' }}>
           Last update:{' '}
           {new Date(
