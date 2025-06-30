@@ -17,7 +17,6 @@ export class TrainDataService {
     const trainPosition: TrainPosition = {
       id: trainId,
       trainNumber: 'Unknown', // POCSAG 1234002 doesn't contain train number
-      direction: 0, // Unknown direction
       status: 'active',
       // Store all coordinate data in pocsag1234002Data
       pocsag1234002Data: {
@@ -81,7 +80,6 @@ export class TrainDataService {
       {
         id: 'train-G372',
         trainNumber: 'G372',
-        direction: Math.random() * 360,
         status: 'active',
         pocsag1234002Data: {
           pocsagMsgTimestamp: new Date().toISOString(),
@@ -92,7 +90,6 @@ export class TrainDataService {
       {
         id: 'train-D123',
         trainNumber: 'D123',
-        direction: Math.random() * 360,
         status: 'active',
         pocsag1234002Data: {
           pocsagMsgTimestamp: new Date().toISOString(),
@@ -103,7 +100,6 @@ export class TrainDataService {
       {
         id: 'train-K456',
         trainNumber: 'K456',
-        direction: Math.random() * 360,
         status: 'active',
         pocsag1234002Data: {
           pocsagMsgTimestamp: new Date().toISOString(),

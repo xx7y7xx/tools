@@ -1,7 +1,6 @@
 export interface TrainPosition {
   id: string;
   trainNumber: string;
-  direction?: number;
   status?: 'active' | 'stopped' | 'maintenance';
   pocsag1234002Data: {
     pocsagMsgTimestamp: string;

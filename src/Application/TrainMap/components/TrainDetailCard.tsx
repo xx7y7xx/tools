@@ -31,17 +31,12 @@ const TrainDetailCard: React.FC<TrainDetailCardProps> = ({
     >
       <Space direction="vertical" style={{ width: '100%' }}>
         <Row>
-          <Col span={12}>
+          <Col span={24}>
             <Text type="secondary">Status</Text>
             <br />
             <Tag color={train.status === 'active' ? 'green' : 'orange'}>
               {train.status}
             </Tag>
-          </Col>
-          <Col span={12}>
-            <Text type="secondary">Direction</Text>
-            <br />
-            <Text strong>{train.direction?.toFixed(1)}°</Text>
           </Col>
         </Row>
         <Text type="secondary" style={{ fontSize: '12px' }}>
