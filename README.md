@@ -8,8 +8,7 @@
 
 ```
 npm i
-npm start # start web
-npm run dev # start server
+npm start
 ```
 
 - http://localhost:3000/tools?tool=setting&folderId=<gdrive_dir_id>&date=20241121 - Load data from google drive, save to indexedDB
