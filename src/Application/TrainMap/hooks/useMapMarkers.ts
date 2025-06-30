@@ -67,6 +67,9 @@ export const useMapMarkers = ({
                 <p><strong>Last Update:</strong> ${new Date(
                   train.pocsag1234002Data.pocsagMsgTimestamp
                 ).toLocaleTimeString()}</p>
+                <p><strong>Raw Message:</strong> ${
+                  train.pocsag1234002Data.rawMessage
+                }</p>
               </div>
             `;
             marker.bindPopup(popupContent);
