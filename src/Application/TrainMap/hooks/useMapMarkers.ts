@@ -5,14 +5,12 @@ interface UseMapMarkersProps {
   mapInstance: React.MutableRefObject<any>;
   isMapInitialized: React.MutableRefObject<boolean>;
   trains: TrainPosition[];
-  onTrainSelect: (train: TrainPosition) => void;
 }
 
 export const useMapMarkers = ({
   mapInstance,
   isMapInitialized,
   trains,
-  onTrainSelect,
 }: UseMapMarkersProps) => {
   const markersRef = useRef<Map<string, any>>(new Map());
 
@@ -73,11 +71,6 @@ export const useMapMarkers = ({
             `;
             marker.bindPopup(popupContent);
 
-            // Add click handler
-            marker.on('click', () => {
-              onTrainSelect(train);
-            });
-
             // Add to map
             marker.addTo(mapInstance.current);
             markersRef.current.set(train.id, marker);
@@ -96,7 +89,7 @@ export const useMapMarkers = ({
     };
 
     updateMarkers();
-  }, [trains, mapInstance, isMapInitialized, onTrainSelect]);
+  }, [trains, mapInstance, isMapInitialized]);
 
   return {
     markersRef,

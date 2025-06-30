@@ -7,7 +7,6 @@ import 'leaflet/dist/leaflet.css';
 
 // Import components
 import MapControls from './components/MapControls';
-import TrainDetailCard from './components/TrainDetailCard';
 
 // Import hooks
 import { useMapInitialization } from './hooks/useMapInitialization';
@@ -25,9 +24,6 @@ const TrainMap: React.FC<TrainMapProps> = ({
   initialZoom = 10,
 }) => {
   const [autoRefresh, setAutoRefresh] = useState(true);
-  const [selectedTrain, setSelectedTrain] = useState<TrainPosition | null>(
-    null
-  );
 
   const mapRef = useRef<HTMLDivElement>(null);
 
@@ -47,7 +43,6 @@ const TrainMap: React.FC<TrainMapProps> = ({
     mapInstance,
     isMapInitialized,
     trains,
-    onTrainSelect: setSelectedTrain,
   });
 
   // Debug function to check coordinates
@@ -130,13 +125,6 @@ const TrainMap: React.FC<TrainMapProps> = ({
           }}
         />
       </div>
-
-      {selectedTrain && (
-        <TrainDetailCard
-          train={selectedTrain}
-          onClose={() => setSelectedTrain(null)}
-        />
-      )}
     </div>
   );
 };
