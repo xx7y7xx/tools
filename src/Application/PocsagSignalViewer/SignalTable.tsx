@@ -221,7 +221,7 @@ const SignalTable = ({
       dataIndex: 'messagePayload',
       key: 'messagePayload',
       width: 400,
-      //if  address is 1234000 and message type is numeric, then use convertTrainNumSpeedMileage to parse the message content
+      //if  address is 1234000 and message type is numeric, then use parsePocsag1234000 to parse the message content
       render: (_, record: ParsedPocsagRow) => {
         if (
           record.address === 1234000 &&
