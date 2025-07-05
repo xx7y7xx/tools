@@ -1,3 +1,4 @@
+import { Github } from '@db-man/github';
 import { message } from 'antd';
 
 import { getJsonFileContent } from '../helpers/filesApiHelpers';
@@ -10,7 +11,13 @@ import {
   trainsTableKeyPath,
   trainsMetaDataTableKeyPath,
   version,
+  trainsFullInfoMapFileName,
 } from '../trainsDbCfg';
+import {
+  LS_GITHUB_OWNER_KEY,
+  LS_GITHUB_REPO_KEY,
+  LS_PERSONAL_ACCESS_TOKEN_KEY,
+} from '../RailwayTool/constants';
 
 export const deleteAndCreateDatabaseAsync = async (dbName: string) => {
   await deleteDatabaseAsync(dbName);
@@ -115,7 +122,35 @@ export const downloadTrainsDataFromGoogleDrive = async (
   }
 };
 
-const saveTrainsToIndexedDBAsync = async (
+export const downloadTrainsDataFromGithub = async (date: string) => {
+  const github = new Github({
+    personalAccessToken: localStorage.getItem(LS_PERSONAL_ACCESS_TOKEN_KEY),
+    owner: localStorage.getItem(LS_GITHUB_OWNER_KEY),
+    repoName: localStorage.getItem(LS_GITHUB_REPO_KEY),
+  });
+
+  const files = await github.getContentByPath(`/${date}`);
+
+  // when calling getContentByPath with a file as path param, it returns an object instead of an array
+  if (!Array.isArray(files)) {
+    throw new Error(
+      `downloadTrainsDataFromGithub: Expected an array of files for the path "/${date}", but received an object. Please check if the provided path is a directory.`
+    );
+  }
+
+  let sha;
+  files.forEach((file) => {
+    if (file.name === trainsFullInfoMapFileName) {
+      sha = file.sha;
+    }
+  });
+
+  // @ts-ignore
+  const res = await github.getBlobContentAndSha(sha);
+  return res.content as unknown as TrainsFullInfoMapType;
+};
+
+export const saveTrainsToIndexedDBAsync = async (
   date: string,
   trainsFullInfoMap: TrainsFullInfoMapType
 ) => {

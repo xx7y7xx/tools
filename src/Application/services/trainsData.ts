@@ -1,5 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 
+import { trainsFullInfoMapFileName } from '../trainsDbCfg';
+
 // Configuration for the trains-data API
 const TRAINS_DATA_BASE_URL = 'http://localhost:3000/trains-data';
 
@@ -173,7 +175,7 @@ export const fetchTrainsFullInfo = async (): Promise<
 > => {
   try {
     const response: AxiosResponse = await axios.get(
-      `${TRAINS_DATA_BASE_URL}/20250401_full/trainsFullInfoMap.json`,
+      `${TRAINS_DATA_BASE_URL}/20250401_full/${trainsFullInfoMapFileName}`,
       {
         headers: {
           Accept: 'application/json',

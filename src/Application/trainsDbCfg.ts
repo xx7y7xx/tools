@@ -5,3 +5,4 @@ export const trainsMetaDataTableName = 'trains_meta_data';
 export const trainsMetaDataTableKeyPath = 'createdAt';
 export const checisTableName = 'checis';
 export const version = 1;
+export const trainsFullInfoMapFileName = 'trainsFullInfoMap.json';

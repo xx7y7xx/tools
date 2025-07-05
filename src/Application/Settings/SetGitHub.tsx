@@ -1,13 +1,21 @@
-import { Button, Form, Input, message } from 'antd';
 import { useState } from 'react';
+
+import { Alert, Button, Form, Input, message, Space } from 'antd';
 
 import {
   LS_PERSONAL_ACCESS_TOKEN_KEY,
   LS_GITHUB_OWNER_KEY,
   LS_GITHUB_REPO_KEY,
 } from '../RailwayTool/constants';
+import {
+  deleteAndCreateDatabaseAsync,
+  saveTrainsToIndexedDBAsync,
+  // downloadAndSaveWholeTimeRangeCheciListOnlyCheciData,
+  downloadTrainsDataFromGithub,
+} from './helpers';
+import { dbName } from '../trainsDbCfg';
 
-const SetGitHub = () => {
+const SetGitHub = ({ date }: { date: string }) => {
   const [personalAccessToken, setPersonalAccessToken] = useState(
     localStorage.getItem(LS_PERSONAL_ACCESS_TOKEN_KEY) || ''
   );
@@ -17,6 +25,25 @@ const SetGitHub = () => {
   const [githubRepo, setGithubRepo] = useState(
     localStorage.getItem(LS_GITHUB_REPO_KEY) || ''
   );
+  const disabled =
+    localStorage.getItem(LS_PERSONAL_ACCESS_TOKEN_KEY) === null ||
+    localStorage.getItem(LS_GITHUB_OWNER_KEY) === null ||
+    localStorage.getItem(LS_GITHUB_REPO_KEY) === null;
+
+  const handleDownloadAndSaveTrainsData = async () => {
+    const trainsData = await downloadTrainsDataFromGithub(date);
+    await saveTrainsToIndexedDBAsync(date, trainsData);
+  };
+
+  const handleDeleteAndCreateDatabase = async () => {
+    await deleteAndCreateDatabaseAsync(dbName);
+    message.success('Database deleted and created successfully');
+  };
+
+  // const handleDownloadAndSaveWholeTimeRangeCheciListOnlyCheciData = () => {
+  //   downloadAndSaveWholeTimeRangeCheciListOnlyCheciData(folderId);
+  // };
+
   return (
     <div>
       Set github access for trains-data repo
@@ -59,6 +86,40 @@ const SetGitHub = () => {
           </Button>
         </Form.Item>
       </Form>
+      <Space direction="vertical">
+        <div>
+          After set above GitHub settings, you can click below button to save
+          wholeTimeRangeCheciListOnlyCheci.json to IndexedDB:
+        </div>
+
+        <Alert
+          message="Why we need download data from GitHub instead of Google Drive: This is
+          because in the latest version Chrome, I always failed to login with
+          Google login button."
+          type="warning"
+        />
+        <Button
+          disabled={disabled}
+          onClick={handleDeleteAndCreateDatabase}
+          type="primary"
+        >
+          Delete and create database
+        </Button>
+        <Button
+          disabled={disabled}
+          onClick={handleDownloadAndSaveTrainsData}
+          type="primary"
+        >
+          Save {date} to IndexedDB
+        </Button>
+        {/* <Button
+        disabled={disabled}
+        onClick={handleDownloadAndSaveWholeTimeRangeCheciListOnlyCheciData}
+        type="primary"
+      >
+        Save wholeTimeRangeCheciListOnlyCheci.json to IndexedDB
+      </Button> */}
+      </Space>
     </div>
   );
 };

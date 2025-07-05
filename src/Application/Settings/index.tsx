@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { Card, Divider } from 'antd';
+
 import Warning from '../Warning';
 import { initGapiClient } from '../init';
 import Container from './Container';
@@ -48,8 +50,13 @@ const Settings = () => {
 
   return (
     <div className="xytool-settings-page">
-      <Container date={date} folderId={folderId} />
-      <SetGitHub />
+      <Card title="Download data from Google Drive">
+        <Container date={date} folderId={folderId} />
+      </Card>
+      <Divider />
+      <Card title="Download data from GitHub">
+        <SetGitHub date={date} />
+      </Card>
     </div>
   );
 };
