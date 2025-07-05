@@ -145,7 +145,12 @@ export const downloadTrainsDataFromGithub = async (date: string) => {
     }
   });
 
-  // @ts-ignore
+  if (!sha) {
+    throw new Error(
+      `downloadTrainsDataFromGithub: Expected to find ${trainsFullInfoMapFileName} in the path "/${date}", but did not find it.`
+    );
+  }
+
   const res = await github.getBlobContentAndSha(sha);
   return res.content as unknown as TrainsFullInfoMapType;
 };
