@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 
+import { Warning } from '@db-man/components';
 import { Card, Divider } from 'antd';
 
-import Warning from '../Warning';
+// import Warning from '../Warning';
 import { initGapiClient } from '../init';
 import Container from './Container';
 import SetGitHub from './SetGitHub';

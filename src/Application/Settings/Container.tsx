@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Button, message, Space } from 'antd';
 
 import { dbName } from '../trainsDbCfg';
-import GoogleLogin from '../components/GoogleLogin';
+// import GoogleLogin from '../components/GoogleLogin';
 import { getTrainsMetaDataAsync } from '../helpers/trainHelpers';
 import {
   deleteAndCreateDatabaseAsync,
@@ -11,7 +11,7 @@ import {
 } from './helpers';
 
 const Settings = ({ date, folderId }: { date: string; folderId: string }) => {
-  const [disabled, setDisabled] = useState(true);
+  const [disabled /* setDisabled */] = useState(true);
   const [metaData, setMetaData] = useState<Record<string, any>>({});
 
   useEffect(() => {
@@ -30,13 +30,13 @@ const Settings = ({ date, folderId }: { date: string; folderId: string }) => {
     loadMetaData();
   }, []);
 
-  /**
-   * User success signed in Google account.
-   * @param {gapi.auth2.GoogleUser} user
-   */
-  const handleLoginSuccess = (user: gapi.auth2.GoogleUser) => {
-    setDisabled(false);
-  };
+  // /**
+  //  * User success signed in Google account.
+  //  * @param {gapi.auth2.GoogleUser} user
+  //  */
+  // const handleLoginSuccess = (user: gapi.auth2.GoogleUser) => {
+  //   setDisabled(false);
+  // };
 
   const handleDownloadAndSaveTrainsData = () => {
     downloadAndSaveTrainsData(folderId, date);
@@ -53,7 +53,7 @@ const Settings = ({ date, folderId }: { date: string; folderId: string }) => {
 
   return (
     <Space direction="vertical">
-      <GoogleLogin onLoginSuccess={handleLoginSuccess} />
+      {/* <GoogleLogin onLoginSuccess={handleLoginSuccess} /> */}
       <Button
         disabled={disabled}
         onClick={handleDeleteAndCreateDatabase}

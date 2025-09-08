@@ -1,9 +1,14 @@
+import {
+  deleteDatabaseAsync,
+  openAsync,
+} from '@db-man/components/lib/utils/indexedDBHelpers';
 import { Github } from '@db-man/github';
+import { getJsonFileContent } from '@db-man/google/dist/web_api/filesApiHelpers';
 import { message } from 'antd';
 
-import { getJsonFileContent } from '../helpers/filesApiHelpers';
+// import { getJsonFileContent } from '../helpers/filesApiHelpers';
 import { TrainsFullInfoMapType } from '../RailwayTool/types';
-import { deleteDatabaseAsync, openAsync } from '../helpers/indexedDBHelpers';
+// import { deleteDatabaseAsync, openAsync } from '../helpers/indexedDBHelpers';
 import {
   dbName,
   trainsMetaDataTableName,
@@ -112,6 +117,7 @@ export const downloadTrainsDataFromGoogleDrive = async (
     console.debug('[TrainSearch] Downloaded file data:', fileName, fileData);
     message.success(`Successfully downloaded ${fileName}`);
 
+    // @ts-ignore TODO: fix this
     return fileData as TrainsFullInfoMapType;
   } catch (error) {
     console.error('Error downloading train data:', error);
@@ -209,6 +215,7 @@ export const downloadAndSaveWholeTimeRangeCheciListOnlyCheciData = async (
   folderId: string
 ) => {
   message.info('Downloading checis from Google Drive');
+  // @ts-ignore TODO: fix this
   const fileData = (await getJsonFileContent(
     folderId,
     'wholeTimeRangeCheciListOnlyCheci.json'

@@ -1,5 +1,10 @@
+import {
+  getAllRecordsAsync,
+  openAsync,
+} from '@db-man/components/lib/utils/indexedDBHelpers';
+
 import { version } from '../trainsDbCfg';
-import { getAllRecordsAsync, openAsync } from './indexedDBHelpers';
+// import { getAllRecordsAsync, openAsync } from './indexedDBHelpers';
 
 /**
  * Get all records from a table
