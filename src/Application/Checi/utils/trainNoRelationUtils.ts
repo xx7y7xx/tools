@@ -17,7 +17,7 @@ export interface FieldAggregationStats {
 
   /**
    * The value of the selected field being analyzed
-   * Extracted from trainsFullInfo[trainCode]?.[selectedField] or defaults to 'Unknown' if not found
+   * Extracted from trainsFullInfoMap[trainCode]?.[selectedField] or defaults to 'Unknown' if not found
    * Examples: '北京局' (operateGroup), 'G1' (trainNumber), '北京南' (fromStation), '上海虹桥' (toStation), '高铁' (trainType)
    */
   fieldValue: string;
@@ -91,13 +91,13 @@ export interface AggregationSummaryStats {
 /**
  * Aggregates train data by a selected field and calculates statistics for each group
  * @param historicalData - Historical trains data
- * @param trainsFullInfo - Full train information data
+ * @param trainsFullInfoMap - Full train information data
  * @param selectedField - The field to group by (operateGroup, trainNumber, etc.)
  * @returns Array of aggregated train statistics grouped by field value
  */
 export const aggregateTrainsByField = (
   historicalData: HistoricalTrainsData,
-  trainsFullInfo: FullTrainInfoMap,
+  trainsFullInfoMap: FullTrainInfoMap,
   selectedField: FieldType
 ): FieldAggregationStats[] => {
   // Map to store aggregated data for each field value
@@ -116,7 +116,7 @@ export const aggregateTrainsByField = (
     Object.entries(trains).forEach(([trainCode, trainInfo]) => {
       // Get the field value for this train, default to 'Unknown' if not found
       const fieldValue =
-        trainsFullInfo[trainCode]?.[selectedField] || 'Unknown';
+        trainsFullInfoMap[trainCode]?.[selectedField] || 'Unknown';
 
       // Initialize aggregation data for this field value if it doesn't exist
       if (!relationMap[fieldValue]) {
