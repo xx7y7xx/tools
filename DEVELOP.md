@@ -5,5 +5,4 @@
 
 ## TODO
 
-- remove "Raw: "
 - url params update to new table columns
