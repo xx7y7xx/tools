@@ -4,7 +4,7 @@
   "private": true,
   "homepage": "https://xx7y7xx.github.io/tools",
   "dependencies": {
-    "@db-man/components": "^0.1.165",
+    "@db-man/components": "^0.1.173",
     "@db-man/github": "^0.1.65",
     "@db-man/google": "^0.1.13",
     "@sentry/cli": "^2.33.0",
