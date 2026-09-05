@@ -29,28 +29,6 @@ export const getMinMaxSpeed = (trainSignalRecords: TrainSignalRecord[]) => {
 };
 
 /**
- * TODO move to sdr_pocsag
- *
- * Get next second from timestamp, need to keep the same timezone
- * @param timestamp e.g. "2025-04-09 23:42:48"
- * @returns string, e.g. "2025-04-09 23:42:49"
- */
-export const getNextSecond = (timestamp: string) => {
-  const date = new Date(timestamp.replace(' ', 'T')); // Convert to ISO format for parsing
-  date.setSeconds(date.getSeconds() + 1);
-
-  // Format using local timezone
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  const seconds = String(date.getSeconds()).padStart(2, '0');
-
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-};
-
-/**
  * Convert the gps list to WKT format (with header)
  * Output:
  * ```csv
