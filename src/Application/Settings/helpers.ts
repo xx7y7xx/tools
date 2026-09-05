@@ -102,7 +102,7 @@ const createDatabaseAsync = async (dbName: string) => {
  */
 export const downloadTrainsDataFromGoogleDrive = async (
   folderId: string,
-  date: string
+  date: string,
 ): Promise<TrainsFullInfoMapType> => {
   if (!date.match(/^\d{8}$/)) {
     throw new Error('Date must be in YYYYMMDD format');
@@ -140,7 +140,7 @@ export const downloadTrainsDataFromGithub = async (date: string) => {
   // when calling getContentByPath with a file as path param, it returns an object instead of an array
   if (!Array.isArray(files)) {
     throw new Error(
-      `downloadTrainsDataFromGithub: Expected an array of files for the path "/${date}", but received an object. Please check if the provided path is a directory.`
+      `downloadTrainsDataFromGithub: Expected an array of files for the path "/${date}", but received an object. Please check if the provided path is a directory.`,
     );
   }
 
@@ -153,7 +153,7 @@ export const downloadTrainsDataFromGithub = async (date: string) => {
 
   if (!sha) {
     throw new Error(
-      `downloadTrainsDataFromGithub: Expected to find ${trainsFullInfoMapFileName} in the path "/${date}", but did not find it.`
+      `downloadTrainsDataFromGithub: Expected to find ${trainsFullInfoMapFileName} in the path "/${date}", but did not find it.`,
     );
   }
 
@@ -163,7 +163,7 @@ export const downloadTrainsDataFromGithub = async (date: string) => {
 
 export const saveTrainsToIndexedDBAsync = async (
   date: string,
-  trainsFullInfoMap: TrainsFullInfoMapType
+  trainsFullInfoMap: TrainsFullInfoMapType,
 ) => {
   const db = await openAsync(dbName, version);
 
@@ -205,20 +205,20 @@ const saveChecisToIndexedDBAsync = async (checis: string[]) => {
  */
 export const downloadAndSaveTrainsData = async (
   folderId: string,
-  date: string
+  date: string,
 ): Promise<void> => {
   const trainsData = await downloadTrainsDataFromGoogleDrive(folderId, date);
   await saveTrainsToIndexedDBAsync(date, trainsData);
 };
 
 export const downloadAndSaveWholeTimeRangeCheciListOnlyCheciData = async (
-  folderId: string
+  folderId: string,
 ) => {
   message.info('Downloading checis from Google Drive');
   // @ts-ignore TODO: fix this
   const fileData = (await getJsonFileContent(
     folderId,
-    'wholeTimeRangeCheciListOnlyCheci.json'
+    'wholeTimeRangeCheciListOnlyCheci.json',
   )) as string[];
   message.success(`Downloaded ${fileData.length} checis`);
 
