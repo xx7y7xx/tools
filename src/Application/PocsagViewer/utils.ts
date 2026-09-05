@@ -12,7 +12,7 @@ import { POCSAG_DATA_URL } from './config';
 export const getColorForSpeed = (
   speed: number,
   minSpeed: number,
-  maxSpeed: number
+  maxSpeed: number,
 ) => {
   const ratio = (speed - minSpeed) / (maxSpeed - minSpeed);
   const r = Math.floor(255 * ratio);
@@ -81,7 +81,7 @@ export const convertGpsListToWktPoint = (gpsList: GpsPoint[]) => {
       (gps, idx) =>
         `"POINT (${gps.longitude} ${gps.latitude})",Point ${idx + 1},"${
           gps.rawMessage
-        }"`
+        }"`,
     )
     .join('\n');
   return `${header}\n${wktList}`;
@@ -138,7 +138,7 @@ export const fetchTsvData = async () => {
           console.error(
             `There is something wrong when parsing the TSV file, please check the original file and also the PapaParse error message. The original line count is ${
               text.split('\n').length
-            }, but the parsed line count is ${results.data.length}`
+            }, but the parsed line count is ${results.data.length}`,
           );
           console.error(results.errors);
         }
