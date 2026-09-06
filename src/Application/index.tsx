@@ -3,8 +3,6 @@ import { BrowserRouter } from 'react-router-dom';
 
 // import { initGa } from './init';
 import './utils/dayjs'; // Import dayjs configuration
-import PocsagSignalViewer from './PocsagSignalViewer';
-import PocsagViewer from './PocsagViewer';
 import SearchTrain from './RailwayTool';
 import Setting from './Settings';
 import Checi from './Checi';
@@ -52,10 +50,6 @@ export default function Application() {
     switch (tool) {
       case 'trainSearch':
         return <SearchTrain />;
-      case 'pocsagViewer':
-        return <PocsagViewer />;
-      case 'pocsagSignalViewer':
-        return <PocsagSignalViewer />;
       case 'setting':
         return <Setting />;
       case 'checi':
@@ -65,12 +59,6 @@ export default function Application() {
           <div>
             <div>
               <a href="/tools?tool=trainSearch">TrainSearch</a>
-            </div>
-            <div>
-              <a href="/tools?tool=pocsagViewer">PocsagViewer</a>
-            </div>
-            <div>
-              <a href="/tools?tool=pocsagSignalViewer">PocsagSignalViewer</a>
             </div>
             <div>
               <a href="/tools?tool=checi">Checi</a>

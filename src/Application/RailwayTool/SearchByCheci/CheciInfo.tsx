@@ -11,7 +11,6 @@ import {
 } from '../constants';
 import { useTrains } from '../../context/TrainsContext';
 import CheciInfoDescriptions from './CheciInfoDescriptions';
-import Code from '../../PocsagSignalViewer/Code';
 
 const CheciInfo = ({ checi }: { checi: string }) => {
   const { trainsFullInfoMap, date } = useTrains();
@@ -55,7 +54,7 @@ const CheciInfo = ({ checi }: { checi: string }) => {
           <div>train_no: {checiInfo.train_no}</div>
         </div>
       ),
-    })
+    }),
   );
 
   return (
@@ -65,7 +64,7 @@ const CheciInfo = ({ checi }: { checi: string }) => {
         <CheciInfoDescriptions trainFullInfo={trainsFullInfoMap[checi]} />
       ) : (
         <div>
-          Not found in <Code>trainsFullInfoMap</Code>
+          Not found in <code>trainsFullInfoMap</code>
         </div>
       )}
       {loading ? (
