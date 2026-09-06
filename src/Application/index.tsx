@@ -12,8 +12,6 @@ import Checi from './Checi';
 // Styles for application
 import './index.css';
 
-console.debug('process.env.NODE_ENV', process.env.NODE_ENV);
-
 Sentry.init({
   dsn: 'https://f2bd9c0de1e6390cad39e357298557bd@o4507702515662848.ingest.us.sentry.io/4507702518874112',
   environment: process.env.NODE_ENV, // 'production' or 'development'
